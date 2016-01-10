@@ -2,6 +2,7 @@ package francis.loup_garou;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -10,8 +11,11 @@ import android.support.annotation.IntDef;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +46,8 @@ public class MainActivity extends Activity implements
 
     android.app.FragmentManager fragmentManager;
     android.app.FragmentTransaction fragmentTransaction;
+
+    private AlertDialog mConnectionRequestDialog;
 
     String username;
 
@@ -79,7 +85,10 @@ public class MainActivity extends Activity implements
     private int mState = STATE_IDLE;
 
     /** The endpoint ID of the connected peer, used for messaging **/
-    private String mOtherEndpointId;
+    private ArrayList<String> connectedIDs = new ArrayList();
+    private ArrayList<String> wishingToConnectIDs = new ArrayList();
+    //Pour le list view
+    ArrayList<String> listItems = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,9 +110,51 @@ public class MainActivity extends Activity implements
                 .addOnConnectionFailedListener(this)
                 .addApi(Nearby.CONNECTIONS_API)
                 .build();
+
+
+
     }
 
 
+    public void events(){
+
+    }
+
+    public void answerNotification(final int position){
+        // This device is advertising and has received a connection request. Show a dialog asking
+        // the user if they would like to connect and accept or reject the request accordingly.
+        mConnectionRequestDialog = new AlertDialog.Builder(this)
+                .setTitle("Connection Request")
+                .setMessage("Do you want this player to join your game?")
+                .setCancelable(false)
+                .setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        byte[] payload = null;
+                        Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position),
+                                payload, MainActivity.this)
+                                .setResultCallback(new ResultCallback<Status>() {
+                                    @Override
+                                    public void onResult(Status status) {
+                                        if (status.isSuccess()) {
+
+                                            connectedIDs.add(wishingToConnectIDs.get(position));
+                                            updateViewVisibility(STATE_CONNECTED);
+                                        } else {
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position));
+                    }
+                }).create();
+
+        mConnectionRequestDialog.show();
+    }
     public void saveName(View view) {
         EditText textNom = (EditText) findViewById(R.id.txtUsername);
 
@@ -127,15 +178,39 @@ public class MainActivity extends Activity implements
 
         Log.d("btn", btnAdvertise.getText().toString());
 
-        if (btnAdvertise.getText().toString().equals("Creer")) {
+        if (btnAdvertise.getText().toString().equalsIgnoreCase("Creer")) {
             btnAdvertise.setText("Stop");
+
             startAdvertising();
-        } else if (btnAdvertise.getText().toString().equals("stop")) {
+        } else if (btnAdvertise.getText().toString().equalsIgnoreCase("Stop")) {
             btnAdvertise.setText("Creer");
-            if (mGoogleApiClient != null) {
-                mGoogleApiClient.disconnect();
-            }
         }
+
+        ListView lv = (ListView) findViewById(R.id.wantToJoinListView);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3)
+            {
+                Log.d("listView", "Clicked " + position);
+
+                Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position),
+                        null, MainActivity.this)
+                        .setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(Status status) {
+                                if (status.isSuccess()) {
+
+                                    connectedIDs.add(wishingToConnectIDs.get(position));
+                                    updateViewVisibility(STATE_CONNECTED);
+                                } else {
+                                }
+                            }
+                        });
+
+                //answerNotification(position);
+            }
+        });
 
     }
 
@@ -254,7 +329,19 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public void onConnectionRequest(String s, String s1, String s2, byte[] bytes) {
+    public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
+                                    byte[] payload) {
+
+        ListView listeView = (ListView) findViewById(R.id.wantToJoinListView);
+
+
+        listItems.add(endpointName);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,listItems);
+        listeView.setAdapter(adapter);
+
+        wishingToConnectIDs.add(endpointId);
+
 
     }
 
@@ -284,6 +371,11 @@ public class MainActivity extends Activity implements
         super.onStart();
 
         mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
