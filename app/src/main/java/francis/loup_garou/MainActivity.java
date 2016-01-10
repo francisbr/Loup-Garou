@@ -127,20 +127,14 @@ public class MainActivity extends Activity implements
 
         Log.d("btn", btnAdvertise.getText().toString());
 
-        if (btnAdvertise.getText().toString() == "Creer") {
+        if (btnAdvertise.getText().toString().equals("Creer")) {
             btnAdvertise.setText("Stop");
             startAdvertising();
-        } else if (btnAdvertise.getText().toString() == "stop") {
+        } else if (btnAdvertise.getText().toString().equals("stop")) {
             btnAdvertise.setText("Creer");
-            /*
             if (mGoogleApiClient != null) {
                 mGoogleApiClient.disconnect();
             }
-            */
-        }
-        else{
-            btnAdvertise.setText("Creer");
-            Log.d("btn", "Fuck you");
         }
 
     }
