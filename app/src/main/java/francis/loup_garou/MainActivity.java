@@ -2,13 +2,11 @@ package francis.loup_garou;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,8 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,8 +42,6 @@ public class MainActivity extends Activity implements
 
     android.app.FragmentManager fragmentManager;
     android.app.FragmentTransaction fragmentTransaction;
-
-    private AlertDialog mConnectionRequestDialog;
 
     String username;
 
@@ -88,9 +82,12 @@ public class MainActivity extends Activity implements
     private ArrayList<String> connectedIDs = new ArrayList();
     private ArrayList<String> wishingToConnectIDs = new ArrayList();
     //Pour le list view
-    ArrayList<String> listItems = new ArrayList();
-    ArrayAdapter<String> adapter;
-    ListView listeView;
+    ArrayList<String> listWish = new ArrayList();
+    ArrayList<String> listInGame = new ArrayList();
+    ArrayAdapter<String> adapterWish;
+    ArrayAdapter<String> adapterInGame;
+    ListView listeViewWish;
+    ListView listeViewInGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +110,8 @@ public class MainActivity extends Activity implements
                 .addApi(Nearby.CONNECTIONS_API)
                 .build();
 
-        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,listItems);
+        adapterWish = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listWish);
+        adapterInGame = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listInGame);
 
     }
 
@@ -172,12 +170,12 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onConnected(Bundle bundle) {
-
+        Log.d("onConnected", "");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.d("onConnectionSuspended", "" + i);
     }
 
     @Override
@@ -198,7 +196,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
+        Log.d("onConnectionFailed", connectionResult.toString());
     }
 
     /**
@@ -288,7 +286,8 @@ public class MainActivity extends Activity implements
     }
 
     public void answerNotification(final int position){
-        listeView = (ListView) findViewById(R.id.wantToJoinListView);
+        listeViewWish = (ListView) findViewById(R.id.wantToJoinListView);
+        listeViewInGame = (ListView) findViewById(R.id.inGameListView);
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -302,16 +301,23 @@ public class MainActivity extends Activity implements
                                     @Override
                                     public void onResult(Status status) {
                                         if (status.isSuccess()) {
+
+                                            listInGame.add(listWish.get(position));
+
+                                            adapterInGame.notifyDataSetChanged();
+                                            listeViewInGame.setAdapter(adapterInGame);
                                             connectedIDs.add(wishingToConnectIDs.get(position));
-                                            updateViewVisibility(STATE_CONNECTED);
 
-                                            listItems.remove(position);
 
-                                            adapter.notifyDataSetChanged();
-                                            listeView.setAdapter(adapter);
+                                            listWish.remove(position);
+
+                                            adapterWish.notifyDataSetChanged();
+                                            listeViewWish.setAdapter(adapterWish);
 
                                             wishingToConnectIDs.remove(position);
 
+
+                                            updateViewVisibility(STATE_CONNECTED);
                                         } else {
                                         }
                                     }
@@ -336,12 +342,13 @@ public class MainActivity extends Activity implements
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
 
-        listeView = (ListView) findViewById(R.id.wantToJoinListView);
+        listeViewWish = (ListView) findViewById(R.id.wantToJoinListView);
 
 
-        listItems.add(endpointName);
 
-        listeView.setAdapter(adapter);
+        listWish.add(endpointName);
+
+        listeViewWish.setAdapter(adapterWish);
 
         wishingToConnectIDs.add(endpointId);
 
@@ -349,22 +356,49 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public void onEndpointFound(String s, String s1, String s2, String s3) {
+    public void onEndpointFound(String endpointId, String deviceId, String serviceId, String endpointName) {
+        Log.d("onEndpointFound", endpointId);
+    }
+
+    @Override
+    public void onEndpointLost(String endpointId) {
+        Log.d("onEndpointLost", endpointId);
+
+        for (int i = 0 ; i < listWish.size() ; i++){
+            if (listWish.get(i) == endpointId){
+
+                listWish.remove(i);
+
+                adapterWish.notifyDataSetChanged();
+                listeViewWish.setAdapter(adapterWish);
+
+                wishingToConnectIDs.remove(i);
+
+            }
+        }
 
     }
 
     @Override
-    public void onEndpointLost(String s) {
-
+    public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
+        Log.d("onMessageReceived", endpointId);
     }
 
     @Override
-    public void onMessageReceived(String s, byte[] bytes, boolean b) {
+    public void onDisconnected(String endpointId) {
 
-    }
+        for (int i = 0 ; i < connectedIDs.size() ; i++){
+            if (connectedIDs.get(i).equals(endpointId)){
 
-    @Override
-    public void onDisconnected(String s) {
+                listInGame.remove(i);
+
+                adapterInGame.notifyDataSetChanged();
+                listeViewInGame.setAdapter(adapterInGame);
+
+                connectedIDs.remove(i);
+
+            }
+        }
 
     }
 
@@ -378,6 +412,7 @@ public class MainActivity extends Activity implements
 
     @Override
     protected void onResume() {
+
         super.onResume();
     }
 
