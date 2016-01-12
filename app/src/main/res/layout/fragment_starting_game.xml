@@ -39,10 +39,59 @@
             android:layout_marginTop="20dp"/>
 
     </LinearLayout>
-<TextView
-    android:layout_width="wrap_content"
+
+<LinearLayout
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/lblNom"
-    android:text="Nom"/>
+    android:layout_margin="5dp"
+    android:gravity="center_horizontal"
+    android:weightSum="2">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="In your game"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Willing to play"
+        android:textSize="20sp"/>
+
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        android:gravity="center_horizontal"
+        android:weightSum="2">
+
+        <ListView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:id="@+id/inGameListView"/>
+
+        <ListView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/wantToJoinListView"/>
+
+    </LinearLayout>
+
+
+<ListView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+</ListView>
 
 </LinearLayout>

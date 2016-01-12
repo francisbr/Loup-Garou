@@ -89,6 +89,8 @@ public class MainActivity extends Activity implements
     private ArrayList<String> wishingToConnectIDs = new ArrayList();
     //Pour le list view
     ArrayList<String> listItems = new ArrayList();
+    ArrayAdapter<String> adapter;
+    ListView listeView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,50 +113,11 @@ public class MainActivity extends Activity implements
                 .addApi(Nearby.CONNECTIONS_API)
                 .build();
 
-
-
-    }
-
-
-    public void events(){
+        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,listItems);
 
     }
 
-    public void answerNotification(final int position){
-        // This device is advertising and has received a connection request. Show a dialog asking
-        // the user if they would like to connect and accept or reject the request accordingly.
-        mConnectionRequestDialog = new AlertDialog.Builder(this)
-                .setTitle("Connection Request")
-                .setMessage("Do you want this player to join your game?")
-                .setCancelable(false)
-                .setPositiveButton("Connect", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        byte[] payload = null;
-                        Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position),
-                                payload, MainActivity.this)
-                                .setResultCallback(new ResultCallback<Status>() {
-                                    @Override
-                                    public void onResult(Status status) {
-                                        if (status.isSuccess()) {
 
-                                            connectedIDs.add(wishingToConnectIDs.get(position));
-                                            updateViewVisibility(STATE_CONNECTED);
-                                        } else {
-                                        }
-                                    }
-                                });
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position));
-                    }
-                }).create();
-
-        mConnectionRequestDialog.show();
-    }
     public void saveName(View view) {
         EditText textNom = (EditText) findViewById(R.id.txtUsername);
 
@@ -194,23 +157,10 @@ public class MainActivity extends Activity implements
             {
                 Log.d("listView", "Clicked " + position);
 
-                Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position),
-                        null, MainActivity.this)
-                        .setResultCallback(new ResultCallback<Status>() {
-                            @Override
-                            public void onResult(Status status) {
-                                if (status.isSuccess()) {
-
-                                    connectedIDs.add(wishingToConnectIDs.get(position));
-                                    updateViewVisibility(STATE_CONNECTED);
-                                } else {
-                                }
-                            }
-                        });
-
-                //answerNotification(position);
+                answerNotification(position);
             }
         });
+
 
     }
 
@@ -249,7 +199,9 @@ public class MainActivity extends Activity implements
      * Begin advertising for Nearby Connections, if possible.
      */
     private void startAdvertising() {
+        Log.d("Advertising","Start");
         if (!isConnectedToNetwork()) {
+            Log.d("Network","Not connected");
             return;
         }
 
@@ -262,11 +214,11 @@ public class MainActivity extends Activity implements
         // Advertise for Nearby Connections. This will broadcast the service id defined in
         // AndroidManifest.xml. By passing 'null' for the name, the Nearby Connections API
         // will construct a default name based on device model such as 'LGE Nexus 5'.
-        String name = null;
         Nearby.Connections.startAdvertising(mGoogleApiClient, username, appMetadata, TIMEOUT_ADVERTISE,
                 this).setResultCallback(new ResultCallback<Connections.StartAdvertisingResult>() {
             @Override
             public void onResult(Connections.StartAdvertisingResult result) {
+                Log.d("Advertising:onResult", "" + result);
                 if (result.getStatus().isSuccess()) {
 
                     updateViewVisibility(STATE_ADVERTISING);
@@ -282,6 +234,7 @@ public class MainActivity extends Activity implements
                 }
             }
         });
+        Log.d("Advertising","Done");
     }
 
     private void updateViewVisibility(@NearbyConnectionState int newState) {
@@ -328,16 +281,60 @@ public class MainActivity extends Activity implements
         return (info != null && info.isConnectedOrConnecting());
     }
 
+    public void answerNotification(final int position){
+        listeView = (ListView) findViewById(R.id.wantToJoinListView);
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+
+                        Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position),
+                                null, MainActivity.this)
+                                .setResultCallback(new ResultCallback<Status>() {
+                                    @Override
+                                    public void onResult(Status status) {
+                                        if (status.isSuccess()) {
+                                            connectedIDs.add(wishingToConnectIDs.get(position));
+                                            updateViewVisibility(STATE_CONNECTED);
+
+                                            listItems.remove(position);
+
+                                            adapter.notifyDataSetChanged();
+                                            listeView.setAdapter(adapter);
+
+                                            wishingToConnectIDs.remove(position);
+
+                                        } else {
+                                        }
+                                    }
+                                });
+
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(position));
+
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Add this player too your game?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
     @Override
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
 
-        ListView listeView = (ListView) findViewById(R.id.wantToJoinListView);
+        listeView = (ListView) findViewById(R.id.wantToJoinListView);
 
 
         listItems.add(endpointName);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,listItems);
         listeView.setAdapter(adapter);
 
         wishingToConnectIDs.add(endpointId);
