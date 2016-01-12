@@ -144,9 +144,15 @@ public class MainActivity extends Activity implements
         if (btnAdvertise.getText().toString().equalsIgnoreCase("Creer")) {
             btnAdvertise.setText("Stop");
 
+            findViewById(R.id.layoutInAndWishList).setVisibility(View.VISIBLE);
+            findViewById(R.id.layoutInAndWishTitle).setVisibility(View.VISIBLE);
+
             startAdvertising();
         } else if (btnAdvertise.getText().toString().equalsIgnoreCase("Stop")) {
             btnAdvertise.setText("Creer");
+
+            findViewById(R.id.layoutInAndWishList).setVisibility(View.GONE);
+            findViewById(R.id.layoutInAndWishTitle).setVisibility(View.GONE);
         }
 
         ListView lv = (ListView) findViewById(R.id.wantToJoinListView);
