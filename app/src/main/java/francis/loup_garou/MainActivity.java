@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,7 +37,8 @@ import francis.loup_garou.fragments.FragmentStartGame;
 public class MainActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener, Connections.ConnectionRequestListener,
+        View.OnClickListener,
+        Connections.ConnectionRequestListener,
         Connections.MessageListener,
         Connections.EndpointDiscoveryListener {
 
@@ -53,6 +55,8 @@ public class MainActivity extends Activity implements
      */
     private static final long TIMEOUT_ADVERTISE = 1000L * 30L;
     private static final long TIMEOUT_DISCOVER = 1000L * 30L;
+
+
 
     /**
      * Possible states for this application:
@@ -74,6 +78,10 @@ public class MainActivity extends Activity implements
     /** GoogleApiClient for connecting to the Nearby Connections API **/
     private GoogleApiClient mGoogleApiClient;
 
+    /** The hoster information if you are joining a game **/
+    private String hosterId;
+    private String hosterName;
+
     /** The current state of the application **/
     @NearbyConnectionState
     private int mState = STATE_IDLE;
@@ -81,13 +89,20 @@ public class MainActivity extends Activity implements
     /** The endpoint ID of the connected peer, used for messaging **/
     private ArrayList<String> connectedIDs = new ArrayList();
     private ArrayList<String> wishingToConnectIDs = new ArrayList();
-    //Pour le list view
-    ArrayList<String> listWish = new ArrayList();
-    ArrayList<String> listInGame = new ArrayList();
+    //Pour les list view de users
+    ArrayList<String> listWishName = new ArrayList();
+    ArrayList<String> listInGameName = new ArrayList();
     ArrayAdapter<String> adapterWish;
     ArrayAdapter<String> adapterInGame;
-    ListView listeViewWish;
-    ListView listeViewInGame;
+    ListView listViewWish;
+    ListView listViewInGame;
+
+    //Pour les lest view de games
+    ListView listViewNearbyGames;
+    ArrayAdapter<String> adapterNearbyGames;
+    ArrayList<String> listNearbyGamesName = new ArrayList();
+    private ArrayList<String> possiblesHostersIds = new ArrayList();
+    String hosterID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +125,9 @@ public class MainActivity extends Activity implements
                 .addApi(Nearby.CONNECTIONS_API)
                 .build();
 
-        adapterWish = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listWish);
-        adapterInGame = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listInGame);
+        adapterWish = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listWishName);
+        adapterInGame = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listInGameName);
+        adapterNearbyGames = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listNearbyGamesName);
 
     }
 
@@ -134,26 +150,32 @@ public class MainActivity extends Activity implements
         fragmentTransaction.commit();
 
     }
-    public void startAdvertisingButton(View view) {
+
+    public void btnJoin(View view) {
         Button btnAdvertise = (Button) findViewById(R.id.btnCreateGame);
+        Button btnJoin = (Button) findViewById(R.id.btnJoin);
 
-        Log.d("btn", btnAdvertise.getText().toString());
+        if (btnJoin.getText().toString().equalsIgnoreCase("Rejoindre")) {
+            btnJoin.setText("Stop");
 
-        if (btnAdvertise.getText().toString().equalsIgnoreCase("Creer")) {
-            btnAdvertise.setText("Stop");
+            findViewById(R.id.layoutListHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutTitleHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutJoin).setVisibility(View.VISIBLE);
 
-            findViewById(R.id.layoutInAndWishList).setVisibility(View.VISIBLE);
-            findViewById(R.id.layoutInAndWishTitle).setVisibility(View.VISIBLE);
+            btnAdvertise.setEnabled(false);
 
-            startAdvertising();
-        } else if (btnAdvertise.getText().toString().equalsIgnoreCase("Stop")) {
-            btnAdvertise.setText("Creer");
+            startDiscovery();
+        } else if (btnJoin.getText().toString().equalsIgnoreCase("Stop")) {
+            btnJoin.setText("Rejoindre");
 
-            findViewById(R.id.layoutInAndWishList).setVisibility(View.GONE);
-            findViewById(R.id.layoutInAndWishTitle).setVisibility(View.GONE);
+            findViewById(R.id.layoutListHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutTitleHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutJoin).setVisibility(View.GONE);
+
+            btnAdvertise.setEnabled(true);
         }
 
-        ListView lv = (ListView) findViewById(R.id.wantToJoinListView);
+        ListView lv = (ListView) findViewById(R.id.listViewNearbyGames);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -161,7 +183,43 @@ public class MainActivity extends Activity implements
             {
                 Log.d("listView", "Clicked " + position);
 
-                answerNotification(position);
+                sendJoinRequest(position);
+            }
+        });
+
+    }
+
+    public void startAdvertisingButton(View view) {
+        Button btnAdvertise = (Button) findViewById(R.id.btnCreateGame);
+        Button btnJoin = (Button) findViewById(R.id.btnJoin);
+
+        if (btnAdvertise.getText().toString().equalsIgnoreCase("Creer")) {
+            btnAdvertise.setText("Stop");
+
+            findViewById(R.id.layoutListHost).setVisibility(View.VISIBLE);
+            findViewById(R.id.layoutTitleHost).setVisibility(View.VISIBLE);
+            findViewById(R.id.layoutJoin).setVisibility(View.GONE);
+
+            btnJoin.setEnabled(false);
+
+            startAdvertising();
+        } else if (btnAdvertise.getText().toString().equalsIgnoreCase("Stop")) {
+            btnAdvertise.setText("Creer");
+
+            findViewById(R.id.layoutListHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutTitleHost).setVisibility(View.GONE);
+            findViewById(R.id.layoutJoin).setVisibility(View.GONE);
+
+            btnJoin.setEnabled(true);
+        }
+
+        ListView lv = (ListView) findViewById(R.id.listViewWantToJoin);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3)
+            {
+               answerJoinRequest(position);
             }
         });
 
@@ -203,9 +261,7 @@ public class MainActivity extends Activity implements
      * Begin advertising for Nearby Connections, if possible.
      */
     private void startAdvertising() {
-        Log.d("Advertising","Start");
         if (!isConnectedToNetwork()) {
-            Log.d("Network","Not connected");
             return;
         }
 
@@ -222,7 +278,6 @@ public class MainActivity extends Activity implements
                 this).setResultCallback(new ResultCallback<Connections.StartAdvertisingResult>() {
             @Override
             public void onResult(Connections.StartAdvertisingResult result) {
-                Log.d("Advertising:onResult", "" + result);
                 if (result.getStatus().isSuccess()) {
 
                     updateViewVisibility(STATE_ADVERTISING);
@@ -238,7 +293,6 @@ public class MainActivity extends Activity implements
                 }
             }
         });
-        Log.d("Advertising","Done");
     }
 
     private void updateViewVisibility(@NearbyConnectionState int newState) {
@@ -285,9 +339,9 @@ public class MainActivity extends Activity implements
         return (info != null && info.isConnectedOrConnecting());
     }
 
-    public void answerNotification(final int position){
-        listeViewWish = (ListView) findViewById(R.id.wantToJoinListView);
-        listeViewInGame = (ListView) findViewById(R.id.inGameListView);
+    public void answerJoinRequest(final int position){
+        listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
+        listViewInGame = (ListView) findViewById(R.id.listViewInGame);
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -302,17 +356,17 @@ public class MainActivity extends Activity implements
                                     public void onResult(Status status) {
                                         if (status.isSuccess()) {
 
-                                            listInGame.add(listWish.get(position));
+                                            listInGameName.add(listWishName.get(position));
 
                                             adapterInGame.notifyDataSetChanged();
-                                            listeViewInGame.setAdapter(adapterInGame);
+                                            listViewInGame.setAdapter(adapterInGame);
                                             connectedIDs.add(wishingToConnectIDs.get(position));
 
 
-                                            listWish.remove(position);
+                                            listWishName.remove(position);
 
                                             adapterWish.notifyDataSetChanged();
-                                            listeViewWish.setAdapter(adapterWish);
+                                            listViewWish.setAdapter(adapterWish);
 
                                             wishingToConnectIDs.remove(position);
 
@@ -338,17 +392,75 @@ public class MainActivity extends Activity implements
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
+    /**
+     * Send a connection request to a given endpoint.
+     * @param endpointId the endpointId to which you want to connect.
+     * @param endpointName the name of the endpoint to which you want to connect. Not required to
+     *                     make the connection, but used to display after success or failure.
+     */
+    private void connectTo(String endpointId, final String endpointName) {
+
+        // Send a connection request to a remote endpoint. By passing 'null' for the name,
+        // the Nearby Connections API will construct a default name based on device model
+        // such as 'LGE Nexus 5'.
+        byte[] myPayload = null;
+        Nearby.Connections.sendConnectionRequest(mGoogleApiClient, username, endpointId, myPayload,
+                new Connections.ConnectionResponseCallback() {
+                    @Override
+                    public void onConnectionResponse(String endpointId, Status status,
+                                                     byte[] bytes) {
+                        Log.d("Connection attempt", "onConnectionResponse:" + endpointId + ":" + status);
+                        if (status.isSuccess()) {
+                            Toast.makeText(MainActivity.this, "Connected to " + endpointName,
+                                    Toast.LENGTH_SHORT).show();
+
+                            hosterId = endpointId;
+                            hosterName = endpointName;
+                            updateViewVisibility(STATE_CONNECTED);
+                        } else {
+                        }
+                    }
+                }, this);
+    }
+
+    public void sendJoinRequest(final int position){
+        listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
+        listViewInGame = (ListView) findViewById(R.id.listViewInGame);
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+
+                        connectTo(possiblesHostersIds.get(position) , listNearbyGamesName.get(position));
+
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+
+
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Join this game?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
     @Override
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
 
-        listeViewWish = (ListView) findViewById(R.id.wantToJoinListView);
+        listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
 
 
 
-        listWish.add(endpointName);
+        listWishName.add(endpointName);
 
-        listeViewWish.setAdapter(adapterWish);
+        listViewWish.setAdapter(adapterWish);
 
         wishingToConnectIDs.add(endpointId);
 
@@ -356,26 +468,73 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public void onEndpointFound(String endpointId, String deviceId, String serviceId, String endpointName) {
-        Log.d("onEndpointFound", endpointId);
-    }
-
-    @Override
     public void onEndpointLost(String endpointId) {
         Log.d("onEndpointLost", endpointId);
 
-        for (int i = 0 ; i < listWish.size() ; i++){
-            if (listWish.get(i) == endpointId){
+        for (int i = 0; i < listWishName.size() ; i++){
+            if (listWishName.get(i) == endpointId){
 
-                listWish.remove(i);
+                listWishName.remove(i);
 
                 adapterWish.notifyDataSetChanged();
-                listeViewWish.setAdapter(adapterWish);
+                listViewWish.setAdapter(adapterWish);
 
                 wishingToConnectIDs.remove(i);
 
             }
         }
+
+    }
+
+    /**
+     * Begin discovering devices advertising Nearby Connections, if possible.
+     */
+    private void startDiscovery() {
+        if (!isConnectedToNetwork()) {
+            return;
+        }
+
+        // Discover nearby apps that are advertising with the required service ID.
+        String serviceId = "com.google.example.connectionsquickstart.service";
+        Nearby.Connections.startDiscovery(mGoogleApiClient, serviceId, TIMEOUT_DISCOVER, this)
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        if (status.isSuccess()) {
+
+                            updateViewVisibility(STATE_DISCOVERING);
+                        } else {
+
+                            // If the user hits 'Discover' multiple times in the timeout window,
+                            // the error will be STATUS_ALREADY_DISCOVERING
+                            int statusCode = status.getStatusCode();
+                            if (statusCode == ConnectionsStatusCodes.STATUS_ALREADY_DISCOVERING) {
+                            } else {
+                                updateViewVisibility(STATE_READY);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onEndpointFound(final String endpointId, String deviceId, String serviceId,
+                                final String endpointName) {
+
+        Log.d("Found", endpointName);
+
+        listViewNearbyGames = (ListView) findViewById(R.id.listViewNearbyGames);
+
+
+
+        listNearbyGamesName.add(endpointName);
+
+        listViewNearbyGames.setAdapter(adapterNearbyGames);
+
+        possiblesHostersIds.add(endpointId);
+
+
+
 
     }
 
@@ -390,10 +549,10 @@ public class MainActivity extends Activity implements
         for (int i = 0 ; i < connectedIDs.size() ; i++){
             if (connectedIDs.get(i).equals(endpointId)){
 
-                listInGame.remove(i);
+                listInGameName.remove(i);
 
                 adapterInGame.notifyDataSetChanged();
-                listeViewInGame.setAdapter(adapterInGame);
+                listViewInGame.setAdapter(adapterInGame);
 
                 connectedIDs.remove(i);
 
