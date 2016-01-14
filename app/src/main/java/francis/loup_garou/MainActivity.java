@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,7 +38,6 @@ import francis.loup_garou.fragments.FragmentStartGame;
 public class MainActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener,
         Connections.ConnectionRequestListener,
         Connections.MessageListener,
         Connections.EndpointDiscoveryListener {
@@ -45,7 +45,8 @@ public class MainActivity extends Activity implements
     android.app.FragmentManager fragmentManager;
     android.app.FragmentTransaction fragmentTransaction;
 
-    String username;
+    String splitSym = "/:/";
+    String username = "No name";
 
     /**
      * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
@@ -79,8 +80,8 @@ public class MainActivity extends Activity implements
     private GoogleApiClient mGoogleApiClient;
 
     /** The hoster information if you are joining a game **/
-    private String hosterId;
-    private String hosterName;
+    public String hosterId;
+    public String hosterName;
 
     /** The current state of the application **/
     @NearbyConnectionState
@@ -102,19 +103,38 @@ public class MainActivity extends Activity implements
     ArrayAdapter<String> adapterNearbyGames;
     ArrayList<String> listNearbyGamesName = new ArrayList();
     private ArrayList<String> possiblesHostersIds = new ArrayList();
-    String hosterID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        fragmentManager = getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
+        if (isConnectedToNetwork() == false){
 
-        FragmentGetName fragmentGetName = new FragmentGetName();
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE:
 
-        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
-        fragmentTransaction.commit();
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Please connect to wi-fi").setPositiveButton("ok", dialogClickListener).show();
+
+        } else {
+            fragmentManager = getFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+
+            FragmentGetName fragmentGetName = new FragmentGetName();
+
+            fragmentTransaction.replace(android.R.id.content, fragmentGetName);
+            fragmentTransaction.commit();
+        }
+
+
 
 
         //setContentView(R.layout.activity_main);
@@ -181,7 +201,6 @@ public class MainActivity extends Activity implements
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3)
             {
-                Log.d("listView", "Clicked " + position);
 
                 sendJoinRequest(position);
             }
@@ -211,6 +230,8 @@ public class MainActivity extends Activity implements
             findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
             btnJoin.setEnabled(true);
+
+            Nearby.Connections.stopAdvertising(mGoogleApiClient);
         }
 
         ListView lv = (ListView) findViewById(R.id.listViewWantToJoin);
@@ -226,35 +247,13 @@ public class MainActivity extends Activity implements
 
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.d("onConnected", "");
-    }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d("onConnectionSuspended", "" + i);
-    }
-
-    @Override
-    public void onClick(View v) {
-        /*switch(v.getId()) {
-            case R.id.btnCreateGame:
-                startAdvertising();
-                break;
-            case R.id.button_discover:
-                startDiscovery();
-                break;
-            case R.id.button_send:
-                sendMessage();
-                break;
-
-        }*/
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d("onConnectionFailed", connectionResult.toString());
     }
 
     /**
@@ -280,7 +279,6 @@ public class MainActivity extends Activity implements
             public void onResult(Connections.StartAdvertisingResult result) {
                 if (result.getStatus().isSuccess()) {
 
-                    updateViewVisibility(STATE_ADVERTISING);
                 } else {
 
                     // If the user hits 'Advertise' multiple times in the timeout window,
@@ -288,45 +286,13 @@ public class MainActivity extends Activity implements
                     int statusCode = result.getStatus().getStatusCode();
                     if (statusCode == ConnectionsStatusCodes.STATUS_ALREADY_ADVERTISING) {
                     } else {
-                        updateViewVisibility(STATE_READY);
                     }
                 }
             }
         });
     }
 
-    private void updateViewVisibility(@NearbyConnectionState int newState) {
-        mState = newState;
-        switch (mState) {
-            case STATE_IDLE:
-                // The GoogleAPIClient is not connected, we can't yet start advertising or
-                // discovery so hide all buttons
-                 /*
-                findViewById(R.id.layout_nearby_buttons).setVisibility(View.GONE);
-                findViewById(R.id.layout_message).setVisibility(View.GONE);
-                */
-                break;
-            case STATE_READY:
-                // The GoogleAPIClient is connected, we can begin advertising or discovery.
-                /*
-                findViewById(R.id.layout_nearby_buttons).setVisibility(View.VISIBLE);
-                findViewById(R.id.layout_message).setVisibility(View.GONE);
-                */
-                break;
-            case STATE_ADVERTISING:
-                break;
-            case STATE_DISCOVERING:
-                break;
-            case STATE_CONNECTED:
-                // We are connected to another device via the Connections API, so we can
-                // show the message UI.
-                /*
-                findViewById(R.id.layout_nearby_buttons).setVisibility(View.VISIBLE);
-                findViewById(R.id.layout_message).setVisibility(View.VISIBLE);
-                */
-                break;
-        }
-    }
+
 
     /**
      * Check if the device is connected (or connecting) to a WiFi network.
@@ -370,8 +336,9 @@ public class MainActivity extends Activity implements
 
                                             wishingToConnectIDs.remove(position);
 
+                                            sendListPlayersInGame();
 
-                                            updateViewVisibility(STATE_CONNECTED);
+
                                         } else {
                                         }
                                     }
@@ -409,19 +376,101 @@ public class MainActivity extends Activity implements
                     @Override
                     public void onConnectionResponse(String endpointId, Status status,
                                                      byte[] bytes) {
-                        Log.d("Connection attempt", "onConnectionResponse:" + endpointId + ":" + status);
                         if (status.isSuccess()) {
                             Toast.makeText(MainActivity.this, "Connected to " + endpointName,
                                     Toast.LENGTH_SHORT).show();
 
                             hosterId = endpointId;
                             hosterName = endpointName;
-                            updateViewVisibility(STATE_CONNECTED);
+
+                            findViewById(R.id.layoutJoin).setVisibility(View.GONE);
+                            findViewById(R.id.layoutInYourGame).setVisibility(View.VISIBLE);
+
+
                         } else {
                         }
                     }
                 }, this);
     }
+
+    private void showInMyGame() {
+        //Efface les noms doubles
+        for (int i = 0 ; i < listInGameName.size() ; i++) {
+            for (int j = i + 1 ; j < listInGameName.size() ; j++){
+                if (listInGameName.get(i).equalsIgnoreCase(listInGameName.get(j))) {
+                    listInGameName.remove(i);
+                }
+            }
+        }
+
+        ListView listInGameJoin = (ListView) findViewById(R.id.listViewInYourGame);
+
+
+        adapterInGame.notifyDataSetChanged();
+        listInGameJoin.setAdapter(adapterInGame);
+
+    }
+
+
+
+    private void sendListPlayersInGame() {
+        String stateTag = "addPlayer" + splitSym;
+
+        // Sends a reliable message, which is guaranteed to be delivered eventually and to respect
+        // message ordering from sender to receiver. Nearby.Connections.sendUnreliableMessage
+        // should be used for high-frequency messages where guaranteed delivery is not required, such
+        // as showing one player's cursor location to another. Unreliable messages are often
+        // delivered faster than reliable messages.
+
+        for (int i = 0; i < connectedIDs.size(); i++) {
+            String msg = stateTag + username + " (Host)";
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(i), msg.getBytes());
+
+            for (int j = 0; j < listInGameName.size(); j++) {
+                msg = stateTag + listInGameName.get(j);
+                Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(i), msg.getBytes());
+            }
+        }
+    }
+
+    private void removePlayerFromLobby(String removedPlayerName) {
+        String stateTag = "removePlayerLobby" + splitSym;
+        String msg = stateTag + removedPlayerName;
+
+        for (int i = 0; i < connectedIDs.size(); i++) {
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(i), msg.getBytes());
+        }
+    }
+
+    //Communication entre devices BODY du jeu
+    @Override
+    public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
+        String rawMsg = new String(payload);
+
+        String[]  msg = rawMsg.split(splitSym);
+
+        switch (msg[0]) {
+            case "addPlayer":
+                if (msg[1].equalsIgnoreCase(username)) {
+                    msg[1] = "Moi";
+                }
+                listInGameName.add(msg[1]);
+                showInMyGame();
+                break;
+            case "removePlayerLobby":
+                for (int i = 0; i < listInGameName.size(); i++) {
+                    if (msg[1].equalsIgnoreCase(listInGameName.get(i))) {
+                        listInGameName.remove(i);
+                    }
+                }
+                showInMyGame();
+                break;
+        }
+
+
+
+    }
+
 
     public void sendJoinRequest(final int position){
         listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
@@ -454,10 +503,9 @@ public class MainActivity extends Activity implements
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
 
+        Toast.makeText(MainActivity.this, "connection request from " + endpointName,Toast.LENGTH_SHORT).show();
+
         listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
-
-
-
         listWishName.add(endpointName);
 
         listViewWish.setAdapter(adapterWish);
@@ -469,10 +517,10 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onEndpointLost(String endpointId) {
-        Log.d("onEndpointLost", endpointId);
 
         for (int i = 0; i < listWishName.size() ; i++){
             if (listWishName.get(i) == endpointId){
+                Toast.makeText(MainActivity.this, "endPointLost " + listWishName.get(i),Toast.LENGTH_SHORT).show();
 
                 listWishName.remove(i);
 
@@ -485,6 +533,7 @@ public class MainActivity extends Activity implements
         }
 
     }
+
 
     /**
      * Begin discovering devices advertising Nearby Connections, if possible.
@@ -502,7 +551,6 @@ public class MainActivity extends Activity implements
                     public void onResult(Status status) {
                         if (status.isSuccess()) {
 
-                            updateViewVisibility(STATE_DISCOVERING);
                         } else {
 
                             // If the user hits 'Discover' multiple times in the timeout window,
@@ -510,7 +558,6 @@ public class MainActivity extends Activity implements
                             int statusCode = status.getStatusCode();
                             if (statusCode == ConnectionsStatusCodes.STATUS_ALREADY_DISCOVERING) {
                             } else {
-                                updateViewVisibility(STATE_READY);
                             }
                         }
                     }
@@ -521,7 +568,7 @@ public class MainActivity extends Activity implements
     public void onEndpointFound(final String endpointId, String deviceId, String serviceId,
                                 final String endpointName) {
 
-        Log.d("Found", endpointName);
+        Toast.makeText(MainActivity.this, "endpointFound " + endpointName,Toast.LENGTH_SHORT).show();
 
         listViewNearbyGames = (ListView) findViewById(R.id.listViewNearbyGames);
 
@@ -532,15 +579,12 @@ public class MainActivity extends Activity implements
         listViewNearbyGames.setAdapter(adapterNearbyGames);
 
         possiblesHostersIds.add(endpointId);
-
-
-
-
     }
 
     @Override
-    public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
-        Log.d("onMessageReceived", endpointId);
+    public void onConnected(Bundle bundle) {
+        Toast.makeText(MainActivity.this, "onConnected",Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -548,6 +592,8 @@ public class MainActivity extends Activity implements
 
         for (int i = 0 ; i < connectedIDs.size() ; i++){
             if (connectedIDs.get(i).equals(endpointId)){
+                Toast.makeText(MainActivity.this, "Disconnected from " + listInGameName.get(i),Toast.LENGTH_SHORT).show();
+                removePlayerFromLobby(listInGameName.get(i));
 
                 listInGameName.remove(i);
 
@@ -558,6 +604,7 @@ public class MainActivity extends Activity implements
 
             }
         }
+
 
     }
 
