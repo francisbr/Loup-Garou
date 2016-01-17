@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Loup-Garou</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="choose_name_txtView">Bonjour!\n\nComment voulez-vous qu\'on vous appel?</string>
+    <string name="continue_btn">Continuer</string>
+    <string name="create_game_btn">Créer</string>
+    <string name="start_game_title_txtView">Que voulez-vous faire?</string>
+    <string name="start_menu">Commencer</string>
+    <string name="your_name_hint">Votre nom</string>
+    <string name="join_game_btn">Rejoindre</string>
+    <string name="remember_my_name_checkBox">Mémoriser mon nom</string>
+    <string name="stop_txt">Arrêter</string>
+    <string name="in_your_game_textView">Dans la partie</string>
+    <string name="nearby_games_txtView">Parties proches</string>
+    <string name="txt_waiting_answer">En attente d\'une réponse...</string>
+    <string name="willing_to_play_txtView">Aimeraient vous rejoindre</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="join_game_question">Rejoindre cette partie?</string>
+    <string name="connected_to">Connecté à</string>
+    <string name="accept_player_question">Ajouter ce joueur à votre partie?</string>
+    <string name="start">Commencer</string>
+    <string name="game_is_starting">La partie va commencer!</string>
+    <string name="hide_your_device_advice">Cacher votre appareil pour ne pas que les autres voit votre rôle!</string>
+    <string name="you_are">Vous êtes:</string>
+    <string name="villageois">Villageois</string>
+    <string name="voleur">Voleur</string>
+    <string name="voyante">Voyante</string>
+    <string name="sorciere">Sorciere</string>
+    <string name="petite_fille">Petite fille</string>
+    <string name="loup_garou">Loup-Garou</string>
+    <string name="cupidon">Cupidon</string>
+    <string name="chasseur">Chasseur</string>
+    <string name="maitre">Maitre du jeu</string>
+    <string name="jour">Jour</string>
+    <string name="game_master_title">Vous etes le\nmaitre du jeu</string>
+    <string name="whos_turn">À qui est ce le tour?</string>
+    <string name="nuit">Nuit</string>
+</resources>

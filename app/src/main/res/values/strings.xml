@@ -1,6 +1,45 @@
 <resources>
-    <string name="app_name">Loup-Garou</string>
+    <string name="app_name"> Werewolf</string>
     <string name="action_settings">Settings</string>
     <string name="start_menu">Start</string>
-    <string name="creating_a_game">Creer</string>
+    <string name="serviceId" translatable="false">com.google.example.connectionsquickstart.service</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="choose_name_txtView">Welcome!\n\nHow would you like to be called?</string>
+    <string name="your_name_hint">Your name</string>
+    <string name="remember_my_name_checkBox">Remember my name</string>
+    <string name="continue_btn">Continue</string>
+
+    <string name="start_game_title_txtView">What would you like to do?</string>
+    <string name="create_game_btn">Create</string>
+    <string name="join_game_btn">Join</string>
+    <string name="stop_txt">Stop</string>
+    <string name="txt_waiting_answer">Waiting response...</string>
+    <string name="in_your_game_textView">In your game</string>
+    <string name="willing_to_play_txtView">Willing to play</string>
+    <string name="nearby_games_txtView">Nearby games</string>
+    <string name="accept_player_question">Add this player too your game?</string>
+
+    <string name="connected_to">Connected to </string>
+    <string name="join_game_question">Join this game?</string>
+    <string name="start">Start</string>
+    <string name="game_is_starting">Game is starting!</string>
+    <string name="hide_your_device_advice">Hide your device so that nobody sees your role!</string>
+    <string name="you_are">You are:</string>
+    <string name="villageois">Villager</string>
+    <string name="voleur">Thief</string>
+    <string name="petite_fille"> Little girl</string>
+    <string name="loup_garou"> Werewolf</string>
+    <string name="voyante">Seer</string>
+    <string name="sorciere">Witch</string>
+    <string name="cupidon">Cupid</string>
+    <string name="chasseur">Hunter</string>
+    <string name="maitre">Game master</string>
+    <string name="jour">Day</string>
+
+    <string name="game_master_title">You are the\nGame Master</string>
+    <string name="whos_turn">Who\'s turn is it?</string>
+    <string name="nuit">Night</string>
+
 </resources>

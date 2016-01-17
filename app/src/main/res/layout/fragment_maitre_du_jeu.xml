@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/game_master_title"
+        android:textSize="40sp"
+        android:padding="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="15dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/jour" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nuit" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="@string/whos_turn"
+        android:textSize="20sp" />
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:columnCount="2">
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/loup_garou" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/voyante" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/voleur" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/chasseur" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/cupidon" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/sorciere" />
+
+        <Button
+            android:layout_gravity="center"
+            android:width="115dp"
+            android:text="@string/petite_fille" />
+
+    </GridLayout>
+</LinearLayout>

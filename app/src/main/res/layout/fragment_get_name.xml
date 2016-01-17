@@ -7,7 +7,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bonjour!\n\nComment voulez-vous qu'on vous appel?"
+        android:text="@string/choose_name_txtView"
         android:textSize="25sp"
         android:gravity="center_horizontal"
 
@@ -21,7 +21,7 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:id="@+id/txtUsername"
-        android:hint="Your name"
+        android:hint="@string/your_name_hint"
         android:layout_marginTop="50dp"
         android:layout_gravity="center_horizontal"/>
 
@@ -29,14 +29,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Remember my name"
+        android:text="@string/remember_my_name_checkBox"
         android:enabled="false"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Continuer"
+        android:text="@string/continue_btn"
         android:layout_marginTop="20dp"
         android:onClick="saveName"/>
 
