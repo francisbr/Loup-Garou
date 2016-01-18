@@ -5,19 +5,22 @@ import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,14 +51,14 @@ public class MainActivity extends Activity implements
         Connections.EndpointDiscoveryListener {
     Game myGame;
 
-    FragmentManager fragmentManager;
-    FragmentTransaction fragmentTransaction;
+    static FragmentManager fragmentManager;
+    static FragmentTransaction fragmentTransaction;
 
-    String splitSym = "/:/";
+    public static String splitSym = "/:/";
     String stateTag;
 
     String username = "No name";
-    private Roles monRole;
+    public static Roles monRole;
 
     /**
      * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
@@ -94,8 +97,8 @@ public class MainActivity extends Activity implements
     /**
      * The hoster information if you are joining a game
      **/
-    public String hosterId;
-    public String hosterName;
+    public static String hosterId;
+    public static String hosterName;
 
     /**
      * The current state of the application
@@ -124,38 +127,28 @@ public class MainActivity extends Activity implements
 
     ProgressDialog progressDialog;
 
+
+    FragmentGetName fragmentGetName;
+    static private SharedPreferences loginPreferences;
+    static private SharedPreferences.Editor loginPrefsEditor;
+    static private Boolean saveLogin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!isConnectedToNetwork()) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("No internet connection");
-            builder.setMessage("Please connect to wi-fi!");
-            builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    dialog.dismiss();
-                    finish();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
-        }
-
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
-        FragmentGetName fragmentGetName = new FragmentGetName();
+        fragmentGetName = new FragmentGetName();
 
         fragmentTransaction.replace(android.R.id.content, fragmentGetName);
         fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
 
 
-        //setContentView(R.layout.activity_main);
+        Log.d("writting", "name");
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -173,19 +166,50 @@ public class MainActivity extends Activity implements
 
     public void saveName(View view) {
         EditText textNom = (EditText) findViewById(R.id.txtUsername);
+        CheckBox rememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
+        if (!isConnectedToNetwork()) {
 
-        username = textNom.getText().toString();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.no_internet);
+            builder.setMessage(R.string.plz_connect_internet);
+            builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+        } else {
 
 
-        fragmentManager = getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
+            username = textNom.getText().toString();
 
-        FragmentStartGame fragmentStartGame = new FragmentStartGame();
+            if (rememberMe.isChecked()) {
+                loginPrefsEditor.putBoolean("saveLogin", true);
+                loginPrefsEditor.putString("username", username);
+                loginPrefsEditor.commit();
+                loginPrefsEditor.apply();
+            } else {
+                loginPrefsEditor.clear();
+                loginPrefsEditor.commit();
+            }
 
 
-        fragmentTransaction.replace(android.R.id.content, fragmentStartGame);
-        fragmentTransaction.commit();
+            fragmentManager = getFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
 
+            FragmentStartGame fragmentStartGame = new FragmentStartGame();
+
+
+            fragmentTransaction.replace(android.R.id.content, fragmentStartGame);
+            fragmentTransaction.commit();
+
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public void btnJoin(View view) {
@@ -267,9 +291,36 @@ public class MainActivity extends Activity implements
         listViewInGame.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3) {
-                sendTest(position, "Still Connected");
+                if (!Game.haveMaitre)
+                    setMaitre(position);
             }
         });
+
+
+    }
+
+    private void setMaitre(final int i) {
+        final String stateTag = "setRole" + splitSym;
+        final String msg = "Maitre";
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.maitre)
+                .setMessage("Are you sure you want to set " + listInGameName.get(i) + " as the " + getString(R.string.maitre))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(i), (stateTag + msg).getBytes());
+
+                        Game.haveMaitre = true;
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                }).show();
 
 
     }
@@ -420,8 +471,6 @@ public class MainActivity extends Activity implements
                     public void onConnectionResponse(String endpointId, Status status,
                                                      byte[] bytes) {
                         if (status.isSuccess()) {
-                            Toast.makeText(MainActivity.this, R.string.connected_to + " " + endpointName,
-                                    Toast.LENGTH_SHORT).show();
 
 
                             hosterId = endpointId;
@@ -529,18 +578,36 @@ public class MainActivity extends Activity implements
             case "start":
                 startingGame();
                 break;
-            case "roleHost":
-                Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, hosterId, ("setRole" + splitSym + msg[1]).getBytes());
+            case "maitre?":
+
                 break;
             case "setRole":
-                setRole(msg[1]);
+                if (monRole == null)
+                    setRole(msg[1]);
+                break;
+            case "step":
+                //Si hoster
+                if (!connectedIDs.isEmpty()) {
+                    Log.d("hoster", "sending " + "step" + splitSym + msg[1]);
+                    //Envoie la notification a tout le monde...
+                    Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, ("step" + splitSym + msg[1]).getBytes());
+                    //...et joue quand meme
+                    if (monRole != Roles.Maitre) {
+                        Game.playGame(msg[1]);
+                    }
+                } else {
+                    //Sinon
+                    //Si t pas le maitre du jeu change d'etape
+                    if (monRole != Roles.Maitre) {
+                        Game.playGame(msg[1]);
+                    }
+                }
                 break;
 
         }
 
 
     }
-
 
 
     public void sendJoinRequest(final int position) {
@@ -554,7 +621,7 @@ public class MainActivity extends Activity implements
                     case DialogInterface.BUTTON_POSITIVE:
 
                         connectTo(possiblesHostersIds.get(position), listNearbyGamesName.get(position));
-                        progressDialog = ProgressDialog.show(MainActivity.this, "", getString(R.string.txt_waiting_answer), true, false);
+                        progressDialog = ProgressDialog.show(MainActivity.this, getString(R.string.waitin_answer_title), getString(R.string.txt_waiting_answer), true, false);
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -749,6 +816,7 @@ public class MainActivity extends Activity implements
                 monRole = Roles.Villageois;
                 break;
             case "Maitre":
+                Toast.makeText(MainActivity.this, "Youa are now the game master", Toast.LENGTH_SHORT).show();
                 monRole = Roles.Maitre;
                 break;
         }
@@ -760,6 +828,16 @@ public class MainActivity extends Activity implements
         super.onStart();
 
         mGoogleApiClient.connect();
+
+        loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
+        loginPrefsEditor = loginPreferences.edit();
+
+        saveLogin = loginPreferences.getBoolean("saveLogin", false);
+        if (saveLogin == true) {
+            fragmentGetName.setSavedName(loginPreferences);
+        }
+
+
     }
 
     @Override
@@ -810,22 +888,58 @@ public class MainActivity extends Activity implements
     }
 
     public void startGame(View view) {
-        myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
+        int minPlayer = 1;
+
+        if (connectedIDs.size() < minPlayer) {
+            Toast.makeText(MainActivity.this, "" + (minPlayer - connectedIDs.size()) + " " + getString(R.string.missing_player), Toast.LENGTH_LONG).show();
+
+        } else {
+            if (Game.haveMaitre) {
+                myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
 
 
-        Nearby.Connections.stopAdvertising(mGoogleApiClient);
-        for (int i = 0; i < wishingToConnectIDs.size(); i++)
-            Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
-        wishingToConnectIDs.clear();
+                Nearby.Connections.stopAdvertising(mGoogleApiClient);
+                for (int i = 0; i < wishingToConnectIDs.size(); i++)
+                    Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
+                wishingToConnectIDs.clear();
+
+                startingGame();
+            } else {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.maitre)
+                        .setMessage("No game master, continue as the game master?")
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
 
 
-        startingGame();
+                                myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
 
+
+                                Nearby.Connections.stopAdvertising(mGoogleApiClient);
+                                for (int i = 0; i < wishingToConnectIDs.size(); i++)
+                                    Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
+                                wishingToConnectIDs.clear();
+
+                                monRole = Roles.Maitre;
+                                startingGame();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+
+                            }
+                        }).show();
+            }
+        }
     }
 
     public void startingGame() {
         fragmentTransaction = fragmentManager.beginTransaction();
-        if (monRole == Roles.Maitre){
+
+        if (monRole == Roles.Maitre) {
             FragmentMaitre fragmentMaitre = new FragmentMaitre();
 
             fragmentTransaction.replace(android.R.id.content, fragmentMaitre);
@@ -839,7 +953,7 @@ public class MainActivity extends Activity implements
             new AlertDialog.Builder(this)
                     .setTitle(R.string.game_is_starting)
                     .setMessage(R.string.hide_your_device_advice)
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -851,6 +965,34 @@ public class MainActivity extends Activity implements
                         }
                     }).show();
 
+        }
+    }
+
+    public void setNuit(View view) {
+        String stateTag = "step" + splitSym;
+        String msg = stateTag + "nuit";
+        Log.d("setNuit", "" + msg);
+
+        if (!connectedIDs.isEmpty()) {
+            Log.d("sending to connected", "" + msg);
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        } else {
+            Log.d("sending to hoster", "" + msg);
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, MainActivity.hosterId, msg.getBytes());
+        }
+    }
+
+    public void setDay(View view) {
+        String stateTag = "step" + splitSym;
+        String msg = stateTag + "day";
+        Log.d("setDay", "" + msg);
+
+        if (!connectedIDs.isEmpty()) {
+            Log.d("sending to connected", "" + msg);
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        } else {
+            Log.d("sending to hoster", "" + msg);
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, MainActivity.hosterId, msg.getBytes());
         }
     }
 }

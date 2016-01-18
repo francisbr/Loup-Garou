@@ -14,7 +14,7 @@
     <string name="in_your_game_textView">Dans la partie</string>
     <string name="nearby_games_txtView">Parties proches</string>
     <string name="txt_waiting_answer">En attente d\'une réponse...</string>
-    <string name="willing_to_play_txtView">Aimeraient vous rejoindre</string>
+    <string name="willing_to_play_txtView">Veux jouer</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="join_game_question">Rejoindre cette partie?</string>
@@ -34,7 +34,18 @@
     <string name="chasseur">Chasseur</string>
     <string name="maitre">Maitre du jeu</string>
     <string name="jour">Jour</string>
-    <string name="game_master_title">Vous etes le\nmaitre du jeu</string>
+    <string name="game_master_title">Vous êtes le\nmaitre du jeu</string>
     <string name="whos_turn">À qui est ce le tour?</string>
     <string name="nuit">Nuit</string>
+    <string name="no_internet">Pas de connection</string>
+    <string name="plz_connect_internet">Veuillez-vous connecter Wi-Fi pour continuer!</string>
+    <string name="retry">Réessayer</string>
+    <string name="waitin_answer_title">Demande envoyée!</string>
+    <string name="werewolfs_alive">Loup-Garou en vie</string>
+    <string name="players_alive">Joueurs en vie</string>
+    <string name="night_txt">C\'est la nuit!</string>
+    <string name="last_dead">Mort cette nuit</string>
+    <string name="close_eyes">Veuiller fermer les yeux</string>
+    <string name="day_txt">C\'est le jour!</string>
+    <string name="missing_player">joueurs requis!</string>
 </resources>

@@ -41,5 +41,17 @@
     <string name="game_master_title">You are the\nGame Master</string>
     <string name="whos_turn">Who\'s turn is it?</string>
     <string name="nuit">Night</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="plz_connect_internet">Please connect to Wi-Fi to continue!</string>
+    <string name="retry">Retry</string>
+    <string name="waitin_answer_title" >Request sent!</string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="day_txt">Daytime!</string>
+    <string name="last_dead">Dead last night</string>
+    <string name="werewolfs_alive">Werewolfs alive</string>
+    <string name="players_alive">Players alive</string>
+    <string name="night_txt">It\'s night!</string>
+    <string name="close_eyes">Please close your eyes</string>
+    <string name="missing_player">needed players!</string>
 
 </resources>

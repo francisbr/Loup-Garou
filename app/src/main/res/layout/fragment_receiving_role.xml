@@ -5,20 +5,26 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:text="@string/you_are"
         android:textSize="40sp"
-        android:gravity="center"
-        android:padding="20dp"
-        android:paddingBottom="50dp"/>
+        android:gravity="center"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3.5"
+        android:id="@+id/imgRole"
+        android:layout_gravity="center"
+        android:src="@drawable/villageois"/>
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:id="@+id/txtviewRole"
         android:text="TEST"
         android:textSize="40sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:padding="30dp"/>
+        android:gravity="center"/>
 
 </LinearLayout>

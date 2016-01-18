@@ -22,11 +22,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/jour" />
+            android:text="@string/jour"
+            android:onClick="setDay"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/nuit" />
+            android:text="@string/nuit"
+            android:onClick="setNuit"/>
 
     </LinearLayout>
 
@@ -47,38 +49,34 @@
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/loup_garou" />
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/voyante" />
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/voleur" />
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/chasseur" />
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/cupidon" />
 
         <Button
             android:layout_gravity="center"
-            android:width="115dp"
+            android:width="145dp"
             android:text="@string/sorciere" />
 
-        <Button
-            android:layout_gravity="center"
-            android:width="115dp"
-            android:text="@string/petite_fille" />
 
     </GridLayout>
 </LinearLayout>

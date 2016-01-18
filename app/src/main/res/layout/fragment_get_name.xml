@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/remember_my_name_checkBox"
-        android:enabled="false"/>
+        android:id="@+id/rememberMeCheckBox"/>
 
     <Button
         android:layout_width="wrap_content"
