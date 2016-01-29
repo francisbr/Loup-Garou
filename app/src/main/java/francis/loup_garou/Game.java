@@ -169,13 +169,24 @@ public class Game {
                 nbSorciere = 1;
                 break;
             case 4:
-                nbLoup = 2;
+                nbLoup = 1;
+                nbSorciere = 1;
                 break;
             case 5:
                 nbLoup = 1;
                 nbSorciere = 1;
                 break;
+            case 6:
+                nbLoup = 2;
+                nbSorciere = 1;
+                nbChasseur = 1;
+                break;
 
+            case 7:
+                nbLoup = 2;
+                nbSorciere = 1;
+                nbChasseur = 1;
+                break;
 
             //Minimum for a real game
             case 8:
