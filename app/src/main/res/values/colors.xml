@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ff0000</color>
-    <color name="colorPrimaryDark">#840000</color>
-    <color name="colorAccent">#ff2a2a</color>
+    <color name="red_loup">#990000</color>
+    <color name="accent_color">#d70000</color>
+    <color name="background_material_dark">#353535</color>
+    <color name="accent_material_dark">#990000</color>
+    <color name="black">#d10101</color>
+    <color name="primary_dark_material_dark">#000000</color>
+    <color name="window_background_color">#383838</color>
 </resources>

@@ -50,7 +50,8 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/loup_garou" />
+            android:text="@string/loup_garou"
+            android:onClick="tourLoup"/>
 
         <Button
             android:layout_gravity="center"

@@ -3,15 +3,17 @@ package francis.loup_garou;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.util.Log;
-import android.view.View;
+import android.widget.ArrayAdapter;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.wallet.LineItem;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import francis.loup_garou.fragments.FragmentDayCycle;
+import francis.loup_garou.fragments.FragmentLoupGarou;
 
 /**
  * Created by Francis on 2016-01-16.
@@ -23,14 +25,16 @@ public class Game {
     private GoogleApiClient mGoogleApiClient;
     String splitSym = MainActivity.splitSym;
 
-    static boolean haveMaitre = false;
     int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
-    int min = -1;
 
     //Players in game!
-    ArrayList<String> connectedIDs = new ArrayList();
-    ArrayList<String> connectedNames = new ArrayList();
-    ArrayList<String> playersAlive = new ArrayList();
+    static public ArrayList<String> connectedIDs = new ArrayList();
+    static public ArrayList<String> connectedNames = new ArrayList();
+    static public ArrayList<String> playersAliveIDs = new ArrayList();
+    static public ArrayList<String> playersAliveNames = new ArrayList();
+
+    static public ArrayList<String> loupIDs = new ArrayList();
+    static public int nbLoupAlive;
 
     public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient) {
         Log.d("Game", "Created");
@@ -39,13 +43,13 @@ public class Game {
         this.connectedNames = listInGameName;
         this.mGoogleApiClient = mGoogleApiClient;
 
-        playersAlive = (ArrayList<String>) connectedNames.clone();
+        playersAliveIDs = (ArrayList<String>) this.connectedIDs.clone();
+        playersAliveNames = (ArrayList<String>) connectedNames.clone();
         setNbRoles();
         setRolesToPlayers();
 
+
         Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, ("start" + splitSym).getBytes());
-
-
     }
 
 
@@ -77,13 +81,8 @@ public class Game {
         //sendRoles(nbMaitre, Roles.Maitre, tempList);
 
 
-        if (min == -1 && MainActivity.monRole!=null) {
-            Log.d("monRole", "" + Roles.Villageois);
-            MainActivity.monRole = Roles.Villageois;
-        }
         String msg = "setRole" + splitSym + Roles.Villageois;
         if (!tempList.isEmpty()) {
-            Log.d("Sending bad?", msg);
             Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, tempList, msg.getBytes());
         }
     }
@@ -101,33 +100,30 @@ public class Game {
         for (int i = 0; i < nb; i++) {
             msg = "" + role;
             //              rand.nextInt((max - min) + 1) + min;
-            randomNum = rand.nextInt((tempList.size() - 1 - min) + 1) + min;
-            if (randomNum == -1) {
-                Log.d("monRole", "" + role);
-                MainActivity.monRole = role;
-                min = 0;
-            } else {
-                Log.d("Sending", stateTag + msg);
-                Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, (String) tempList.get(randomNum), (stateTag + msg).getBytes());
-                tempList.remove(randomNum);
+            randomNum = rand.nextInt(tempList.size() + 1);
+            Log.d("Sending", stateTag + msg);
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, (String) tempList.get(randomNum), (stateTag + msg).getBytes());
+
+            if (role == Roles.LoupGarou){
+                loupIDs.add((String) tempList.get(randomNum));
             }
+            tempList.remove(randomNum);
         }
 
     }
 
-    public static void playGame(String step){
+    public static void playGame(String step, String nbLoupAlive) {
         MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
         FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
+        FragmentLoupGarou fragmentLoupGarou = new FragmentLoupGarou();
 
-        switch (step){
+        switch (step) {
             case "nuit":
-                Log.d("starting", "nuit");
-
-
 
                 MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
                 MainActivity.fragmentTransaction.commit();
                 MainActivity.fragmentManager.executePendingTransactions();
+
 
                 fragmentDayCycle.showNight();
 
@@ -135,15 +131,25 @@ public class Game {
 
             case "day":
 
-
                 MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
                 MainActivity.fragmentTransaction.commit();
                 MainActivity.fragmentManager.executePendingTransactions();
 
-                fragmentDayCycle.showDay();
+                fragmentDayCycle.showDay(nbLoupAlive);
+
 
                 break;
 
+            case "tourLoup":
+                if (MainActivity.monRole == Roles.LoupGarou) {
+
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentLoupGarou);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
+
+                    fragmentLoupGarou.updateList();
+                }
+                break;
         }
 
     }
@@ -156,15 +162,14 @@ public class Game {
                 nbCupidon = 1;
                 break;
             case 2:
-                nbPetiteFille = 1;
+                nbLoup = 1;
                 break;
             case 3:
                 nbLoup = 1;
                 nbSorciere = 1;
                 break;
             case 4:
-                nbLoup = 1;
-                nbSorciere = 1;
+                nbLoup = 2;
                 break;
             case 5:
                 nbLoup = 1;
@@ -248,6 +253,8 @@ public class Game {
                 nbVoleur = 1;
                 break;
         }
+        nbLoupAlive = nbLoup;
+        Log.d("nbLoupAlive", "" + nbLoupAlive);
     }
 
 }

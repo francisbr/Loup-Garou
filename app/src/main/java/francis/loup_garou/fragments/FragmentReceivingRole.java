@@ -36,6 +36,11 @@ public class FragmentReceivingRole extends Fragment {
         txtviewRole = (TextView) view.findViewById(R.id.txtviewRole);
         imgRole = (ImageView) view.findViewById(id);
 
+        try{
+            role.equals(Roles.Chasseur);
+        } catch (NullPointerException e){
+            role = Roles.Villageois;
+        }
 
         Log.d("I got", "" + role);
         switch (role){
@@ -82,6 +87,11 @@ public class FragmentReceivingRole extends Fragment {
             case Maitre:
                 Log.d("writting", "Maitre");
                 txtviewRole.setText(R.string.maitre);
+                break;
+            default:
+                Log.d("writting", "Villageois");
+                txtviewRole.setText(R.string.villageois);
+                imgRole.setImageResource(R.drawable.villageois);
                 break;
         }
 

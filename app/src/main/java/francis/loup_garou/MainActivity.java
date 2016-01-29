@@ -92,7 +92,7 @@ public class MainActivity extends Activity implements
     /**
      * GoogleApiClient for connecting to the Nearby Connections API
      **/
-    private GoogleApiClient mGoogleApiClient;
+    static public GoogleApiClient mGoogleApiClient;
 
     /**
      * The hoster information if you are joining a game
@@ -116,6 +116,7 @@ public class MainActivity extends Activity implements
     ArrayList<String> listInGameName = new ArrayList();
     ArrayAdapter<String> adapterWish;
     ArrayAdapter<String> adapterInGame;
+    static public ArrayAdapter<String> adapterAliveNames;
     ListView listViewWish;
     ListView listViewInGame;
 
@@ -160,7 +161,7 @@ public class MainActivity extends Activity implements
         adapterInGame = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listInGameName);
         adapterNearbyGames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listNearbyGamesName);
 
-
+        adapterAliveNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.playersAliveNames);
     }
 
 
@@ -291,36 +292,8 @@ public class MainActivity extends Activity implements
         listViewInGame.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3) {
-                if (!Game.haveMaitre)
-                    setMaitre(position);
             }
         });
-
-
-    }
-
-    private void setMaitre(final int i) {
-        final String stateTag = "setRole" + splitSym;
-        final String msg = "Maitre";
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.maitre)
-                .setMessage("Are you sure you want to set " + listInGameName.get(i) + " as the " + getString(R.string.maitre))
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(i), (stateTag + msg).getBytes());
-
-                        Game.haveMaitre = true;
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                    }
-                }).show();
 
 
     }
@@ -538,10 +511,22 @@ public class MainActivity extends Activity implements
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
         String rawMsg = new String(payload);
+        Log.d("Received", rawMsg);
 
         String[] msg = rawMsg.split(splitSym);
 
-        Log.d("Received", rawMsg);
+        //Try adding info!
+        ArrayList<String> infoSup = new ArrayList();
+        try {
+            infoSup.add(msg[2]);
+            infoSup.add(msg[3]);
+            infoSup.add(msg[4]);
+            infoSup.add(msg[5]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            infoSup.add("");
+
+        }
+
 
         //In Lobby
         if (monRole == null) {
@@ -575,33 +560,41 @@ public class MainActivity extends Activity implements
 
         //Starting Game/in-game
         switch (msg[0]) {
+            /*
+            case "connectedPlayers":
+                Game.connectedIDs.add(msg[1]);
+                Game.connectedNames.add(msg[2]);
+
+                Game.playersAliveIDs.add(msg[1]);
+                Game.playersAliveNames.add(msg[2]);
+
+                for (int i = 0; i < Game.connectedIDs.size(); i++) {
+                    Log.d("connected player", Game.connectedIDs.get(i) + " " + Game.connectedNames.get(i));
+                }
+                break;*/
             case "start":
                 startingGame();
-                break;
-            case "maitre?":
-
                 break;
             case "setRole":
                 if (monRole == null)
                     setRole(msg[1]);
                 break;
             case "step":
-                //Si hoster
-                if (!connectedIDs.isEmpty()) {
-                    Log.d("hoster", "sending " + "step" + splitSym + msg[1]);
-                    //Envoie la notification a tout le monde...
-                    Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, ("step" + splitSym + msg[1]).getBytes());
-                    //...et joue quand meme
-                    if (monRole != Roles.Maitre) {
-                        Game.playGame(msg[1]);
-                    }
-                } else {
-                    //Sinon
-                    //Si t pas le maitre du jeu change d'etape
-                    if (monRole != Roles.Maitre) {
-                        Game.playGame(msg[1]);
-                    }
+                if (monRole != Roles.Maitre) {
+                    Game.playGame(msg[1], infoSup.get(0));
                 }
+                break;
+            case "listeUpdate":
+                if (infoSup.get(1).equals("clear")) {
+                    Game.playersAliveNames.clear();
+                    Game.playersAliveIDs.clear();
+                } else {
+                    Game.playersAliveNames.add(msg[1]);
+                    Game.playersAliveIDs.add(infoSup.get(0));
+                }
+                break;
+            case "listeLoup":
+                Game.loupIDs.add(msg[1]);
                 break;
 
         }
@@ -720,6 +713,10 @@ public class MainActivity extends Activity implements
 
     }
 
+    static public String getMyId() {
+        return Nearby.Connections.getLocalDeviceId(mGoogleApiClient);
+    }
+
 
     /**
      * Begin discovering devices advertising Nearby Connections, if possible.
@@ -816,7 +813,7 @@ public class MainActivity extends Activity implements
                 monRole = Roles.Villageois;
                 break;
             case "Maitre":
-                Toast.makeText(MainActivity.this, "Youa are now the game master", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "You are now the game master", Toast.LENGTH_SHORT).show();
                 monRole = Roles.Maitre;
                 break;
         }
@@ -836,23 +833,7 @@ public class MainActivity extends Activity implements
         if (saveLogin == true) {
             fragmentGetName.setSavedName(loginPreferences);
         }
-
-
     }
-
-    @Override
-    protected void onResume() {
-
-        super.onResume();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-
-    }
-
 
     @Override
     protected void onDestroy() {
@@ -894,45 +875,17 @@ public class MainActivity extends Activity implements
             Toast.makeText(MainActivity.this, "" + (minPlayer - connectedIDs.size()) + " " + getString(R.string.missing_player), Toast.LENGTH_LONG).show();
 
         } else {
-            if (Game.haveMaitre) {
-                myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
+            myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
 
 
-                Nearby.Connections.stopAdvertising(mGoogleApiClient);
-                for (int i = 0; i < wishingToConnectIDs.size(); i++)
-                    Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
-                wishingToConnectIDs.clear();
+            Nearby.Connections.stopAdvertising(mGoogleApiClient);
+            for (int i = 0; i < wishingToConnectIDs.size(); i++)
+                Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
+            wishingToConnectIDs.clear();
 
-                startingGame();
-            } else {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.maitre)
-                        .setMessage("No game master, continue as the game master?")
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            monRole = Roles.Maitre;
+            startingGame();
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-
-                                myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
-
-
-                                Nearby.Connections.stopAdvertising(mGoogleApiClient);
-                                for (int i = 0; i < wishingToConnectIDs.size(); i++)
-                                    Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
-                                wishingToConnectIDs.clear();
-
-                                monRole = Roles.Maitre;
-                                startingGame();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-
-                            }
-                        }).show();
-            }
         }
     }
 
@@ -963,7 +916,9 @@ public class MainActivity extends Activity implements
 
                             fragmentReceivingRole.changeTextRole(monRole);
                         }
-                    }).show();
+                    })
+                    .setCancelable(false)
+                    .show();
 
         }
     }
@@ -971,28 +926,47 @@ public class MainActivity extends Activity implements
     public void setNuit(View view) {
         String stateTag = "step" + splitSym;
         String msg = stateTag + "nuit";
-        Log.d("setNuit", "" + msg);
 
-        if (!connectedIDs.isEmpty()) {
-            Log.d("sending to connected", "" + msg);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
-        } else {
-            Log.d("sending to hoster", "" + msg);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, MainActivity.hosterId, msg.getBytes());
-        }
+        Log.d("sending to connected", "" + msg);
+        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
     }
 
     public void setDay(View view) {
         String stateTag = "step" + splitSym;
-        String msg = stateTag + "day";
-        Log.d("setDay", "" + msg);
+        String msg = stateTag + "day" + splitSym + Game.nbLoupAlive;
 
-        if (!connectedIDs.isEmpty()) {
+        updatePlayerAlive();
+        Log.d("sending to connected", "" + msg);
+        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
+    }
+
+    public void tourLoup(View view) {
+        String stateTag = "step" + splitSym;
+        String msg = stateTag + "tourLoup";
+
+        updatePlayerAlive();
+
+        for (int i = 0; i < Game.loupIDs.size(); i++) {
+            Log.d("sending to connected", "listeLoup" + splitSym + Game.loupIDs.get(i));
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.loupIDs, ("listeLoup" + splitSym + Game.loupIDs.get(i)).getBytes());
+        }
+
+        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.loupIDs, msg.getBytes());
+    }
+
+    private void updatePlayerAlive() {
+        String stateTag = "listeUpdate" + splitSym;
+        String msg;
+
+        msg = stateTag + "" + splitSym + "" + splitSym + "clear";
+        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.connectedIDs, msg.getBytes());
+
+        for (int i = 0; i < Game.playersAliveIDs.size(); i++) {
+            msg = stateTag + Game.playersAliveNames.get(i) + splitSym + Game.playersAliveIDs.get(i);
             Log.d("sending to connected", "" + msg);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
-        } else {
-            Log.d("sending to hoster", "" + msg);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, MainActivity.hosterId, msg.getBytes());
+            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.connectedIDs, msg.getBytes());
         }
     }
+
+
 }
