@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -21,18 +23,27 @@ import francis.loup_garou.R;
  * A placeholder fragment containing a simple view.
  */
 public class FragmentDayCycle extends Fragment {
+    ListView listViewAlive;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         return inflater.inflate(R.layout.fragment_day_cycle, container, false);
     }
 
-    public void showDay(String nbLoupAlive){
+    @Override
+    public void onStart() {
+        super.onStart();
 
-        Log.d("showDay", "");
+
+    }
+
+    public void showDay(String nbLoupAlive) {
+        int k = 0;
+        k++;
+        Log.d("showDay", "GO");
 
         //NB LOUP
         TextView tx = (TextView) getView().findViewById(R.id.nbLoupAliveTxtview);
@@ -40,28 +51,64 @@ public class FragmentDayCycle extends Fragment {
 
 
         //LISTE ALIVE
-        ListView listViewAlive = (ListView) getView().findViewById(R.id.listPlayersAlive);
+        listViewAlive = (ListView) getView().findViewById(R.id.listPlayersAlive);
 
-        Log.d("playersAliveNames.size", "" + Game.playersAliveNames.size());
-        for (int i = 0 ; i < Game.playersAliveNames.size() ; i++){
-            Log.d("playersAliveNames " + i, Game.playersAliveNames.get(i));
+        Game.listAliveNames.clear();
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i).isEnVie()) {
+                Game.listAliveNames.add(Game.allPlayers.get(i).getName());
+            }
         }
 
-        listViewAlive.setAdapter(MainActivity.adapterAliveNames);
-        MainActivity.adapterAliveNames.notifyDataSetChanged();
+        listViewAlive.setAdapter(MainActivity.adapterAlive);
+        MainActivity.adapterAlive.notifyDataSetChanged();
 
+
+        //LISTE DEAD LAST NIGHT
+        Log.d("deadLastNightNames.size", "" + Game.deadLastNightName.size());
+        for (int i = 0; i < Game.deadLastNightName.size(); i++) {
+            Log.d("playersDeadNames " + i, Game.deadLastNightName.get(i));
+        }
+
+
+        Game.listDeadNames.clear();
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (!Game.allPlayers.get(i).isEnVie()) {
+                Game.listDeadNames.add(Game.allPlayers.get(i).getName());
+            }
+        }
+        ListView listViewDead = (ListView) getView().findViewById(R.id.listLastDead);
+        listViewDead.setAdapter(MainActivity.adapterDeadNames);
+        MainActivity.adapterDeadNames.notifyDataSetChanged();
 
 
         //AFFICHE LE LAYOUT
         getView().findViewById(R.id.layoutDay).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.layoutNight).setVisibility(View.GONE);
 
+
     }
 
-    public void showNight(){
+    public void showNight() {
 
         getView().findViewById(R.id.layoutNight).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.layoutDay).setVisibility(View.GONE);
 
     }
+
+    public void enableVote() {
+
+        listViewAlive.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, final int position, long arg3) {
+                if (Game.voteStarted) {
+                    MainActivity.sendVoteDay(position);
+                    Game.voteStarted = false;
+
+                }
+            }
+        });
+
+    }
+
 }

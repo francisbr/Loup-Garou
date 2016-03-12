@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Loup-Garou</string>
     <string name="action_settings">Paramètres</string>
-    <string name="choose_name_txtView">Bonjour!\n\nComment voulez-vous qu\'on vous appel?</string>
+    <string name="choose_name_txtView">Bonjour!\n\nComment voulez-vous vous appellez?</string>
     <string name="continue_btn">Continuer</string>
     <string name="create_game_btn">Créer</string>
     <string name="start_game_title_txtView">Que voulez-vous faire?</string>
@@ -27,15 +27,15 @@
     <string name="villageois">Villageois</string>
     <string name="voleur">Voleur</string>
     <string name="voyante">Voyante</string>
-    <string name="sorciere">Sorciere</string>
+    <string name="sorciere">Sorcière</string>
     <string name="petite_fille">Petite fille</string>
     <string name="loup_garou">Loup-Garou</string>
     <string name="cupidon">Cupidon</string>
     <string name="chasseur">Chasseur</string>
     <string name="maitre">Maitre du jeu</string>
     <string name="jour">Jour</string>
-    <string name="game_master_title">Vous êtes le\nmaitre du jeu</string>
-    <string name="whos_turn">À qui est ce le tour?</string>
+    <string name="game_master_title">Maitre du jeu</string>
+    <string name="whos_turn">À qui est-ce le tour?</string>
     <string name="nuit">Nuit</string>
     <string name="no_internet">Pas de connection</string>
     <string name="plz_connect_internet">Veuillez-vous connecter Wi-Fi pour continuer!</string>
@@ -44,8 +44,17 @@
     <string name="werewolfs_alive">Loup-Garou en vie</string>
     <string name="players_alive">Joueurs en vie</string>
     <string name="night_txt">C\'est la nuit!</string>
-    <string name="last_dead">Mort cette nuit</string>
+    <string name="last_dead">Joueurs mort</string>
     <string name="close_eyes">Veuiller fermer les yeux</string>
     <string name="day_txt">C\'est le jour!</string>
     <string name="missing_player">joueurs requis!</string>
+    <string name="dead_msg">Vous êtes mort</string>
+    <string name="conseil">Conseil du village</string>
+    <string name="has_been_executed">" s\'est fait exécuter!"</string>
+    <string name="has_change_vote">" a changé son vote pour "</string>
+    <string name="has_voted_to_kill">" a voté pour tuer "</string>
+    <string name="no_executions">Personne ne s\'est fait exécuter!</string>
+    <string name="successful_wolf_kill">"Vous avez tué "</string>
+    <string name="vote_du_village">Vote du village</string>
+    <string name="vote_jour_txt">Le conseil attend votre vote. Choisissez une personne dans la liste.</string>
 </resources>

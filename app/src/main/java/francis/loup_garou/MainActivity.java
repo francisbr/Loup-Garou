@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -33,15 +34,24 @@ import com.google.android.gms.nearby.connection.AppMetadata;
 import com.google.android.gms.nearby.connection.Connections;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+import francis.loup_garou.Events.Evenement;
+import francis.loup_garou.fragments.FragmentDead;
+import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
-import francis.loup_garou.fragments.FragmentReceivingRole;
 import francis.loup_garou.fragments.FragmentStartGame;
+import francis.loup_garou.players.Joueur;
+import francis.loup_garou.players.LoupGarou;
 
 public class MainActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -51,14 +61,15 @@ public class MainActivity extends Activity implements
         Connections.EndpointDiscoveryListener {
     Game myGame;
 
-    static FragmentManager fragmentManager;
-    static FragmentTransaction fragmentTransaction;
+    public static FragmentManager fragmentManager;
+    public static FragmentTransaction fragmentTransaction;
 
     public static String splitSym = "/:/";
     String stateTag;
 
-    String username = "No name";
+    static String username = "No name";
     public static Roles monRole;
+    public static String myId;
 
     /**
      * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
@@ -68,7 +79,7 @@ public class MainActivity extends Activity implements
      */
     private static final long TIMEOUT_ADVERTISE = 1000L * 0L;
     private static final long TIMEOUT_DISCOVER = 1000L * 0L;
-
+    public static Evenement event;
 
     /**
      * Possible states for this application:
@@ -116,17 +127,23 @@ public class MainActivity extends Activity implements
     ArrayList<String> listInGameName = new ArrayList();
     ArrayAdapter<String> adapterWish;
     ArrayAdapter<String> adapterInGame;
-    static public ArrayAdapter<String> adapterAliveNames;
     ListView listViewWish;
     ListView listViewInGame;
 
-    //Pour les lest view de games
+    public static ArrayAdapter<String> adapterAlive;
+    public static ArrayAdapter<String> adapterDeadNames;
+
+    //Pour les list view de games
     ListView listViewNearbyGames;
     ArrayAdapter<String> adapterNearbyGames;
     ArrayList<String> listNearbyGamesName = new ArrayList();
     private ArrayList<String> possiblesHostersIds = new ArrayList();
 
     ProgressDialog progressDialog;
+
+    //Loup-garou votes
+    public static ArrayList<Joueur> allVotes = new ArrayList();
+    public static ArrayList<Joueur> allVoteurs = new ArrayList();
 
 
     FragmentGetName fragmentGetName;
@@ -161,7 +178,10 @@ public class MainActivity extends Activity implements
         adapterInGame = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listInGameName);
         adapterNearbyGames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listNearbyGamesName);
 
-        adapterAliveNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.playersAliveNames);
+        adapterAlive = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listAliveNames);
+        adapterDeadNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadNames);
+
+        event = new Evenement();
     }
 
 
@@ -303,7 +323,7 @@ public class MainActivity extends Activity implements
         String msg = stateTag + message;
 
 
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs.get(position), msg.getBytes());
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs.get(position), msg.getBytes());
     }
 
 
@@ -485,18 +505,18 @@ public class MainActivity extends Activity implements
         stateTag = "addPlayer" + splitSym;
 
         // Sends a reliable message, which is guaranteed to be delivered eventually and to respect
-        // message ordering from sender to receiver. Nearby.Connections.sendUnreliableMessage
+        // message ordering from sender to receiver. Nearby.Connections.sendReliableMessage
         // should be used for high-frequency messages where guaranteed delivery is not required, such
         // as showing one player's cursor location to another. Unreliable messages are often
         // delivered faster than reliable messages.
 
 
         String msg = stateTag + username;
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
 
         for (int j = 0; j < listInGameName.size(); j++) {
             msg = stateTag + listInGameName.get(j);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
         }
     }
 
@@ -504,15 +524,25 @@ public class MainActivity extends Activity implements
         stateTag = "removePlayerLobby" + splitSym;
         String msg = stateTag + removedPlayerName;
 
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
     }
 
     //Communication entre devices BODY du jeu
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
-        String rawMsg = new String(payload);
-        Log.d("Received", rawMsg);
 
+        String rawMsg = new String(payload);
+        Log.d("Received raw", rawMsg);
+
+
+        Object obj = deserialize(payload);
+
+        if (obj instanceof Evenement) {
+            ((Evenement) obj).execute(this);
+        }
+
+
+        /** OLD **/
         String[] msg = rawMsg.split(splitSym);
 
         //Try adding info!
@@ -552,26 +582,12 @@ public class MainActivity extends Activity implements
 
                     findViewById(R.id.layoutInYourGame).setVisibility(View.GONE);
                     break;
-                case "test":
-                    Toast.makeText(MainActivity.this, msg[1], Toast.LENGTH_SHORT).show();
-                    break;
+
             }
         }
 
         //Starting Game/in-game
         switch (msg[0]) {
-            /*
-            case "connectedPlayers":
-                Game.connectedIDs.add(msg[1]);
-                Game.connectedNames.add(msg[2]);
-
-                Game.playersAliveIDs.add(msg[1]);
-                Game.playersAliveNames.add(msg[2]);
-
-                for (int i = 0; i < Game.connectedIDs.size(); i++) {
-                    Log.d("connected player", Game.connectedIDs.get(i) + " " + Game.connectedNames.get(i));
-                }
-                break;*/
             case "start":
                 startingGame();
                 break;
@@ -581,20 +597,79 @@ public class MainActivity extends Activity implements
                 break;
             case "step":
                 if (monRole != Roles.Maitre) {
+
+                    if (msg[1].equals("voteDay")) {
+                        new AlertDialog.Builder(this)
+                                .setTitle(R.string.conseil)
+                                .setMessage(R.string.vote_jour_txt)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show();
+                    }
+
                     Game.playGame(msg[1], infoSup.get(0));
                 }
                 break;
-            case "listeUpdate":
+            case "listeUpdate":/*
                 if (infoSup.get(1).equals("clear")) {
                     Game.playersAliveNames.clear();
                     Game.playersAliveIDs.clear();
                 } else {
                     Game.playersAliveNames.add(msg[1]);
                     Game.playersAliveIDs.add(infoSup.get(0));
-                }
+                }*/
                 break;
             case "listeLoup":
                 Game.loupIDs.add(msg[1]);
+                break;
+            case "voteLoup":
+                receivingVote("loup", msg[1], infoSup.get(0), infoSup.get(1));
+                break;
+            case "voteDay":
+                receivingVote("village", msg[1], infoSup.get(0), infoSup.get(1));
+                break;
+            case "kill":/*
+                Game.deadLastNightID.add(msg[1]);
+                Game.deadLastNightName.add(msg[2]);
+
+                adapterDeadNames.notifyDataSetChanged();*/
+                break;
+            case "killVillage":/*
+                if (infoSup.get(1).equals("no one")) {
+                    Toast.makeText(MainActivity.this, R.string.no_executions, Toast.LENGTH_SHORT).show();
+                } else
+                    Toast.makeText(MainActivity.this, infoSup.get(0) + getString(R.string.has_been_executed), Toast.LENGTH_SHORT).show();
+
+                Game.deadLastNightName.clear();
+                Game.deadLastNightID.clear();
+
+                adapterDeadNames.notifyDataSetChanged();
+                adapterAliveNames.notifyDataSetChanged();*/
+                break;
+
+
+        }
+
+        //Toast related messages
+        switch (msg[0]) {
+            case "test":
+                Toast.makeText(MainActivity.this, msg[1], Toast.LENGTH_SHORT).show();
+                break;
+
+            case "newVote":
+                if (!username.equals(msg[1]))
+                    Toast.makeText(MainActivity.this, "" + msg[1] + getString(R.string.has_voted_to_kill) + infoSup.get(0), Toast.LENGTH_SHORT).show();
+                break;
+            case "changeVote":
+                if (!username.equals(msg[1]))
+                    Toast.makeText(MainActivity.this, "" + msg[1] + getString(R.string.has_change_vote) + infoSup.get(0), Toast.LENGTH_SHORT).show();
+                break;
+            case "killed":
+                Toast.makeText(MainActivity.this, getString(R.string.successful_wolf_kill) + msg[1], Toast.LENGTH_LONG).show();
                 break;
 
         }
@@ -860,7 +935,7 @@ public class MainActivity extends Activity implements
         stateTag = "dismantleLobby" + splitSym;
         String msg = stateTag;
 
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
 
         for (int i = 0; i < connectedIDs.size(); i++) {
             sendTest(i, "Dismantling Lobby");
@@ -892,81 +967,191 @@ public class MainActivity extends Activity implements
     public void startingGame() {
         fragmentTransaction = fragmentManager.beginTransaction();
 
-        if (monRole == Roles.Maitre) {
-            FragmentMaitre fragmentMaitre = new FragmentMaitre();
+        FragmentMaitre fragmentMaitre = new FragmentMaitre();
 
-            fragmentTransaction.replace(android.R.id.content, fragmentMaitre);
-            fragmentTransaction.commit();
-            fragmentManager.executePendingTransactions();
-
-        } else {
-
-            final FragmentReceivingRole fragmentReceivingRole = new FragmentReceivingRole();
-
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.game_is_starting)
-                    .setMessage(R.string.hide_your_device_advice)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog, int whichButton) {
-
-                            fragmentTransaction.replace(android.R.id.content, fragmentReceivingRole);
-                            fragmentTransaction.commit();
-                            fragmentManager.executePendingTransactions();
-
-                            fragmentReceivingRole.changeTextRole(monRole);
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-
-        }
+        fragmentTransaction.replace(android.R.id.content, fragmentMaitre);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
     }
 
     public void setNuit(View view) {
-        String stateTag = "step" + splitSym;
-        String msg = stateTag + "nuit";
 
-        Log.d("sending to connected", "" + msg);
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
+        MainActivity.event.setType(Evenement.EventType.showNight);
+        MainActivity.event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+        }
     }
 
     public void setDay(View view) {
-        String stateTag = "step" + splitSym;
-        String msg = stateTag + "day" + splitSym + Game.nbLoupAlive;
 
-        updatePlayerAlive();
-        Log.d("sending to connected", "" + msg);
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
+        MainActivity.event.setType(Evenement.EventType.showDay);
+        MainActivity.event.setAllPlayers(Game.allPlayers);
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+        }
+        /**
+         String stateTag = "step" + splitSym;
+         String msg = stateTag + "day" + splitSym + Game.nbLoupAlive;
+
+
+         Game.playersAliveIDs.removeAll(Game.deadLastNightID);
+         Game.playersAliveNames.removeAll(Game.deadLastNightName);
+
+
+         updatePlayerAlive();
+         Log.d("sending to connected", "" + msg);
+         Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
+
+         try {
+         Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.deadLastNightID, ("step" + splitSym + "dead").getBytes());
+         } catch (IllegalArgumentException e) {
+         //Just dont send any messages
+
+         }
+
+         Game.deadLastNightName.clear();
+         Game.deadLastNightID.clear();
+
+
+         if (myGame.nbLoupAlive <= 0) {
+         villageWin();
+         } else if (myGame.nbLoupAlive == Game.playersAliveIDs.size()) {
+         loupWin();
+         }
+         **/
+
+    }
+
+    private void loupWin() {
+        FragmentEnd fragmentEnd = new FragmentEnd();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentEnd);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
+
+        fragmentEnd.loupWin();
+
+    }
+
+    private void villageWin() {
+        FragmentEnd fragmentEnd = new FragmentEnd();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentEnd);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
+
+        fragmentEnd.villageWin();
+
     }
 
     public void tourLoup(View view) {
-        String stateTag = "step" + splitSym;
-        String msg = stateTag + "tourLoup";
+        event.setType(Evenement.EventType.tourLoup);
+        event.setAllPlayers(Game.allPlayers);
 
-        updatePlayerAlive();
-
-        for (int i = 0; i < Game.loupIDs.size(); i++) {
-            Log.d("sending to connected", "listeLoup" + splitSym + Game.loupIDs.get(i));
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.loupIDs, ("listeLoup" + splitSym + Game.loupIDs.get(i)).getBytes());
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i) instanceof LoupGarou)
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.loupIDs, msg.getBytes());
     }
 
-    private void updatePlayerAlive() {
-        String stateTag = "listeUpdate" + splitSym;
-        String msg;
+    public static void sendVoteLoup(Joueur player) {
 
-        msg = stateTag + "" + splitSym + "" + splitSym + "clear";
-        Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.connectedIDs, msg.getBytes());
+        event.setType(Evenement.EventType.voteLoup);
+        event.setAllPlayers(Game.allPlayers);
+        event.setJoueurVote(player);
+        Log.d("playerVoted", player.getName());
 
-        for (int i = 0; i < Game.playersAliveIDs.size(); i++) {
-            msg = stateTag + Game.playersAliveNames.get(i) + splitSym + Game.playersAliveIDs.get(i);
-            Log.d("sending to connected", "" + msg);
-            Nearby.Connections.sendUnreliableMessage(mGoogleApiClient, Game.connectedIDs, msg.getBytes());
+        event.setVoteur(Game.me());
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
+
+    }
+
+    public void receivingVote(String typeVote, String voteur, String voteID, String voteursName) {
+
+        boolean kill = true, changeVote = false;
+        int pos = -1;
+
+        Log.d("Entering", "voteVillage");
+
+
+    }
+
+    public void startVoteVillage(View view) {
+        event.setType(Evenement.EventType.startVoteVillage);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++)
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+    }
+
+    public static void sendVoteDay(int position) {
+        event.setType(Evenement.EventType.voteDay);
+        event.setAllPlayers(Game.allPlayers);
+        event.setVoteur(Game.me());
+        event.setJoueurVote(Game.allPlayers.get(position));
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
+
+    }
+
+
+    public void endGame(View view) {
+        Log.d("exit", "you suck");
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+
+
+    public static byte[] serialize(Object obj) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = null;
+        Log.d("SERIALIZE", "Start");
+        try {
+            os = new ObjectOutputStream(out);
+        } catch (IOException e) {
+            Log.d("SERIALIZE", "IOException 1");
+            e.printStackTrace();
         }
+        try {
+            os.writeObject(obj);
+        } catch (IOException e) {
+            Log.d("SERIALIZE", "IOException 2");
+            e.printStackTrace();
+        }
+        Log.d("SERIALIZE", "Done " + out.toByteArray());
+        return out.toByteArray();
     }
 
+
+    public static Object deserialize(byte[] data) {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = null;
+        Log.d("DESERIALIZE", "Start");
+        Log.d("Data", "" + data);
+        try {
+            is = new ObjectInputStream(in);
+        } catch (IOException e) {
+            Log.d("DESERIALIZE", "IOException 1");
+            e.printStackTrace();
+        }
+        try {
+            return is.readObject();
+        } catch (NullPointerException e) {
+            Log.d("DESERIALIZE", "No object to deserialize");
+        } catch (ClassNotFoundException e) {
+            Log.d("DESERIALIZE", "Class not found");
+        } catch (IOException e) {
+            Log.d("DESERIALIZE", "IOException 2");
+            e.printStackTrace();
+        }
+        return null;
+
+
+    }
 
 }

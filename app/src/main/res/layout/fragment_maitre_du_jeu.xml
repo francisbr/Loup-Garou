@@ -8,36 +8,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:padding="10dp"
         android:text="@string/game_master_title"
-        android:textSize="40sp"
-        android:padding="10dp"/>
+        android:textSize="40sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
-        android:padding="15dp">
+        android:orientation="horizontal"
+        android:paddingTop="15dp">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/jour"
-            android:onClick="setDay"/>
+            android:onClick="setDay"
+            android:text="@string/jour" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/nuit"
-            android:onClick="setNuit"/>
+            android:onClick="setNuit"
+            android:text="@string/nuit" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:width="175dp"
+        android:onClick="startVoteVillage"
+        android:text="@string/vote_du_village" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingTop="10dp"
         android:paddingBottom="10dp"
+        android:paddingTop="15dp"
         android:text="@string/whos_turn"
         android:textSize="20sp" />
 
@@ -50,8 +60,8 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/loup_garou"
-            android:onClick="tourLoup"/>
+            android:onClick="tourLoup"
+            android:text="@string/loup_garou" />
 
         <Button
             android:layout_gravity="center"

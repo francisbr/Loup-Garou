@@ -6,7 +6,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="choose_name_txtView">Welcome!\n\nHow would you like to be called?</string>
+    <string name="choose_name_txtView">Welcome!\n\nHow would you like to be named?</string>
     <string name="your_name_hint">Your name</string>
     <string name="remember_my_name_checkBox">Remember my name</string>
     <string name="continue_btn">Continue</string>
@@ -19,7 +19,7 @@
     <string name="in_your_game_textView">In your game</string>
     <string name="willing_to_play_txtView">Willing to play</string>
     <string name="nearby_games_txtView">Nearby games</string>
-    <string name="accept_player_question">Add this player too your game?</string>
+    <string name="accept_player_question">Add this player to your game?</string>
 
     <string name="connected_to">Connected to </string>
     <string name="join_game_question">Join this game?</string>
@@ -38,8 +38,8 @@
     <string name="maitre">Game master</string>
     <string name="jour">Day</string>
 
-    <string name="game_master_title">You are the\nGame Master</string>
-    <string name="whos_turn">Who\'s turn is it?</string>
+    <string name="game_master_title">Game Master</string>
+    <string name="whos_turn">Whose turn is it?</string>
     <string name="nuit">Night</string>
     <string name="no_internet">No internet connection</string>
     <string name="plz_connect_internet">Please connect to Wi-Fi to continue!</string>
@@ -47,11 +47,20 @@
     <string name="waitin_answer_title" >Request sent!</string>
     <string name="ok" translatable="false">Ok</string>
     <string name="day_txt">Daytime!</string>
-    <string name="last_dead">Dead last night</string>
-    <string name="werewolfs_alive">Werewolfs alive</string>
+    <string name="last_dead">Dead players</string>
+    <string name="werewolfs_alive">Werewolves alive</string>
     <string name="players_alive">Players alive</string>
     <string name="night_txt">It\'s night!</string>
     <string name="close_eyes">Please close your eyes</string>
-    <string name="missing_player">needed players!</string>
+    <string name="missing_player"> players needed!</string>
+    <string name="dead_msg">You are dead</string>
+    <string name="no_executions">No one has been executed!</string>
+    <string name="has_been_executed">" has been executed!"</string>
+    <string name="has_voted_to_kill">" has voted to kill "</string>
+    <string name="has_change_vote">" has changed his vote for "</string>
+    <string name="successful_wolf_kill">"You successfully killed "</string>
+    <string name="conseil">Village council</string>
+    <string name="vote_jour_txt">The council requests your vote. Choose from the list.</string>
+    <string name="vote_du_village">Villages vote</string>
 
 </resources>
