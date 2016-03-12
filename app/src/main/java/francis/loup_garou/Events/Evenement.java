@@ -204,7 +204,7 @@ public class Evenement implements Serializable {
                     MainActivity.allVotes.set(pos, playerVoted);
 
                 } else {
-                    Log.d("Adding a vote", voteur + " " + playerVoted);
+                    Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
 
@@ -220,39 +220,48 @@ public class Evenement implements Serializable {
                     }
                 }
 
-                if (MainActivity.allVotes.size() == Game.listAliveNames.size()) {
+                if (MainActivity.allVotes.size() == playersAlive.size()) {
                     Log.d("VoteDay", "All vote received!");
 
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
-                        Log.d("alreadyChecked.size", "" + alreadyChecked.size());
-                        //Log.d("" + alreadyChecked.get(i), "" +  allVotesID.get(i));
                         if (!alreadyChecked.contains(MainActivity.allVotes.get(i).getId())) {
-                            Log.d(".contains", "true");
+                            Log.d(".contains", "false");
                             int nbVote = 0;
                             for (int j = i; j < MainActivity.allVotes.size(); j++) {
                                 if (MainActivity.allVotes.get(j).getId().equals(MainActivity.allVotes.get(i).getId())) {
                                     nbVote++;
                                 }
                             }
-                            alreadyChecked.add((String) MainActivity.allVotes.get(i).getId());
+                            alreadyChecked.add(MainActivity.allVotes.get(i).getId());
                             nbVotesEach.add(nbVote);
                         }
                     }
-                    int max = -1, posMax = -1;
+                    Log.d("alreadyChecked.size", "" + alreadyChecked.size());
                     Log.d("nbVotesEach.size", "" + nbVotesEach.size());
+
+                    int plusGrandnbDeVote = -1, posMax = -1;
                     for (int i = 0; i < nbVotesEach.size(); i++) {
-                        Log.d("max " + max, "posMax " + posMax);
-                        if (nbVotesEach.get(i) > max) {
-                            max = nbVotesEach.get(i);
+                        if (nbVotesEach.get(i) > plusGrandnbDeVote) {
+                            plusGrandnbDeVote = nbVotesEach.get(i);
                             posMax = i;
                         }
                     }
+                    Log.d("max " + plusGrandnbDeVote, "posMax " + posMax);
 
+                    Log.d("playersAlive", "" + playersAlive.size());
+                    for (int i = 0; i < playersAlive.size(); i++) {
+                        Log.d("" + i, "" + playersAlive.get(i).getName() + " " + playersAlive.get(i).getId());
+                    }
 
-                    Log.d("max " + max, "posMax " + posMax);
-                    if (max >= (playersAlive.size() / 2) + 1) {
-                        Log.d("Killing", "True");
+                    Log.d("alreadyChecked", "" + alreadyChecked.size());
+                    for (int i = 0; i < alreadyChecked.size(); i++) {
+                        Log.d("" + i, "" + alreadyChecked.get(i));
+                    }
+
+                    if (plusGrandnbDeVote >= (playersAlive.size() / 2) + 1) {
+                        Log.d("Killing", "True " + alreadyChecked.get(posMax));
                         String killedID = alreadyChecked.get(posMax);
+
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
                             Log.d("" + Game.allPlayers.get(i).getId(), "" + killedID);
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {

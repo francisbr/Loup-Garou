@@ -530,9 +530,7 @@ public class MainActivity extends Activity implements
     //Communication entre devices BODY du jeu
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
-
         String rawMsg = new String(payload);
-        Log.d("Received raw", rawMsg);
 
 
         Object obj = deserialize(payload);
@@ -991,36 +989,6 @@ public class MainActivity extends Activity implements
         for (int i = 0; i < Game.allPlayers.size(); i++) {
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
         }
-        /**
-         String stateTag = "step" + splitSym;
-         String msg = stateTag + "day" + splitSym + Game.nbLoupAlive;
-
-
-         Game.playersAliveIDs.removeAll(Game.deadLastNightID);
-         Game.playersAliveNames.removeAll(Game.deadLastNightName);
-
-
-         updatePlayerAlive();
-         Log.d("sending to connected", "" + msg);
-         Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.playersAliveIDs, msg.getBytes());
-
-         try {
-         Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.deadLastNightID, ("step" + splitSym + "dead").getBytes());
-         } catch (IllegalArgumentException e) {
-         //Just dont send any messages
-
-         }
-
-         Game.deadLastNightName.clear();
-         Game.deadLastNightID.clear();
-
-
-         if (myGame.nbLoupAlive <= 0) {
-         villageWin();
-         } else if (myGame.nbLoupAlive == Game.playersAliveIDs.size()) {
-         loupWin();
-         }
-         **/
 
     }
 
@@ -1092,7 +1060,12 @@ public class MainActivity extends Activity implements
         event.setType(Evenement.EventType.voteDay);
         event.setAllPlayers(Game.allPlayers);
         event.setVoteur(Game.me());
-        event.setJoueurVote(Game.allPlayers.get(position));
+        for (int i = 0 ; i < Game.allPlayers.size() ; i++){
+            if (Game.listAliveNames.get(position).equals(Game.allPlayers.get(i).getName())){
+                event.setJoueurVote(Game.allPlayers.get(i));
+            }
+        }
+
 
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
 
@@ -1110,7 +1083,6 @@ public class MainActivity extends Activity implements
     public static byte[] serialize(Object obj) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = null;
-        Log.d("SERIALIZE", "Start");
         try {
             os = new ObjectOutputStream(out);
         } catch (IOException e) {
@@ -1123,7 +1095,6 @@ public class MainActivity extends Activity implements
             Log.d("SERIALIZE", "IOException 2");
             e.printStackTrace();
         }
-        Log.d("SERIALIZE", "Done " + out.toByteArray());
         return out.toByteArray();
     }
 
@@ -1131,8 +1102,6 @@ public class MainActivity extends Activity implements
     public static Object deserialize(byte[] data) {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = null;
-        Log.d("DESERIALIZE", "Start");
-        Log.d("Data", "" + data);
         try {
             is = new ObjectInputStream(in);
         } catch (IOException e) {
