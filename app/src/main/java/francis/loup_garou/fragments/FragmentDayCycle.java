@@ -48,7 +48,7 @@ public class FragmentDayCycle extends Fragment {
         //NB LOUP
         TextView tx = (TextView) getView().findViewById(R.id.nbLoupAliveTxtview);
         tx.setText(nbLoupAlive);
-
+        Log.d("nbLoupAlive", "" + nbLoupAlive);
 
         //LISTE ALIVE
         listViewAlive = (ListView) getView().findViewById(R.id.listPlayersAlive);

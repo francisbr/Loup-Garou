@@ -320,10 +320,10 @@ public class Game {
         int nb = 0;
 
 
-        Log.d("allPlayers.size()", "" + allPlayers.size());
+        Log.d("Game.getNbLoup()", "allPlayers.size() = " + allPlayers.size());
         for (int i = 0; i < allPlayers.size(); i++) {
             Log.d("nb", "" + nb);
-            if (allPlayers.get(i) instanceof LoupGarou) {
+            if (allPlayers.get(i) instanceof LoupGarou && allPlayers.get(i).isEnVie()) {
                 Log.d("" + allPlayers.get(i).getName(), "loup");
                 Log.d("nb", "++");
                 nb++;

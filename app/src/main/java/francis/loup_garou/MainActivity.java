@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -974,44 +975,47 @@ public class MainActivity extends Activity implements
 
     public void setNuit(View view) {
 
-        MainActivity.event.setType(Evenement.EventType.showNight);
-        MainActivity.event.setAllPlayers(Game.allPlayers);
+        if (Game.getNbLoup() == 0) {
+            MainActivity.event.setType(Evenement.EventType.villageWin);
+            MainActivity.event.setAllPlayers(Game.allPlayers);
 
-        for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            for (int i = 0; i < Game.allPlayers.size(); i++) {
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            }
+
+        } else {
+
+            MainActivity.event.setType(Evenement.EventType.showNight);
+            MainActivity.event.setAllPlayers(Game.allPlayers);
+
+            for (int i = 0; i < Game.allPlayers.size(); i++) {
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            }
         }
     }
 
     public void setDay(View view) {
-
-        MainActivity.event.setType(Evenement.EventType.showDay);
-        MainActivity.event.setAllPlayers(Game.allPlayers);
+        int nbPlayerAlive = 0;
         for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            if (Game.allPlayers.get(i).isEnVie()) {
+                nbPlayerAlive++;
+            }
         }
+        if (Game.getNbLoup() == nbPlayerAlive) {
+            MainActivity.event.setType(Evenement.EventType.loupWin);
+            MainActivity.event.setAllPlayers(Game.allPlayers);
 
-    }
+            for (int i = 0; i < Game.allPlayers.size(); i++) {
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            }
 
-    private void loupWin() {
-        FragmentEnd fragmentEnd = new FragmentEnd();
-
-        fragmentTransaction.replace(android.R.id.content, fragmentEnd);
-        fragmentTransaction.commit();
-        fragmentManager.executePendingTransactions();
-
-        fragmentEnd.loupWin();
-
-    }
-
-    private void villageWin() {
-        FragmentEnd fragmentEnd = new FragmentEnd();
-
-        fragmentTransaction.replace(android.R.id.content, fragmentEnd);
-        fragmentTransaction.commit();
-        fragmentManager.executePendingTransactions();
-
-        fragmentEnd.villageWin();
-
+        } else {
+            MainActivity.event.setType(Evenement.EventType.showDay);
+            MainActivity.event.setAllPlayers(Game.allPlayers);
+            for (int i = 0; i < Game.allPlayers.size(); i++) {
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+            }
+        }
     }
 
     public void tourLoup(View view) {
@@ -1060,8 +1064,8 @@ public class MainActivity extends Activity implements
         event.setType(Evenement.EventType.voteDay);
         event.setAllPlayers(Game.allPlayers);
         event.setVoteur(Game.me());
-        for (int i = 0 ; i < Game.allPlayers.size() ; i++){
-            if (Game.listAliveNames.get(position).equals(Game.allPlayers.get(i).getName())){
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.listAliveNames.get(position).equals(Game.allPlayers.get(i).getName())) {
                 event.setJoueurVote(Game.allPlayers.get(i));
             }
         }

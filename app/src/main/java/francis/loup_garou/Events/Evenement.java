@@ -16,6 +16,7 @@ import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentDead;
+import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
 import francis.loup_garou.fragments.FragmentReceivingRole;
 import francis.loup_garou.players.*;
@@ -29,7 +30,7 @@ public class Evenement implements Serializable {
     protected Joueur voteur, playerVoted;
 
     public enum EventType {
-        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup
+        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin,loupWin
     }
 
     public void execute(Context context) {
@@ -73,6 +74,7 @@ public class Evenement implements Serializable {
                     MainActivity.fragmentManager.executePendingTransactions();
 
                     fragmentDayCycle.showDay("" + Game.getNbLoup());
+                    Log.d("showDay 1","" + Game.getNbLoup());
                     fragmentDayCycle.enableVote();
                 }
                 break;
@@ -119,6 +121,26 @@ public class Evenement implements Serializable {
                 break;
             case resultVoteDay:
                 Game.doIt(true);
+                break;
+            case villageWin:
+                MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                FragmentEnd fragmentEnd = new FragmentEnd();
+
+                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentEnd);
+                MainActivity.fragmentTransaction.commit();
+                MainActivity.fragmentManager.executePendingTransactions();
+
+                fragmentEnd.villageWin();
+                break;
+            case loupWin:
+                MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                FragmentEnd fragmentEnd2 = new FragmentEnd();
+
+                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentEnd2);
+                MainActivity.fragmentTransaction.commit();
+                MainActivity.fragmentManager.executePendingTransactions();
+
+                fragmentEnd2.loupWin();
                 break;
         }
 
@@ -267,6 +289,7 @@ public class Evenement implements Serializable {
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {
                                 Game.allPlayers.get(i).setEnVie(false);
                                 Log.d("Killing", "" + Game.allPlayers.get(i).getName());
+
                             }
                         }
 
