@@ -1078,6 +1078,8 @@ public class MainActivity extends Activity implements
 
     public void endGame(View view) {
         Log.d("exit", "you suck");
+        Nearby.Connections.stopAllEndpoints(mGoogleApiClient);
+        mGoogleApiClient.disconnect();
         Intent intent = getIntent();
         finish();
         startActivity(intent);
