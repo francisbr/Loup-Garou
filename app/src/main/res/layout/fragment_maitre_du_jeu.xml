@@ -66,7 +66,8 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/voyante" />
+            android:text="@string/voyante"
+            android:onClick="tourVoyante"/>
 
         <Button
             android:layout_gravity="center"

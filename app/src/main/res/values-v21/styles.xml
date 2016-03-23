@@ -3,7 +3,7 @@
 
 
 
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar" >
+    <style name="AppTheme" parent="@style/Theme.AppCompat" >
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowActionBar">false</item>
     </style>

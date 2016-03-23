@@ -209,18 +209,21 @@ public class Game {
         switch (allPlayers.size()) {
             //Testing
             case 1:
-                nbCupidon = 1;
+                nbVoyante = 1;
                 break;
             case 2:
+                nbVoyante = 1;
                 nbLoup = 1;
                 break;
             case 3:
                 nbLoup = 1;
-                nbSorciere = 0;
+                nbVoyante = 0;
                 break;
             case 4:
                 nbLoup = 1;
-                nbSorciere = 0;
+                nbSorciere = 1;
+                nbVoyante = 1;
+                nbChasseur = 1;
                 break;
             case 5:
                 nbLoup = 1;

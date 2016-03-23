@@ -13,6 +13,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -45,7 +47,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Events.Evenement;
+import francis.loup_garou.fragments.FragmentBackground;
 import francis.loup_garou.fragments.FragmentDead;
 import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentGetName;
@@ -53,8 +57,9 @@ import francis.loup_garou.fragments.FragmentMaitre;
 import francis.loup_garou.fragments.FragmentStartGame;
 import francis.loup_garou.players.Joueur;
 import francis.loup_garou.players.LoupGarou;
+import francis.loup_garou.players.Voyante;
 
-public class MainActivity extends Activity implements
+public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         Connections.ConnectionRequestListener,
@@ -81,6 +86,7 @@ public class MainActivity extends Activity implements
     private static final long TIMEOUT_ADVERTISE = 1000L * 0L;
     private static final long TIMEOUT_DISCOVER = 1000L * 0L;
     public static Evenement event;
+
 
     /**
      * Possible states for this application:
@@ -148,13 +154,25 @@ public class MainActivity extends Activity implements
 
 
     FragmentGetName fragmentGetName;
-    static private SharedPreferences loginPreferences;
-    static private SharedPreferences.Editor loginPrefsEditor;
-    static private Boolean saveLogin;
+    static public SharedPreferences loginPreferences;
+    static public SharedPreferences.Editor loginPrefsEditor;
+    static public Boolean saveLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        FragmentBackground fragmentBackground = new FragmentBackground();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentBackground);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
+
+
 
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -169,11 +187,7 @@ public class MainActivity extends Activity implements
         Log.d("writting", "name");
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Nearby.CONNECTIONS_API)
-                .build();
+
 
         adapterWish = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listWishName);
         adapterInGame = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listInGameName);
@@ -183,6 +197,12 @@ public class MainActivity extends Activity implements
         adapterDeadNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadNames);
 
         event = new Evenement();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Nearby.CONNECTIONS_API)
+                .build();
     }
 
 
@@ -231,6 +251,16 @@ public class MainActivity extends Activity implements
 
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+            if(!mGoogleApiClient.isConnected()) {
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(Nearby.CONNECTIONS_API)
+                        .build();
+
+                mGoogleApiClient.connect();
+            }
         }
     }
 
@@ -854,7 +884,6 @@ public class MainActivity extends Activity implements
 
                 connectedIDs.remove(i);
 
-
             }
         }
     }
@@ -893,12 +922,7 @@ public class MainActivity extends Activity implements
         }
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        mGoogleApiClient.connect();
+    protected void rememberMyName(){
 
         loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
         loginPrefsEditor = loginPreferences.edit();
@@ -907,6 +931,13 @@ public class MainActivity extends Activity implements
         if (saveLogin == true) {
             fragmentGetName.setSavedName(loginPreferences);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+        rememberMyName();
     }
 
     @Override
@@ -982,6 +1013,7 @@ public class MainActivity extends Activity implements
             for (int i = 0; i < Game.allPlayers.size(); i++) {
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
             }
+            event.execute(this);
 
         } else {
 
@@ -1009,6 +1041,7 @@ public class MainActivity extends Activity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
             }
 
+            event.execute(this);
         } else {
             MainActivity.event.setType(Evenement.EventType.showDay);
             MainActivity.event.setAllPlayers(Game.allPlayers);
@@ -1027,6 +1060,16 @@ public class MainActivity extends Activity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
+    }
+
+    public void tourVoyante(View view) {
+        event.setType(Evenement.EventType.tourVoyante);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i) instanceof Voyante)
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+        }
     }
 
     public static void sendVoteLoup(Joueur player) {
@@ -1077,10 +1120,19 @@ public class MainActivity extends Activity implements
 
 
     public void endGame(View view) {
-        Log.d("exit", "you suck");
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
+        Log.d("MainActivity.endGame", "you suck");
+
+        mGoogleApiClient.disconnect();
+        fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentGetName = new FragmentGetName();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
+
+        onStart();
     }
 
 
@@ -1126,5 +1178,12 @@ public class MainActivity extends Activity implements
 
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main,menu);
+        return true;
+    }
+
 
 }

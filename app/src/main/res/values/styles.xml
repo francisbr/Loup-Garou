@@ -3,7 +3,7 @@
     <!-- Base application theme. -->
 
 
-    <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
+    <style name="AppTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowActionBar">@menu/menu_main</item>
     </style>

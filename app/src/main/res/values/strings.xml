@@ -44,7 +44,7 @@
     <string name="no_internet">No internet connection</string>
     <string name="plz_connect_internet">Please connect to Wi-Fi to continue!</string>
     <string name="retry">Retry</string>
-    <string name="waitin_answer_title" >Request sent!</string>
+    <string name="waitin_answer_title">Request sent!</string>
     <string name="ok" translatable="false">Ok</string>
     <string name="day_txt">Daytime!</string>
     <string name="last_dead">Dead players</string>
@@ -62,5 +62,9 @@
     <string name="conseil">Village council</string>
     <string name="vote_jour_txt">The council requests your vote. Choose from the list.</string>
     <string name="vote_du_village">Villages vote</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_activity_voyante">ActivityVoyante</string>
 
 </resources>

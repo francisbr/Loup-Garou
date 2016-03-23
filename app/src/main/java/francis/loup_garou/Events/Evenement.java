@@ -19,6 +19,7 @@ import francis.loup_garou.fragments.FragmentDead;
 import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
 import francis.loup_garou.fragments.FragmentReceivingRole;
+import francis.loup_garou.fragments.FragmentVoyante;
 import francis.loup_garou.players.*;
 
 /**
@@ -30,7 +31,7 @@ public class Evenement implements Serializable {
     protected Joueur voteur, playerVoted;
 
     public enum EventType {
-        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin,loupWin
+        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, loupWin
     }
 
     public void execute(Context context) {
@@ -101,6 +102,18 @@ public class Evenement implements Serializable {
                     MainActivity.fragmentManager.executePendingTransactions();
 
                     fragmentLoupGarou.updateList();
+                }
+                break;
+            case tourVoyante:
+                if (Game.doIt(false)) {
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                    FragmentVoyante fragmentVoyante = new FragmentVoyante();
+
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentVoyante);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
+
+                    fragmentVoyante.updateList();
                 }
                 break;
             case startVoteVillage:

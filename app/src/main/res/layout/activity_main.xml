@@ -5,21 +5,4 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <fragment
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/get_name_fragment"
-        android:name="francis.loup_garou.fragments.FragmentGetName"
-        tools:layout="@layout/fragment_get_name">
-
-    </fragment>
-
-    <fragment
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/start_game_fragment"
-        android:name="francis.loup_garou.fragments.FragmentStartGame"
-        tools:layout="@layout/fragment_starting_game">
-
-    </fragment>
 </LinearLayout>

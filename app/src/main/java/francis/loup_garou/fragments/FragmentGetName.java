@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 
 /**
@@ -28,6 +29,7 @@ public class FragmentGetName extends Fragment {
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_get_name, container, false);
+
 
         return view;
     }
