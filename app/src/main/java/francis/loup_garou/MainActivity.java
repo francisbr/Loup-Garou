@@ -884,6 +884,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 connectedIDs.remove(i);
 
+
             }
         }
     }
