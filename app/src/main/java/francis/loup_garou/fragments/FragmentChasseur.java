@@ -1,8 +1,6 @@
 package francis.loup_garou.fragments;
 
 import android.app.Fragment;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,32 +9,32 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 import francis.loup_garou.players.Joueur;
 
-
-public class FragmentVoyante extends Fragment {
-    Context context;
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class FragmentChasseur extends Fragment {
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        context = inflater.getContext();
-        return inflater.inflate(R.layout.fragment_voyante, container, false);
+
+        return inflater.inflate(R.layout.fragment_loup_garou, container, false);
     }
 
     public void updateList() {
 
-        ListView listVote = (ListView) getView().findViewById(R.id.listPlayersToSee);
+        ListView listVote = (ListView) getView().findViewById(R.id.listPlayersToKill);
 
         Game.listAliveNames.clear();
         for (int i = 0; i < Game.allPlayers.size(); i++) {
-            if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i) != Game.me()) {
+            if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i)!= Game.me()) {
                 Game.listAliveNames.add(Game.allPlayers.get(i).getName());
             }
         }
@@ -55,29 +53,9 @@ public class FragmentVoyante extends Fragment {
                     }
                 }
 
-                showRoleVoyante(player);
+                MainActivity.sendVoteChasseur(player);
 
             }
         });
-    }
-
-    public void showRoleVoyante(Joueur player) {
-        Intent intent = new Intent(context, ActivityVoyante.class);
-        intent.putExtra("name", player.getName());
-        intent.putExtra("role", "" + player.getRole());
-        startActivity(intent);
-
-        MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-        FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
-        MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
-        MainActivity.fragmentTransaction.commit();
-        MainActivity.fragmentManager.executePendingTransactions();
-
-        fragmentDayCycle.showNight();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 }

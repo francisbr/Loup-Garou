@@ -14,6 +14,7 @@ import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
+import francis.loup_garou.fragments.FragmentChasseur;
 import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentDead;
 import francis.loup_garou.fragments.FragmentEnd;
@@ -31,12 +32,12 @@ public class Evenement implements Serializable {
     protected Joueur voteur, playerVoted;
 
     public enum EventType {
-        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, loupWin
+        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, loupWin, mortDuChasseur, voteDuChasseur
     }
 
     public void execute(Context context) {
         Log.d("Execute", "" + type);
-        FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
+
 
         Game.allPlayers = allPlayers;
         Game.uptdateListsNames();
@@ -69,13 +70,13 @@ public class Evenement implements Serializable {
             case showDay:
                 if (Game.doIt(true)) {
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-
+                    FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
                     MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
                     MainActivity.fragmentTransaction.commit();
                     MainActivity.fragmentManager.executePendingTransactions();
 
                     fragmentDayCycle.showDay("" + Game.getNbLoup());
-                    Log.d("showDay 1","" + Game.getNbLoup());
+                    Log.d("showDay 1", "" + Game.getNbLoup());
                     fragmentDayCycle.enableVote();
                 }
                 break;
@@ -83,7 +84,7 @@ public class Evenement implements Serializable {
             case showNight:
                 if (Game.doIt(false)) {
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-
+                    FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
                     MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
                     MainActivity.fragmentTransaction.commit();
                     MainActivity.fragmentManager.executePendingTransactions();
@@ -154,6 +155,17 @@ public class Evenement implements Serializable {
                 MainActivity.fragmentManager.executePendingTransactions();
 
                 fragmentEnd2.loupWin();
+                break;
+            case mortDuChasseur:
+                if(Game.me().getRole() == Roles.Chasseur) {
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                    FragmentChasseur fragmentChasseur = new FragmentChasseur();
+
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentChasseur);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
+                    fragmentChasseur.updateList();
+                }
                 break;
         }
 
@@ -296,33 +308,65 @@ public class Evenement implements Serializable {
                     if (plusGrandnbDeVote >= (playersAlive.size() / 2) + 1) {
                         Log.d("Killing", "True " + alreadyChecked.get(posMax));
                         String killedID = alreadyChecked.get(posMax);
-
+                        boolean killingChasseur = false;
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
                             Log.d("" + Game.allPlayers.get(i).getId(), "" + killedID);
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {
                                 Game.allPlayers.get(i).setEnVie(false);
                                 Log.d("Killing", "" + Game.allPlayers.get(i).getName());
 
+                                if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
+                                    Log.d("Killing", "Chasseur");
+                                    killingChasseur = true;
+                                }
                             }
                         }
 
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
 
+                        if (killingChasseur) {
+                            MainActivity.event.setType(EventType.mortDuChasseur);
+                            MainActivity.event.setAllPlayers(Game.allPlayers);
+                            for (int i = 0; i < Game.allPlayers.size(); i++)
+                                Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
-                        MainActivity.event.setType(EventType.resultVoteDay);
-                        MainActivity.event.setAllPlayers(Game.allPlayers);
+                        } else {
+                            MainActivity.event.setType(EventType.resultVoteDay);
+                            MainActivity.event.setAllPlayers(Game.allPlayers);
 
-                        for (int i = 0; i < Game.allPlayers.size(); i++)
-                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
-
-
+                            for (int i = 0; i < Game.allPlayers.size(); i++)
+                                Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                        }
                     } else {
                         Log.d("Killing", "False");
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
                     }
                 }
+                break;
+            case voteDuChasseur:
+                for (int i = 0; i < Game.allPlayers.size(); i++) {
+                    Log.d("" + Game.allPlayers.get(i).getId(), "" + playerVoted);
+
+                    if (Game.allPlayers.get(i).getId().equals(playerVoted.getId())) {
+                        Game.allPlayers.get(i).setEnVie(false);
+                        Log.d("Killing", "" + Game.allPlayers.get(i).getName());
+
+                        if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
+                            MainActivity.event.setType(EventType.mortDuChasseur);
+                            MainActivity.event.setAllPlayers(Game.allPlayers);
+                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                        }
+                    }
+                }
+
+                MainActivity.event.setType(EventType.resultVoteDay);
+                MainActivity.event.setAllPlayers(Game.allPlayers);
+
+                for (int i = 0; i < Game.allPlayers.size(); i++)
+                    Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+
                 break;
         }
     }

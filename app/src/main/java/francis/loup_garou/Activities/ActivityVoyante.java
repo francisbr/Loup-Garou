@@ -134,6 +134,8 @@ public class ActivityVoyante extends Activity {
                 imgRole.setImageResource(R.drawable.villageois);
                 break;
         }
-
+    }
+    public void btnOk(View view){
+        finish();
     }
 }

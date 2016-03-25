@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="Qui voulez-vous tuer?"
-        android:textSize="30sp"
+        android:layout_weight="1"
         android:gravity="center"
-        android:layout_weight="1"/>
+        android:text="Qui voulez-vous tuer?"
+        android:textSize="30sp" />
 
 
     <ListView
         android:id="@+id/listPlayersToKill"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:layout_weight="5">
 
     </ListView>
 
@@ -32,18 +33,18 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="Votre/vos partenaire(s) on vote pour:"
             android:gravity="center"
-            android:textSize="20sp"/>
+            android:text="Votre/vos partenaire(s) on vote pour:"
+            android:textSize="20sp" />
 
         <TextView
+            android:id="@+id/votesLoup"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
-            android:id="@+id/votesLoup"
-            android:text="Francis, Vincent"
             android:gravity="center"
+            android:text="Francis, Vincent"
             android:textSize="30sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

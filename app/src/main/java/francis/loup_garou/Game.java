@@ -212,7 +212,7 @@ public class Game {
                 nbVoyante = 1;
                 break;
             case 2:
-                nbVoyante = 1;
+                nbChasseur = 1;
                 nbLoup = 1;
                 break;
             case 3:
