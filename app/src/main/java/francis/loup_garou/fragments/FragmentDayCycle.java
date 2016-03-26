@@ -6,14 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
 
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
@@ -62,14 +57,6 @@ public class FragmentDayCycle extends Fragment {
 
         listViewAlive.setAdapter(MainActivity.adapterAlive);
         MainActivity.adapterAlive.notifyDataSetChanged();
-
-
-        //LISTE DEAD LAST NIGHT
-        Log.d("deadLastNightNames.size", "" + Game.deadLastNightName.size());
-        for (int i = 0; i < Game.deadLastNightName.size(); i++) {
-            Log.d("playersDeadNames " + i, Game.deadLastNightName.get(i));
-        }
-
 
         Game.listDeadNames.clear();
         for (int i = 0; i < Game.allPlayers.size(); i++) {

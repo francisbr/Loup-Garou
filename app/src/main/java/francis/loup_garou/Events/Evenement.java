@@ -16,10 +16,10 @@ import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 import francis.loup_garou.fragments.FragmentChasseur;
 import francis.loup_garou.fragments.FragmentDayCycle;
-import francis.loup_garou.fragments.FragmentDead;
 import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
 import francis.loup_garou.fragments.FragmentReceivingRole;
+import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentVoyante;
 import francis.loup_garou.players.*;
 
@@ -30,9 +30,10 @@ public class Evenement implements Serializable {
     protected ArrayList<Joueur> allPlayers = new ArrayList();
     protected EventType type;
     protected Joueur voteur, playerVoted;
+    protected int int1, int2;
 
     public enum EventType {
-        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, loupWin, mortDuChasseur, voteDuChasseur
+        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur
     }
 
     public void execute(Context context) {
@@ -42,11 +43,12 @@ public class Evenement implements Serializable {
         Game.allPlayers = allPlayers;
         Game.uptdateListsNames();
 
-
         /**PLAYERS SECTION**/
         switch (type) {
             case showRole:
                 setMonRole();
+                Game.nbPotionVie = 1;
+                Game.nbPotionMort = 1;
 
                 new AlertDialog.Builder(context)
                         .setTitle(R.string.game_is_starting)
@@ -68,9 +70,10 @@ public class Evenement implements Serializable {
                         .show();
                 break;
             case showDay:
-                if (Game.doIt(true)) {
-                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                if (Game.enVieEtShow(true)) {
                     FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+
                     MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
                     MainActivity.fragmentTransaction.commit();
                     MainActivity.fragmentManager.executePendingTransactions();
@@ -82,19 +85,13 @@ public class Evenement implements Serializable {
                 break;
 
             case showNight:
-                if (Game.doIt(false)) {
-                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-                    FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
-                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
-                    MainActivity.fragmentTransaction.commit();
-                    MainActivity.fragmentManager.executePendingTransactions();
-
-                    fragmentDayCycle.showNight();
+                if (Game.enVieEtShow(false)) {
+                    showNight();
                 }
                 break;
 
             case tourLoup:
-                if (Game.doIt(false)) {
+                if (Game.enVieEtShow(false)) {
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
                     FragmentLoupGarou fragmentLoupGarou = new FragmentLoupGarou();
 
@@ -106,7 +103,7 @@ public class Evenement implements Serializable {
                 }
                 break;
             case tourVoyante:
-                if (Game.doIt(false)) {
+                if (Game.enVieEtShow(false)) {
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
                     FragmentVoyante fragmentVoyante = new FragmentVoyante();
 
@@ -117,8 +114,20 @@ public class Evenement implements Serializable {
                     fragmentVoyante.updateList();
                 }
                 break;
+            case tourSorciere:
+                if (Game.enVieEtShow(false) || mortCetteNuit()) {
+                MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                FragmentSorciere fragmentSorciere = new FragmentSorciere();
+
+                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentSorciere);
+                MainActivity.fragmentTransaction.commit();
+                MainActivity.fragmentManager.executePendingTransactions();
+
+                fragmentSorciere.updateLists();
+                }
+                break;
             case startVoteVillage:
-                if (Game.doIt(false)) {
+                if (Game.enVieEtShow(false)) {
                     Game.voteStarted = true;
 
                     new AlertDialog.Builder(context)
@@ -134,7 +143,7 @@ public class Evenement implements Serializable {
                 }
                 break;
             case resultVoteDay:
-                Game.doIt(true);
+                Game.enVieEtShow(true);
                 break;
             case villageWin:
                 MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
@@ -171,6 +180,10 @@ public class Evenement implements Serializable {
 
         /**HOST SECTION**/
         switch (type) {
+            case upDate:
+                Game.nbPotionVie = int1;
+                Game.nbPotionMort = int2;
+                break;
             case voteLoup://Quand le host recoi un vote
                 Log.d("Received", "voteLoup");
 
@@ -212,7 +225,8 @@ public class Evenement implements Serializable {
                     if (kill) {
                         Log.d("kill", MainActivity.allVotes.get(0).getName());
 
-                        MainActivity.allVotes.get(0).setEnVie(false);
+                        //MainActivity.allVotes.get(0).setEnVie(false);
+                        kill(MainActivity.allVotes.get(0), true);
 
 
                         MainActivity.allVoteurs.clear();
@@ -312,8 +326,8 @@ public class Evenement implements Serializable {
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
                             Log.d("" + Game.allPlayers.get(i).getId(), "" + killedID);
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {
-                                Game.allPlayers.get(i).setEnVie(false);
-                                Log.d("Killing", "" + Game.allPlayers.get(i).getName());
+
+                                kill(allPlayers.get(i), false);
 
                                 if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
                                     Log.d("Killing", "Chasseur");
@@ -328,6 +342,7 @@ public class Evenement implements Serializable {
                         if (killingChasseur) {
                             MainActivity.event.setType(EventType.mortDuChasseur);
                             MainActivity.event.setAllPlayers(Game.allPlayers);
+                            /** Change a qui on lenvoie!!! **/
                             for (int i = 0; i < Game.allPlayers.size(); i++)
                                 Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
@@ -369,6 +384,14 @@ public class Evenement implements Serializable {
 
                 break;
         }
+    }
+
+
+    private boolean mortCetteNuit() {
+        if (Game.me().deadLastNight())
+            return true;
+        else
+            return false;
     }
 
     private void setMonRole() {
@@ -416,8 +439,31 @@ public class Evenement implements Serializable {
         this.playerVoted = joueurVote;
     }
 
-    public EventType getType() {
-        return type;
+    private void kill(Joueur player, boolean night) {
+
+        player.setEnVie(false);
+
+        if (night) {
+            player.setDeadLastNight(true);
+        } else {
+            player.setDeadLastNight(false);
+        }
+    }
+
+    public void setInts(int int1, int int2) {
+        this.int1 = int1;
+        this.int2 = int2;
+    }
+
+    public static void showNight(){
+        FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
+        MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+
+        MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
+        MainActivity.fragmentTransaction.commit();
+        MainActivity.fragmentManager.executePendingTransactions();
+
+        fragmentDayCycle.showNight();
     }
 }
 

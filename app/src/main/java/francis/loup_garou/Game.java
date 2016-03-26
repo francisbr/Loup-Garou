@@ -9,6 +9,7 @@ import com.google.android.gms.nearby.Nearby;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import francis.loup_garou.Events.Evenement;
@@ -30,13 +31,9 @@ import francis.loup_garou.players.Voyante;
  */
 public class Game {
     public static boolean voteStarted = false;
-    FragmentManager fragmentManager;
-    FragmentTransaction fragmentTransaction;
-
-    private GoogleApiClient mGoogleApiClient;
-    String splitSym = MainActivity.splitSym;
 
     int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
+    public static int nbPotionVie = 1, nbPotionMort = 1;
 
     //Players in game!\
     /**
@@ -48,12 +45,7 @@ public class Game {
 
     public static ArrayList listAliveNames = new ArrayList();
     public static ArrayList listDeadNames = new ArrayList();
-
-
-    static public ArrayList<String> deadLastNightID = new ArrayList();
-    static public ArrayList<String> deadLastNightName = new ArrayList();
-
-    static public ArrayList<String> loupIDs = new ArrayList();
+    public static ArrayList listDeadLastNightNames = new ArrayList();
 
 
     /**
@@ -152,72 +144,21 @@ public class Game {
 
     }
 
-    public static void playGame(String step, String nbLoupAlive) {
-        MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-        FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
-        FragmentLoupGarou fragmentLoupGarou = new FragmentLoupGarou();
-        FragmentDead fragmentDead = new FragmentDead();
-
-        switch (step) {
-            case "dead":
-                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDead);
-                MainActivity.fragmentTransaction.commit();
-                MainActivity.fragmentManager.executePendingTransactions();
-
-                break;
-            case "nuit":
-
-                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
-                MainActivity.fragmentTransaction.commit();
-                MainActivity.fragmentManager.executePendingTransactions();
-
-
-                fragmentDayCycle.showNight();
-
-                break;
-
-            case "day":
-
-                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
-                MainActivity.fragmentTransaction.commit();
-                MainActivity.fragmentManager.executePendingTransactions();
-
-                fragmentDayCycle.showDay(nbLoupAlive);
-                fragmentDayCycle.enableVote();
-                break;
-
-            case "tourLoup":
-                if (MainActivity.monRole == Roles.LoupGarou) {
-
-                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentLoupGarou);
-                    MainActivity.fragmentTransaction.commit();
-                    MainActivity.fragmentManager.executePendingTransactions();
-
-                    fragmentLoupGarou.updateList();
-                }
-                break;
-
-            case "voteDay":
-                voteStarted = true;
-                break;
-        }
-
-    }
-
     private void setNbRoles() {
 
         switch (allPlayers.size()) {
             //Testing
             case 1:
-                nbVoyante = 1;
+                nbSorciere = 1;
                 break;
             case 2:
-                nbChasseur = 1;
+                nbSorciere = 1;
                 nbLoup = 1;
                 break;
             case 3:
                 nbLoup = 1;
-                nbVoyante = 0;
+                nbVoyante = 1;
+                nbSorciere = 1;
                 break;
             case 4:
                 nbLoup = 1;
@@ -352,12 +293,17 @@ public class Game {
     public static void uptdateListsNames() {
         listAliveNames.clear();
         listDeadNames.clear();
+        listDeadLastNightNames.clear();
 
         for (int i = 0; i < allPlayers.size(); i++) {
             if (allPlayers.get(i).isEnVie()) {
                 listAliveNames.add(allPlayers.get(i).getName());
             } else {
                 listDeadNames.add(allPlayers.get(i).getName());
+
+                if (allPlayers.get(i).deadLastNight()){
+                    listDeadLastNightNames.add(allPlayers.get(i).getName());
+                }
             }
         }
 
@@ -365,7 +311,7 @@ public class Game {
         MainActivity.adapterDeadNames.notifyDataSetChanged();
     }
 
-    public static boolean doIt(boolean show) {
+    public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
 
         if (!me().isEnVie()) {

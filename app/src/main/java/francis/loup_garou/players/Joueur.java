@@ -9,7 +9,7 @@ import francis.loup_garou.Roles;
  */
 public class Joueur implements Serializable{
 
-    protected Boolean isEnVie = true, hasVoted = false;
+    protected Boolean isEnVie = true, deadLastNight = false, hasVoted = false;
     protected String id, name;
 
     public Joueur(String id, String name){
@@ -39,11 +39,19 @@ public class Joueur implements Serializable{
         this.hasVoted = hasVoted;
     }
 
-    public Boolean getHasVoted() {
+    public Boolean HasVoted() {
         return hasVoted;
     }
 
     public Roles getRole(){
         return null;
+    }
+
+    public void setDeadLastNight(Boolean deadLastNight) {
+        this.deadLastNight = deadLastNight;
+    }
+
+    public Boolean deadLastNight() {
+        return deadLastNight;
     }
 }

@@ -87,7 +87,8 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/sorciere" />
+            android:text="@string/sorciere"
+            android:onClick="tourSorciere"/>
 
 
     </GridLayout>

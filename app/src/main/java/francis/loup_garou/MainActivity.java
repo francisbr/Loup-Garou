@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity implements
     public static Evenement event;
 
 
-
-
     /**
      * Possible states for this application:
      * IDLE - GoogleApiClient not yet connected, can't do anything.
@@ -173,6 +171,22 @@ public class MainActivity extends AppCompatActivity implements
         fragmentTransaction.replace(android.R.id.content, fragmentBackground);
         fragmentTransaction.commit();
         fragmentManager.executePendingTransactions();
+
+
+
+        fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentGetName = new FragmentGetName();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
+
+
+        Log.d("writting", "name");
+
+
 
 
         adapterWish = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listWishName);
@@ -610,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (monRole == null)
                     setRole(msg[1]);
                 break;
-            case "step":
+            case "step":/*
                 if (monRole != Roles.Maitre) {
 
                     if (msg[1].equals("voteDay")) {
@@ -627,7 +641,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
 
                     Game.playGame(msg[1], infoSup.get(0));
-                }
+                }*/
                 break;
             case "listeUpdate":/*
                 if (infoSup.get(1).equals("clear")) {
@@ -639,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements
                 }*/
                 break;
             case "listeLoup":
-                Game.loupIDs.add(msg[1]);
+                //Game.loupIDs.add(msg[1]);
                 break;
             case "voteLoup":
                 receivingVote("loup", msg[1], infoSup.get(0), infoSup.get(1));
@@ -923,18 +937,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        fragmentManager = getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentGetName = new FragmentGetName();
-
-        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
-        fragmentTransaction.commit();
-        fragmentManager.executePendingTransactions();
-
-
-        Log.d("writting", "name");
-
         mGoogleApiClient.connect();
         rememberMyName();
     }
@@ -1122,6 +1124,14 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("MainActivity.endGame", "you suck");
 
         mGoogleApiClient.disconnect();
+        fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentGetName = new FragmentGetName();
+
+        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
+        fragmentTransaction.commit();
+        fragmentManager.executePendingTransactions();
 
         onStart();
     }
@@ -1176,14 +1186,5 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    public static void sendVoteChasseur(Joueur player) {
-
-        event.setType(Evenement.EventType.voteDuChasseur);
-        event.setAllPlayers(Game.allPlayers);
-        event.setJoueurVote(player);
-        Log.d("ChasseurVoted", player.getName());
-
-        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
-    }
 
 }
