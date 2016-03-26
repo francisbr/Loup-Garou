@@ -116,14 +116,14 @@ public class Evenement implements Serializable {
                 break;
             case tourSorciere:
                 if (Game.enVieEtShow(false) || mortCetteNuit()) {
-                MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
-                FragmentSorciere fragmentSorciere = new FragmentSorciere();
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                    FragmentSorciere fragmentSorciere = new FragmentSorciere();
 
-                MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentSorciere);
-                MainActivity.fragmentTransaction.commit();
-                MainActivity.fragmentManager.executePendingTransactions();
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentSorciere);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
 
-                fragmentSorciere.updateLists();
+                    fragmentSorciere.updateLists();
                 }
                 break;
             case startVoteVillage:
@@ -166,7 +166,7 @@ public class Evenement implements Serializable {
                 fragmentEnd2.loupWin();
                 break;
             case mortDuChasseur:
-                if(Game.me().getRole() == Roles.Chasseur) {
+                if (Game.enVieEtShow(false)) {
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
                     FragmentChasseur fragmentChasseur = new FragmentChasseur();
 
@@ -323,6 +323,7 @@ public class Evenement implements Serializable {
                         Log.d("Killing", "True " + alreadyChecked.get(posMax));
                         String killedID = alreadyChecked.get(posMax);
                         boolean killingChasseur = false;
+                        Joueur chasseur = null;
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
                             Log.d("" + Game.allPlayers.get(i).getId(), "" + killedID);
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {
@@ -331,6 +332,7 @@ public class Evenement implements Serializable {
 
                                 if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
                                     Log.d("Killing", "Chasseur");
+                                    chasseur = Game.allPlayers.get(i);
                                     killingChasseur = true;
                                 }
                             }
@@ -342,9 +344,8 @@ public class Evenement implements Serializable {
                         if (killingChasseur) {
                             MainActivity.event.setType(EventType.mortDuChasseur);
                             MainActivity.event.setAllPlayers(Game.allPlayers);
-                            /** Change a qui on lenvoie!!! **/
-                            for (int i = 0; i < Game.allPlayers.size(); i++)
-                                Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                            
+                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, chasseur.getId(), MainActivity.serialize(MainActivity.event));
 
                         } else {
                             MainActivity.event.setType(EventType.resultVoteDay);
@@ -455,7 +456,7 @@ public class Evenement implements Serializable {
         this.int2 = int2;
     }
 
-    public static void showNight(){
+    public static void showNight() {
         FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
         MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
 
