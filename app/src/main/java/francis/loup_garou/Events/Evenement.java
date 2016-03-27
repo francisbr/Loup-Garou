@@ -166,7 +166,8 @@ public class Evenement implements Serializable {
                 fragmentEnd2.loupWin();
                 break;
             case mortDuChasseur:
-                if (Game.enVieEtShow(false)) {
+                if (!Game.enVieEtShow(false)) {
+                    Log.d("mortDuChasseur", "!Game.enVieEtShow(false): " + !Game.enVieEtShow(false));
                     MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
                     FragmentChasseur fragmentChasseur = new FragmentChasseur();
 
