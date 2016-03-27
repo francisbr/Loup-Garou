@@ -344,7 +344,7 @@ public class Evenement implements Serializable {
                         if (killingChasseur) {
                             MainActivity.event.setType(EventType.mortDuChasseur);
                             MainActivity.event.setAllPlayers(Game.allPlayers);
-                            
+
                             Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, chasseur.getId(), MainActivity.serialize(MainActivity.event));
 
                         } else {

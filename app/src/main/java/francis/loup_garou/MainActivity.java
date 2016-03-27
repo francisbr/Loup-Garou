@@ -1,19 +1,16 @@
 package francis.loup_garou;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -47,16 +44,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.fragments.FragmentBackground;
-import francis.loup_garou.fragments.FragmentDead;
-import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
+import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentStartGame;
 import francis.loup_garou.players.Joueur;
 import francis.loup_garou.players.LoupGarou;
+import francis.loup_garou.players.Sorciere;
 import francis.loup_garou.players.Voyante;
 
 public class MainActivity extends AppCompatActivity implements
@@ -139,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public static ArrayAdapter<String> adapterAlive;
     public static ArrayAdapter<String> adapterDeadNames;
+    public static ArrayAdapter<String> adapterSavable;
 
     //Pour les list view de games
     ListView listViewNearbyGames;
@@ -195,6 +192,8 @@ public class MainActivity extends AppCompatActivity implements
 
         adapterAlive = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listAliveNames);
         adapterDeadNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadNames);
+
+        adapterSavable = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadLastNightNames);
 
         event = new Evenement();
 
@@ -1073,6 +1072,37 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    public void tourSorciere(View view) {
+        event.setType(Evenement.EventType.tourSorciere);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i) instanceof Sorciere)
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+        }
+    }
+
+    public static void actionSorciere(String action, int position) {
+        event.setType(Evenement.EventType.upDate);
+        switch (action){
+            case "kill":
+                FragmentSorciere.getPlayerEnVie(position).setEnVie(false);
+                FragmentSorciere.getPlayerEnVie(position).setDeadLastNight(true);
+                Game.nbPotionMort --;
+                break;
+            case "save":
+                FragmentSorciere.getPlayerDeadLastNight(position).setEnVie(true);
+                FragmentSorciere.getPlayerDeadLastNight(position).setDeadLastNight(false);
+                Game.nbPotionVie --;
+                break;
+        }
+
+        event.setAllPlayers(Game.allPlayers);
+        event.setInts(Game.nbPotionVie, Game.nbPotionMort);
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
+    }
+
     public static void sendVoteLoup(Joueur player) {
 
         event.setType(Evenement.EventType.voteLoup);
@@ -1084,6 +1114,14 @@ public class MainActivity extends AppCompatActivity implements
 
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
 
+    }
+
+    public static void sendVoteChasseur(Joueur player){
+     event.setType(Evenement.EventType.voteDuChasseur);
+        event.setAllPlayers(Game.allPlayers);
+        event.setJoueurVote(player);
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
     public void receivingVote(String typeVote, String voteur, String voteID, String voteursName) {

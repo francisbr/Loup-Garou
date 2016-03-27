@@ -73,15 +73,15 @@ public class FragmentSorciere extends Fragment {
 
     }
 
-    public void hideLists(){
-        if (Game.nbPotionVie == 0){
+    public void hideLists() {
+        if (Game.nbPotionVie == 0) {
             getView().findViewById(R.id.noPotLifetxt).setVisibility(View.VISIBLE);
             getView().findViewById(R.id.savablePlayersList).setVisibility(View.GONE);
         } else {
             getView().findViewById(R.id.noPotLifetxt).setVisibility(View.GONE);
             getView().findViewById(R.id.savablePlayersList).setVisibility(View.VISIBLE);
         }
-        if (Game.nbPotionMort == 0){
+        if (Game.nbPotionMort == 0) {
             getView().findViewById(R.id.noPotKilltxt).setVisibility(View.VISIBLE);
             getView().findViewById(R.id.witchKillablePlayersList).setVisibility(View.GONE);
         } else {
@@ -102,7 +102,7 @@ public class FragmentSorciere extends Fragment {
         return tempList.get(pos);
     }
 
-    public static Joueur getPlayerenVie(int pos) {
+    public static Joueur getPlayerEnVie(int pos) {
         ArrayList<Joueur> tempList = new ArrayList<>();
 
         for (int i = 0; i < Game.allPlayers.size(); i++) {
