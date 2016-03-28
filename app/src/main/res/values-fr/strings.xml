@@ -57,4 +57,12 @@
     <string name="successful_wolf_kill">"Vous avez tué "</string>
     <string name="vote_du_village">Vote du village</string>
     <string name="vote_jour_txt">Le conseil attend votre vote. Choisissez une personne dans la liste.</string>
+    <string name="descriptionChasseur">Dès que le chasseur meurt, qu\'il soit tué dans la nuit (Loups-garous, sorcière) ou à la suite d\'une décision des villageois, il doit désigner une personne qui mourra également sur-le-champ d\'une balle de son fusil.</string>
+    <string name="descriptionCupidon">Durant la nuit du premier tour de la partie, cupidon désigne deux personnes qui seront amoureuses jusqu\'à la fin du jeu. Si l\'une des deux personnes vient à mourir, l\'autre meurt immédiatement de désespoir.</string>
+    <string name="descriptionLoup">Tous les soirs les loups garous se réunissent pour décider d\'une personne à tuer.</string>
+    <string name="descriptionPetiteFille">Veuiller insérer une description en français</string>
+    <string name="descriptionSorciere">Veuiller insérer une description en français</string>
+    <string name="descriptionVillageois">Veuiller insérer une description en français</string>
+    <string name="descriptionVoleur">Veuiller insérer une description en français</string>
+    <string name="descriptionVoyante">Veuiller insérer une description en français</string>
 </resources>

@@ -41,49 +41,60 @@
         android:onClick="startVoteVillage"
         android:text="@string/vote_du_village" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
-        android:text="@string/whos_turn"
-        android:textSize="20sp" />
+        android:gravity="center"
+        android:orientation="horizontal">
 
-    <GridLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:columnCount="2">
 
         <Button
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:width="145dp"
             android:onClick="tourLoup"
             android:text="@string/loup_garou" />
 
         <Button
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:width="145dp"
             android:onClick="tourVoyante"
             android:text="@string/voyante" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:width="145dp"
             android:text="@string/voleur" />
 
         <Button
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:width="145dp"
             android:text="@string/cupidon" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:width="145dp"
             android:onClick="tourSorciere"
             android:text="@string/sorciere" />
-    </GridLayout>
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -103,12 +114,12 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="0dp"
         android:background="#595959"
-        android:textColor="#ffffff"
         android:fadeScrollbars="false"
         android:gravity="bottom"
         android:lines="10"
         android:maxLines="10"
         android:padding="2dp"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        android:textColor="#ffffff" />
 
 </LinearLayout>

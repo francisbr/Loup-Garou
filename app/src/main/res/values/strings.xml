@@ -66,5 +66,15 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_activity_voyante">ActivityVoyante</string>
+    <string name="test">loup-Garou</string>
+    <string name="loup">werewolf</string>
+    <string name="descriptionLoup">Insert english description</string>
+    <string name="descriptionVoyante">Insert english description</string>
+    <string name="descriptionChasseur">Insert english description</string>
+    <string name="descriptionCupidon">Insert english description</string>
+    <string name="descriptionSorciere">Insert english description</string>
+    <string name="descriptionPetiteFille">Insert english description</string>
+    <string name="descriptionVoleur">Insert english description</string>
+    <string name="descriptionVillageois">Insert english description</string>
 
 </resources>

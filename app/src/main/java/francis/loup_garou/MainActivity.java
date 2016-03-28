@@ -42,8 +42,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.fragments.FragmentBackground;
@@ -978,6 +984,9 @@ public class MainActivity extends AppCompatActivity implements
             Toast.makeText(MainActivity.this, "" + (minPlayer - connectedIDs.size()) + " " + getString(R.string.missing_player), Toast.LENGTH_LONG).show();
 
         } else {
+            monRole = Roles.Maitre;
+            startingGame();
+
             myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
 
 
@@ -985,9 +994,6 @@ public class MainActivity extends AppCompatActivity implements
             for (int i = 0; i < wishingToConnectIDs.size(); i++)
                 Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
             wishingToConnectIDs.clear();
-
-            monRole = Roles.Maitre;
-            startingGame();
 
         }
     }
@@ -1233,7 +1239,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public static void showLogs(String msg) {
-        FragmentMaitre.mDebugInfo.append("\n" + msg);
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ");
+        String strDate = sdf.format(c.getTime());
+        int seconds = c.get(Calendar.SECOND), minutes = c.get(Calendar.MINUTE), hours = c.get(Calendar.HOUR_OF_DAY);
+
+        String time = "[" + hours + ":" + minutes + ":" + seconds + "] ";
+
+        FragmentMaitre.mDebugInfo.append("\n" + strDate + msg);
     }
 
     @Override
