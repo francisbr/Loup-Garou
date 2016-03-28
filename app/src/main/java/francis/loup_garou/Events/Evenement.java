@@ -202,12 +202,12 @@ public class Evenement implements Serializable {
 
                 if (changeVote) {
                     MainActivity.allVotes.set(pos, playerVoted);
-
+                    MainActivity.showLogs(voteur.getName() + " changed his vote to " + playerVoted.getName());
                 } else {
                     Log.d("Adding a vote", voteur + " " + playerVoted);
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
-
+                    MainActivity.showLogs(voteur.getName() + " wants to eat " + playerVoted.getName());
                 }
 
 
@@ -227,7 +227,7 @@ public class Evenement implements Serializable {
 
                         //MainActivity.allVotes.get(0).setEnVie(false);
                         kill(MainActivity.allVotes.get(0), true);
-
+                        MainActivity.showLogs("Every werewolf agreed to eat " + MainActivity.allVotes.get(0).getName());
 
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
@@ -261,14 +261,17 @@ public class Evenement implements Serializable {
 
 
                 if (changeVote) {
+                    /*
                     Log.d("Changing vote", "" + pos + " " + voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVotes.set(pos, playerVoted);
+                    */
 
                 } else {
                     Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
 
+                    MainActivity.showLogs(voteur.getName() + " wants to kill " + playerVoted.getName());
                 }
 
                 ArrayList<String> alreadyChecked = new ArrayList();
@@ -283,6 +286,7 @@ public class Evenement implements Serializable {
 
                 if (MainActivity.allVotes.size() == playersAlive.size()) {
                     Log.d("VoteDay", "All vote received!");
+                    MainActivity.showLogs("Everyone has voted!");
 
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
                         if (!alreadyChecked.contains(MainActivity.allVotes.get(i).getId())) {
@@ -323,16 +327,15 @@ public class Evenement implements Serializable {
                         Log.d("Killing", "True " + alreadyChecked.get(posMax));
                         String killedID = alreadyChecked.get(posMax);
                         boolean killingChasseur = false;
-                        Joueur chasseur = null;
+                        Joueur deadPlayer = null;
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
                             Log.d("" + Game.allPlayers.get(i).getId(), "" + killedID);
                             if (Game.allPlayers.get(i).getId().equals(killedID)) {
-
+                                deadPlayer = allPlayers.get(i);
                                 kill(allPlayers.get(i), false);
 
                                 if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
                                     Log.d("Killing", "Chasseur");
-                                    chasseur = Game.allPlayers.get(i);
                                     killingChasseur = true;
                                 }
                             }
@@ -345,7 +348,9 @@ public class Evenement implements Serializable {
                             MainActivity.event.setType(EventType.mortDuChasseur);
                             MainActivity.event.setAllPlayers(Game.allPlayers);
 
-                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, chasseur.getId(), MainActivity.serialize(MainActivity.event));
+                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, deadPlayer.getId(), MainActivity.serialize(MainActivity.event));
+
+                            MainActivity.showLogs(deadPlayer.getName() + ", the hunter, was killed by the village!");
 
                         } else {
                             MainActivity.event.setType(EventType.resultVoteDay);
@@ -353,15 +358,22 @@ public class Evenement implements Serializable {
 
                             for (int i = 0; i < Game.allPlayers.size(); i++)
                                 Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+
+                            MainActivity.showLogs(deadPlayer.getName() + " was killed by the village!");
                         }
                     } else {
                         Log.d("Killing", "False");
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
+
+                        MainActivity.showLogs("The village wasn't able to agree on someone to execute, no one dies!");
                     }
                 }
                 break;
             case voteDuChasseur:
+                MainActivity.event.setType(EventType.mortDuChasseur);
+                MainActivity.event.setAllPlayers(Game.allPlayers);
+
                 for (int i = 0; i < Game.allPlayers.size(); i++) {
                     Log.d("" + Game.allPlayers.get(i).getId(), "" + playerVoted);
 
@@ -370,8 +382,6 @@ public class Evenement implements Serializable {
                         Log.d("Killing", "" + Game.allPlayers.get(i).getName());
 
                         if (Game.allPlayers.get(i).getRole() == Roles.Chasseur) {
-                            MainActivity.event.setType(EventType.mortDuChasseur);
-                            MainActivity.event.setAllPlayers(Game.allPlayers);
                             Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                         }
                     }

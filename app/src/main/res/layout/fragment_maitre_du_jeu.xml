@@ -16,8 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingTop="15dp">
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="wrap_content"
@@ -46,8 +45,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingBottom="10dp"
-        android:paddingTop="15dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
         android:text="@string/whos_turn"
         android:textSize="20sp" />
 
@@ -66,8 +65,8 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/voyante"
-            android:onClick="tourVoyante"/>
+            android:onClick="tourVoyante"
+            android:text="@string/voyante" />
 
         <Button
             android:layout_gravity="center"
@@ -77,19 +76,39 @@
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/chasseur" />
-
-        <Button
-            android:layout_gravity="center"
-            android:width="145dp"
             android:text="@string/cupidon" />
 
         <Button
             android:layout_gravity="center"
             android:width="145dp"
-            android:text="@string/sorciere"
-            android:onClick="tourSorciere"/>
-
-
+            android:onClick="tourSorciere"
+            android:text="@string/sorciere" />
     </GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:text="Deroulement de la partie :"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/logTxtView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="0dp"
+        android:background="#595959"
+        android:textColor="#ffffff"
+        android:fadeScrollbars="false"
+        android:gravity="bottom"
+        android:lines="10"
+        android:maxLines="10"
+        android:padding="2dp"
+        android:scrollbars="vertical" />
+
 </LinearLayout>

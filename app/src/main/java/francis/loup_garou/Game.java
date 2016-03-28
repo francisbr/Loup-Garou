@@ -106,8 +106,10 @@ public class Game {
         choosePlayer(nbPetiteFille, Roles.PetiteFille, tempList);
 
         if (!tempList.isEmpty()) {
-            for (int i = 0; i < tempList.size(); i++)
+            for (int i = 0; i < tempList.size(); i++) {
                 tempRoleList.add(new Villagois(tempList.get(i).getId(), tempList.get(i).getName()));
+                MainActivity.showLogs(tempList.get(i).getName() + " is a " + R.string.villageois);
+            }
         }
     }
 
@@ -123,20 +125,27 @@ public class Game {
             String choosenPLayerId = tempList.get(randomNum).getId(), choosenPLayerName = tempList.get(randomNum).getName();
 
             if (role == Roles.LoupGarou) {
-                LoupGarou newLoup = new LoupGarou(choosenPLayerId, choosenPLayerName);
-                tempRoleList.add(newLoup);
-            } else if (role == Roles.PetiteFille)
+                tempRoleList.add(new LoupGarou(choosenPLayerId, choosenPLayerName));
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.loup_garou);
+            } else if (role == Roles.PetiteFille) {
                 tempRoleList.add(new PetiteFille(choosenPLayerId, choosenPLayerName));
-            else if (role == Roles.Chasseur)
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.petite_fille);
+            } else if (role == Roles.Chasseur) {
                 tempRoleList.add(new Chasseur(choosenPLayerId, choosenPLayerName));
-            else if (role == Roles.Cupidon)
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.chasseur);
+            } else if (role == Roles.Cupidon) {
                 tempRoleList.add(new Cupidon(choosenPLayerId, choosenPLayerName));
-            else if (role == Roles.Sorciere)
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.cupidon);
+            } else if (role == Roles.Sorciere) {
                 tempRoleList.add(new Sorciere(choosenPLayerId, choosenPLayerName));
-            else if (role == Roles.Voyante)
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.sorciere);
+            } else if (role == Roles.Voyante) {
                 tempRoleList.add(new Voyante(choosenPLayerId, choosenPLayerName));
-            else if (role == Roles.Voleur)
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.voyante);
+            } else if (role == Roles.Voleur) {
                 tempRoleList.add(new Voleur(choosenPLayerId, choosenPLayerName));
+                MainActivity.showLogs(choosenPLayerName + " is a " + R.string.voleur);
+            }
 
             tempList.remove(randomNum);
         }
@@ -301,7 +310,7 @@ public class Game {
             } else {
                 listDeadNames.add(allPlayers.get(i).getName());
 
-                if (allPlayers.get(i).deadLastNight()){
+                if (allPlayers.get(i).deadLastNight()) {
                     listDeadLastNightNames.add(allPlayers.get(i).getName());
                 }
             }

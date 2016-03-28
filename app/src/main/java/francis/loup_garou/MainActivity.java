@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -655,10 +656,10 @@ public class MainActivity extends AppCompatActivity implements
                 //Game.loupIDs.add(msg[1]);
                 break;
             case "voteLoup":
-                receivingVote("loup", msg[1], infoSup.get(0), infoSup.get(1));
+                //receivingVote("loup", msg[1], infoSup.get(0), infoSup.get(1));
                 break;
             case "voteDay":
-                receivingVote("village", msg[1], infoSup.get(0), infoSup.get(1));
+                //receivingVote("village", msg[1], infoSup.get(0), infoSup.get(1));
                 break;
             case "kill":/*
                 Game.deadLastNightID.add(msg[1]);
@@ -1024,6 +1025,12 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
             }
         }
+
+        showLogs("Night is starting.");
+    }
+
+    public void returnNight(View view) {
+        Evenement.showNight();
     }
 
     public void setDay(View view) {
@@ -1049,6 +1056,8 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
             }
         }
+
+        showLogs("Day is starting.");
     }
 
     public void tourLoup(View view) {
@@ -1060,6 +1069,8 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
+        showLogs("The werewolves are waking up.");
+
     }
 
     public void tourVoyante(View view) {
@@ -1070,6 +1081,8 @@ public class MainActivity extends AppCompatActivity implements
             if (Game.allPlayers.get(i) instanceof Voyante)
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
+
+        showLogs("The seer is waking up");
     }
 
     public void tourSorciere(View view) {
@@ -1080,6 +1093,8 @@ public class MainActivity extends AppCompatActivity implements
             if (Game.allPlayers.get(i) instanceof Sorciere)
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
+
+        showLogs("The witch is waking up");
     }
 
     public static void actionSorciere(String action, int position) {
@@ -1089,11 +1104,13 @@ public class MainActivity extends AppCompatActivity implements
                 FragmentSorciere.getPlayerEnVie(position).setEnVie(false);
                 FragmentSorciere.getPlayerEnVie(position).setDeadLastNight(true);
                 Game.nbPotionMort --;
+                showLogs("The witch chose to kill " + FragmentSorciere.getPlayerEnVie(position).getName());
                 break;
             case "save":
                 FragmentSorciere.getPlayerDeadLastNight(position).setEnVie(true);
                 FragmentSorciere.getPlayerDeadLastNight(position).setDeadLastNight(false);
                 Game.nbPotionVie --;
+                showLogs("The witch saved " + FragmentSorciere.getPlayerDeadLastNight(position).getName());
                 break;
         }
 
@@ -1124,22 +1141,14 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
-    public void receivingVote(String typeVote, String voteur, String voteID, String voteursName) {
-
-        boolean kill = true, changeVote = false;
-        int pos = -1;
-
-        Log.d("Entering", "voteVillage");
-
-
-    }
-
     public void startVoteVillage(View view) {
         event.setType(Evenement.EventType.startVoteVillage);
         event.setAllPlayers(Game.allPlayers);
 
         for (int i = 0; i < Game.allPlayers.size(); i++)
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+
+        showLogs("The council has united, players should choose the member they think is a werewolf");
     }
 
     public static void sendVoteDay(int position) {
@@ -1216,6 +1225,10 @@ public class MainActivity extends AppCompatActivity implements
         return null;
 
 
+    }
+
+    public static void showLogs(String msg) {
+        FragmentMaitre.mDebugInfo.append("\n" + msg);
     }
 
     @Override
