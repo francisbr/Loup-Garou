@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements
         fragmentManager.executePendingTransactions();
 
 
-
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -183,8 +182,6 @@ public class MainActivity extends AppCompatActivity implements
 
 
         Log.d("writting", "name");
-
-
 
 
         adapterWish = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listWishName);
@@ -1050,11 +1047,19 @@ public class MainActivity extends AppCompatActivity implements
 
             event.execute(this);
         } else {
-            MainActivity.event.setType(Evenement.EventType.showDay);
-            MainActivity.event.setAllPlayers(Game.allPlayers);
+
             for (int i = 0; i < Game.allPlayers.size(); i++) {
-                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                if (Game.allPlayers.get(i).getRole() == Roles.Chasseur && Game.allPlayers.get(i).deadLastNight()) {
+                    MainActivity.event.setType(Evenement.EventType.mortDuChasseur);
+                    MainActivity.event.setAllPlayers(Game.allPlayers);
+                    Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                }else{
+                    MainActivity.event.setType(Evenement.EventType.showDay);
+                    MainActivity.event.setAllPlayers(Game.allPlayers);
+                    Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                }
             }
+
         }
 
         showLogs("Day is starting.");
@@ -1099,7 +1104,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public static void actionSorciere(String action, int position) {
         event.setType(Evenement.EventType.upDate);
-        switch (action){
+        switch (action) {
             case "kill":
                 FragmentSorciere.getPlayerEnVie(position).setEnVie(false);
                 FragmentSorciere.getPlayerEnVie(position).setDeadLastNight(true);
@@ -1133,8 +1138,8 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    public static void sendVoteChasseur(Joueur player){
-     event.setType(Evenement.EventType.voteDuChasseur);
+    public static void sendVoteChasseur(Joueur player) {
+        event.setType(Evenement.EventType.voteDuChasseur);
         event.setAllPlayers(Game.allPlayers);
         event.setJoueurVote(player);
 
@@ -1233,7 +1238,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main,menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 

@@ -113,4 +113,6 @@ public class FragmentSorciere extends Fragment {
 
         return tempList.get(pos);
     }
+
+
 }

@@ -161,7 +161,7 @@ public class Game {
                 nbSorciere = 1;
                 break;
             case 2:
-                nbSorciere = 1;
+                nbChasseur = 1;
                 nbLoup = 1;
                 break;
             case 3:
@@ -322,18 +322,23 @@ public class Game {
 
     public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
-
+        Log.d("enVieEtShow", "!me().isEnVie() : "+ !me().isEnVie() + " et show : " + show);
         if (!me().isEnVie()) {
             if (show) {
+                Log.d("enVieEtShow", "true, true");
                 MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
 
                 MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDead);
                 MainActivity.fragmentTransaction.commit();
                 MainActivity.fragmentManager.executePendingTransactions();
+
+            }else{
+                Log.d("enVieEtShow", "true, false");
             }
 
             return false;
         } else {
+            Log.d("enVieEtShow", "false, ...");
             return true;
         }
     }
