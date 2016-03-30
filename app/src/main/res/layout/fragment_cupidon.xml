@@ -9,10 +9,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="0dp"
@@ -24,16 +24,16 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
             android:layout_weight="12"
-            android:orientation="vertical"
-            android:layout_marginLeft="10dp">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="5"
                 android:gravity="center|left"
-                android:text="Qui voulez-vous tuer?"
+                android:text="Cupidon"
                 android:textSize="30sp" />
 
             <TextView
@@ -41,20 +41,32 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center|left"
-                android:text="Etant le chasseur, vous pouvez designer une personne a tuer." />
+                android:text="Designer 2 personnes qui vont etres amoureux pour le reste de la partie." />
 
         </LinearLayout>
 
     </LinearLayout>
 
-
-    <ListView
-        android:id="@+id/listPlayersToKill"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_gravity="center"
         android:layout_weight="5">
 
-    </ListView>
+        <ImageView
+            android:id="@+id/imgCoeur"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:src="@drawable/hearts" />
+
+        <ListView
+            android:id="@+id/listFallInLove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+        </ListView>
+    </RelativeLayout>
+
 
 </LinearLayout>
