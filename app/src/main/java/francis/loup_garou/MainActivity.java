@@ -197,14 +197,14 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("writting", "name");
 
 
-        adapterWish = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listWishName);
-        adapterInGame = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listInGameName);
-        adapterNearbyGames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listNearbyGamesName);
+        adapterWish = new ArrayAdapter<String>(this, R.layout.custom_listview, listWishName);
+        adapterInGame = new ArrayAdapter<String>(this, R.layout.custom_listview, listInGameName);
+        adapterNearbyGames = new ArrayAdapter<String>(this, R.layout.custom_listview, listNearbyGamesName);
 
-        adapterAlive = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listAliveNames);
-        adapterDeadNames = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadNames);
+        adapterAlive = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listAliveNames);
+        adapterDeadNames = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listDeadNames);
 
-        adapterSavable = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Game.listDeadLastNightNames);
+        adapterSavable = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listDeadLastNightNames);
 
         event = new Evenement();
 
