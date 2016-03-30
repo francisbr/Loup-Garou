@@ -38,7 +38,8 @@
             android:layout_height="0dp"
             android:layout_weight="1.5"
             android:gravity="top|center"
-            android:text="Au début de chaque nuit, elle est appelée par le meneur et peut désigner une personne dont elle découvrira secrètement l'identité. Le meneur de jeu lui montrera alors la carte d'identité de la personne qu'elle a désignée, elle connaît avec certitude le rôle de cette personne" />
+            android:text="Test"
+            android:visibility="visible"/>
 
 
 </LinearLayout>
