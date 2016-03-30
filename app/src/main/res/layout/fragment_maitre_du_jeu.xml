@@ -80,7 +80,8 @@
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/cupidon" />
+            android:text="@string/cupidon"
+            android:onClick="tourCupidon"/>
     </LinearLayout>
 
     <LinearLayout
