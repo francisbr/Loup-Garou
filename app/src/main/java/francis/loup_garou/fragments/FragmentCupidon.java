@@ -12,29 +12,29 @@ import android.widget.ListView;
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
-import francis.loup_garou.Roles;
 import francis.loup_garou.players.Joueur;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class FragmentChasseur extends Fragment {
+public class FragmentCupidon extends Fragment {
+    Joueur player1 = null, player2 = null;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_chasseur, container, false);
+        return inflater.inflate(R.layout.fragment_cupidon, container, false);
     }
 
     public void updateList() {
 
-        ListView listVote = (ListView) getView().findViewById(R.id.listPlayersToKill);
+        ListView listVote = (ListView) getView().findViewById(R.id.listFallInLove);
 
         Game.listAliveNames.clear();
         for (int i = 0; i < Game.allPlayers.size(); i++) {
-            if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i)!= Game.me()) {
+            if (Game.allPlayers.get(i).isEnVie()) {
                 Game.listAliveNames.add(Game.allPlayers.get(i).getName());
             }
         }
@@ -52,8 +52,24 @@ public class FragmentChasseur extends Fragment {
                         Log.d("choose", "" + player);
                     }
                 }
+                if (player1 == null){
+                    player1 = player;
 
-                MainActivity.sendVoteChasseur(player);
+                    Game.listAliveNames.clear();
+                    for (int i = 0; i < Game.allPlayers.size(); i++) {
+                        if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i).getLover() == null) {
+                            Game.listAliveNames.add(Game.allPlayers.get(i).getName());
+                        }
+                    }
+
+                } else {
+                    if (player2 == null){
+                        player2 = player;
+                    } else {
+                        MainActivity.send2lovers(player1, player2);
+                    }
+                }
+
 
             }
         });

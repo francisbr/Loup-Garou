@@ -36,7 +36,7 @@ public class Evenement implements Serializable {
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
         villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
-        tourVoleur, changeRoles
+        tourVoleur, tourCupidon, changeRoles
     }
 
     public void execute(Context context) {
@@ -49,6 +49,9 @@ public class Evenement implements Serializable {
         /**PLAYERS SECTION**/
         switch (type) {
             case showRole:
+                MainActivity.wishingToConnectIDs.clear();
+                MainActivity.listInGameName.clear();
+                MainActivity.connectedIDs.clear();
                 setMonRole();
                 Game.nbPotionVie = 1;
                 Game.nbPotionMort = 1;
@@ -140,6 +143,9 @@ public class Evenement implements Serializable {
 
                     fragmentVoleur.updateList();
                 }
+                break;
+            case tourCupidon:
+
                 break;
             case startVoteVillage:
                 if (Game.enVieEtShow(false)) {
@@ -507,11 +513,14 @@ public class Evenement implements Serializable {
     private void kill(Joueur player, boolean night) {
 
         player.setEnVie(false);
+        player.getLover().setEnVie(false);
 
         if (night) {
             player.setDeadLastNight(true);
+            player.getLover().setDeadLastNight(true);
         } else {
             player.setDeadLastNight(false);
+            player.getLover().setDeadLastNight(false);
         }
     }
 

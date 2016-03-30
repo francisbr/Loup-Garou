@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -95,9 +96,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final long TIMEOUT_DISCOVER = 1000L * 0L;
     public static Evenement event;
 
-
-
-
     /**
      * Possible states for this application:
      * IDLE - GoogleApiClient not yet connected, can't do anything.
@@ -137,11 +135,11 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The endpoint ID of the connected peer, used for messaging
      **/
-    private ArrayList<String> connectedIDs = new ArrayList();
-    private ArrayList<String> wishingToConnectIDs = new ArrayList();
+    public static ArrayList<String> connectedIDs = new ArrayList();
+    public static ArrayList<String> wishingToConnectIDs = new ArrayList();
     //Pour les list view de users
-    ArrayList<String> listWishName = new ArrayList();
-    ArrayList<String> listInGameName = new ArrayList();
+    public static ArrayList<String> listWishName = new ArrayList();
+    public static ArrayList<String> listInGameName = new ArrayList();
     ArrayAdapter<String> adapterWish;
     ArrayAdapter<String> adapterInGame;
     ListView listViewWish;
@@ -201,8 +199,9 @@ public class MainActivity extends AppCompatActivity implements
         adapterInGame = new ArrayAdapter<String>(this, R.layout.custom_listview, listInGameName);
         adapterNearbyGames = new ArrayAdapter<String>(this, R.layout.custom_listview, listNearbyGamesName);
 
-        adapterAlive = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listAliveNames);
         adapterDeadNames = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listDeadNames);
+
+        adapterAlive = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listAliveNames);
 
         adapterSavable = new ArrayAdapter<String>(this, R.layout.custom_listview, Game.listDeadLastNightNames);
 
@@ -262,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-            if(!mGoogleApiClient.isConnected()) {
+            if (!mGoogleApiClient.isConnected()) {
                 mGoogleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
@@ -934,7 +933,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    protected void rememberMyName(){
+    protected void rememberMyName() {
 
         loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
         loginPrefsEditor = loginPreferences.edit();
@@ -1001,7 +1000,10 @@ public class MainActivity extends AppCompatActivity implements
             Nearby.Connections.stopAdvertising(mGoogleApiClient);
             for (int i = 0; i < wishingToConnectIDs.size(); i++)
                 Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
+
             wishingToConnectIDs.clear();
+            listInGameName.clear();
+            connectedIDs.clear();
 
         }
     }
@@ -1067,7 +1069,7 @@ public class MainActivity extends AppCompatActivity implements
                     MainActivity.event.setType(Evenement.EventType.mortDuChasseur);
                     MainActivity.event.setAllPlayers(Game.allPlayers);
                     Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
-                }else{
+                } else {
                     MainActivity.event.setType(Evenement.EventType.showDay);
                     MainActivity.event.setAllPlayers(Game.allPlayers);
                     Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
@@ -1116,7 +1118,7 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("The witch is waking up");
     }
 
-    public void tourVoleur(View view){
+    public void tourVoleur(View view) {
         event.setType(Evenement.EventType.tourVoleur);
         event.setAllPlayers(Game.allPlayers);
 
@@ -1128,19 +1130,43 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("The thief is waking up");
     }
 
+    public void tourCupidon(View view) {
+        event.setType(Evenement.EventType.tourCupidon);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i) instanceof Cupidon)
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+        }
+
+        showLogs("Cupidon will choose 2 lovers");
+    }
+
+    public static void send2lovers(Joueur player1, Joueur player2) {
+
+        player1.setLover(player2);
+        player2.setLover(player1);
+
+        event.setType(Evenement.EventType.tourCupidon);
+        event.setAllPlayers(Game.allPlayers);
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, player1.getId(), serialize(event));
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, player2.getId(), serialize(event));
+    }
+
     public static void actionSorciere(String action, int position) {
         event.setType(Evenement.EventType.upDate);
         switch (action) {
             case "kill":
                 FragmentSorciere.getPlayerEnVie(position).setEnVie(false);
                 FragmentSorciere.getPlayerEnVie(position).setDeadLastNight(true);
-                Game.nbPotionMort --;
+                Game.nbPotionMort--;
                 showLogs("The witch chose to kill " + FragmentSorciere.getPlayerEnVie(position).getName());
                 break;
             case "save":
                 FragmentSorciere.getPlayerDeadLastNight(position).setEnVie(true);
                 FragmentSorciere.getPlayerDeadLastNight(position).setDeadLastNight(false);
-                Game.nbPotionVie --;
+                Game.nbPotionVie--;
                 showLogs("The witch saved " + FragmentSorciere.getPlayerDeadLastNight(position).getName());
                 break;
         }

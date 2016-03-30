@@ -11,6 +11,7 @@ public class Joueur implements Serializable{
 
     protected Boolean isEnVie = true, deadLastNight = false, hasVoted = false, roleAChange = false;
     protected String id, name;
+    Joueur lover;
 
     public Joueur(String id, String name){
 
@@ -61,5 +62,13 @@ public class Joueur implements Serializable{
 
     public Boolean deadLastNight() {
         return deadLastNight;
+    }
+
+    public Joueur getLover() {
+        return lover;
+    }
+
+    public void setLover(Joueur lover) {
+        this.lover = lover;
     }
 }

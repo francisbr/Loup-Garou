@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,9 +44,9 @@ public class Game {
      * static public ArrayList<String> playersAliveNames = new ArrayList();
      **/
 
-    public static ArrayList listAliveNames = new ArrayList();
-    public static ArrayList listDeadNames = new ArrayList();
-    public static ArrayList listDeadLastNightNames = new ArrayList();
+    public static ArrayList<String> listAliveNames = new ArrayList();
+    public static ArrayList<String> listDeadNames = new ArrayList();
+    public static ArrayList<String> listDeadLastNightNames = new ArrayList();
 
 
     /**
