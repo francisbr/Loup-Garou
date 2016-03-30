@@ -20,6 +20,7 @@ import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
 import francis.loup_garou.fragments.FragmentReceivingRole;
 import francis.loup_garou.fragments.FragmentSorciere;
+import francis.loup_garou.fragments.FragmentVoleur;
 import francis.loup_garou.fragments.FragmentVoyante;
 import francis.loup_garou.players.*;
 
@@ -29,11 +30,13 @@ import francis.loup_garou.players.*;
 public class Evenement implements Serializable {
     protected ArrayList<Joueur> allPlayers = new ArrayList();
     protected EventType type;
-    protected Joueur voteur, playerVoted;
+    protected Joueur voteur, playerVoted, voleurInitial = null, joueurAVolerInitial = null;
     protected int int1, int2;
 
     public enum EventType {
-        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup, villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur
+        showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
+        villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
+        tourVoleur, changeRoles
     }
 
     public void execute(Context context) {
@@ -126,6 +129,18 @@ public class Evenement implements Serializable {
                     fragmentSorciere.updateLists();
                 }
                 break;
+            case tourVoleur:
+                if (Game.enVieEtShow(false)) {
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                    FragmentVoleur fragmentVoleur = new FragmentVoleur();
+
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentVoleur);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
+
+                    fragmentVoleur.updateList();
+                }
+                break;
             case startVoteVillage:
                 if (Game.enVieEtShow(false)) {
                     Game.voteStarted = true;
@@ -176,6 +191,36 @@ public class Evenement implements Serializable {
                     MainActivity.fragmentManager.executePendingTransactions();
                     fragmentChasseur.updateList();
                 }
+                break;
+            case changeRoles:
+                Voleur joueurAVolerFinal = new Voleur(joueurAVolerInitial.getId(), joueurAVolerInitial.getName());
+                Joueur voleurFinal = null;
+
+                if (joueurAVolerInitial instanceof Chasseur) {
+                    voleurFinal = new Chasseur(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof Cupidon) {
+                    voleurFinal = new Cupidon(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof LoupGarou) {
+                    voleurFinal = new LoupGarou(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof PetiteFille) {
+                    voleurFinal = new PetiteFille(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof Sorciere) {
+                    voleurFinal = new Sorciere(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof Villagois) {
+                    voleurFinal = new Villagois(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof Voleur) {
+                    voleurFinal = new Voleur(voleurInitial.getId(), voleurInitial.getName());
+                } else if (joueurAVolerInitial instanceof Voyante) {
+                    voleurFinal = new Voyante(voleurInitial.getId(), voleurInitial.getName());
+                }
+                for (int i = 0; i < Game.allPlayers.size(); i++) {
+                    if(Game.allPlayers.get(i).getId() == voleurFinal.getId()){
+                        Game.allPlayers.set(i, voleurFinal);
+                    } else if(Game.allPlayers.get(i).getId() == joueurAVolerFinal.getId()){
+                        Game.allPlayers.set(i, joueurAVolerFinal);
+                    }
+                }
+
                 break;
         }
 
@@ -449,6 +494,14 @@ public class Evenement implements Serializable {
 
     public void setJoueurVote(Joueur joueurVote) {
         this.playerVoted = joueurVote;
+    }
+
+    public void setVoleurInitial(Joueur voleurInitial) {
+        this.voleurInitial = voleurInitial;
+    }
+
+    public void setjoueurAVolerInitial(Joueur joueurAVolerInitial) {
+        this.joueurAVolerInitial = joueurAVolerInitial;
     }
 
     private void kill(Joueur player, boolean night) {

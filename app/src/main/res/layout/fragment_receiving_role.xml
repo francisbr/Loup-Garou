@@ -41,5 +41,13 @@
             android:text="Test"
             android:visibility="visible"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="continue"
+        android:id="@+id/btnOk"
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible"/>
+
 
 </LinearLayout>

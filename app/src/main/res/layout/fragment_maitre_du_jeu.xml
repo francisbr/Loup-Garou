@@ -73,6 +73,7 @@
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:onClick="tourVoleur"
             android:text="@string/voleur" />
 
         <Button

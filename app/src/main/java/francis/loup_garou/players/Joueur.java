@@ -9,7 +9,7 @@ import francis.loup_garou.Roles;
  */
 public class Joueur implements Serializable{
 
-    protected Boolean isEnVie = true, deadLastNight = false, hasVoted = false;
+    protected Boolean isEnVie = true, deadLastNight = false, hasVoted = false, roleAChange = false;
     protected String id, name;
 
     public Joueur(String id, String name){
@@ -31,12 +31,20 @@ public class Joueur implements Serializable{
         return isEnVie;
     }
 
+    public Boolean getRoleAChange() {
+        return roleAChange;
+    }
+
     public void setEnVie(Boolean enVie) {
         isEnVie = enVie;
     }
 
     public void setHasVoted(Boolean hasVoted) {
         this.hasVoted = hasVoted;
+    }
+
+    public void setRoleAChange(Boolean roleAChange) {
+        this.roleAChange = roleAChange;
     }
 
     public Boolean HasVoted() {

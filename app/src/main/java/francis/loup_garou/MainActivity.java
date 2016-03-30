@@ -57,9 +57,14 @@ import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
 import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentStartGame;
+import francis.loup_garou.players.Chasseur;
+import francis.loup_garou.players.Cupidon;
 import francis.loup_garou.players.Joueur;
 import francis.loup_garou.players.LoupGarou;
+import francis.loup_garou.players.PetiteFille;
 import francis.loup_garou.players.Sorciere;
+import francis.loup_garou.players.Villagois;
+import francis.loup_garou.players.Voleur;
 import francis.loup_garou.players.Voyante;
 
 public class MainActivity extends AppCompatActivity implements
@@ -89,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements
     private static final long TIMEOUT_ADVERTISE = 1000L * 0L;
     private static final long TIMEOUT_DISCOVER = 1000L * 0L;
     public static Evenement event;
+
+
 
 
     /**
@@ -305,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
     }
+
 
     public void startAdvertisingButton(View view) {
         Button btnAdvertise = (Button) findViewById(R.id.btnCreateGame);
@@ -1108,6 +1116,18 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("The witch is waking up");
     }
 
+    public void tourVoleur(View view){
+        event.setType(Evenement.EventType.tourVoleur);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i) instanceof Voleur)
+                Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+        }
+
+        showLogs("The thief is waking up");
+    }
+
     public static void actionSorciere(String action, int position) {
         event.setType(Evenement.EventType.upDate);
         switch (action) {
@@ -1177,6 +1197,20 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    public static void voleRole(Joueur player) {
+        event.setVoleurInitial(Game.me());
+        event.setjoueurAVolerInitial(player);
+        event.setType(Evenement.EventType.changeRoles);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+        }
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
+
+        Evenement.showNight();
+
+    }
 
     public void endGame(View view) {
         Log.d("MainActivity.endGame", "you suck");
