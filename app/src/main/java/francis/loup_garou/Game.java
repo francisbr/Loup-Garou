@@ -154,7 +154,7 @@ public class Game {
                 nbSorciere = 1;
                 break;
             case 2:
-                nbVoleur = 1;
+                nbCupidon = 1;
                 nbLoup = 1;
                 break;
             case 3:

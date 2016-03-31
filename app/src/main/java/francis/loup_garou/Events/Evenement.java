@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
 
@@ -15,6 +16,7 @@ import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 import francis.loup_garou.fragments.FragmentChasseur;
+import francis.loup_garou.fragments.FragmentCupidon;
 import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
@@ -36,7 +38,7 @@ public class Evenement implements Serializable {
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
         villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
-        tourVoleur, tourCupidon, changeRoles
+        tourVoleur, tourCupidon, twoLoversfound, loversFound, changeRoles
     }
 
     public void execute(Context context) {
@@ -145,7 +147,16 @@ public class Evenement implements Serializable {
                 }
                 break;
             case tourCupidon:
+                if (Game.enVieEtShow(false)) {
+                    MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+                    FragmentCupidon fragmentCupidon = new FragmentCupidon();
 
+                    MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentCupidon);
+                    MainActivity.fragmentTransaction.commit();
+                    MainActivity.fragmentManager.executePendingTransactions();
+
+                    fragmentCupidon.updateList();
+                }
                 break;
             case startVoteVillage:
                 if (Game.enVieEtShow(false)) {
@@ -220,13 +231,58 @@ public class Evenement implements Serializable {
                     voleurFinal = new Voyante(voleurInitial.getId(), voleurInitial.getName());
                 }
                 for (int i = 0; i < Game.allPlayers.size(); i++) {
-                    if(Game.allPlayers.get(i).getId() == voleurFinal.getId()){
+                    if (Game.allPlayers.get(i).getId() == voleurFinal.getId()) {
                         Game.allPlayers.set(i, voleurFinal);
-                    } else if(Game.allPlayers.get(i).getId() == joueurAVolerFinal.getId()){
+                    } else if (Game.allPlayers.get(i).getId() == joueurAVolerFinal.getId()) {
                         Game.allPlayers.set(i, joueurAVolerFinal);
                     }
                 }
 
+                break;
+
+            case loversFound:
+                Joueur player1 = null, player2 = null;
+                for (int i = 0; i < Game.allPlayers.size(); i++) {
+                    if (Game.allPlayers.get(i).getLover() != null) {
+                        player1 = Game.allPlayers.get(i);
+                        player2 = Game.allPlayers.get(i).getLover();
+                    }
+                }
+
+                if (player1 == Game.me()) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Cupidon")
+                            .setMessage("You are in love with " + player2.getName())
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+                } else if (player2 == Game.me()) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Cupidon")
+                            .setMessage("You are in love with " + player1.getName())
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+                } else {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Cupidon")
+                            .setMessage("You are not in love")
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+                }
                 break;
         }
 
@@ -284,18 +340,18 @@ public class Evenement implements Serializable {
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
 
+
                         MainActivity.event.setType(Evenement.EventType.showNight);
                         MainActivity.event.setAllPlayers(Game.allPlayers);
 
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
-                            if (Game.allPlayers.get(i).getRole() == Roles.LoupGarou)
+                            if (Game.allPlayers.get(i) instanceof LoupGarou)
                                 Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                         }
                     }
                 }
 
                 break;
-
             case voteDay:
                 Log.d("voteDay", "Starting");
                 kill = true;
@@ -445,6 +501,23 @@ public class Evenement implements Serializable {
                 for (int i = 0; i < Game.allPlayers.size(); i++)
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
+                break;
+            case twoLoversfound:
+                Joueur player1 = null, player2 = null;
+                for (int i = 0; i < Game.allPlayers.size(); i++) {
+                    if (Game.allPlayers.get(i).getLover() != null) {
+                        player1 = Game.allPlayers.get(i);
+                        player2 = Game.allPlayers.get(i).getLover();
+                    }
+                }
+
+                MainActivity.showLogs(player1.getName() + " and " + player2.getName() + " are now in love and will die for each other");
+
+                MainActivity.event.setType(EventType.loversFound);
+                MainActivity.event.setAllPlayers(Game.allPlayers);
+
+                for (int i = 0; i < Game.allPlayers.size(); i++)
+                    Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
         }
     }

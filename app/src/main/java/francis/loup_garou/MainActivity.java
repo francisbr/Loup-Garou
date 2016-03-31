@@ -1147,11 +1147,10 @@ public class MainActivity extends AppCompatActivity implements
         player1.setLover(player2);
         player2.setLover(player1);
 
-        event.setType(Evenement.EventType.tourCupidon);
+        event.setType(Evenement.EventType.twoLoversfound);
         event.setAllPlayers(Game.allPlayers);
 
-        Nearby.Connections.sendReliableMessage(mGoogleApiClient, player1.getId(), serialize(event));
-        Nearby.Connections.sendReliableMessage(mGoogleApiClient, player2.getId(), serialize(event));
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
     public static void actionSorciere(String action, int position) {

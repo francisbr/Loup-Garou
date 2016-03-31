@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
@@ -34,7 +35,7 @@ public class FragmentCupidon extends Fragment {
 
         Game.listAliveNames.clear();
         for (int i = 0; i < Game.allPlayers.size(); i++) {
-            if (Game.allPlayers.get(i).isEnVie()) {
+            if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i).getLover() == null) {
                 Game.listAliveNames.add(Game.allPlayers.get(i).getName());
             }
         }
@@ -57,16 +58,18 @@ public class FragmentCupidon extends Fragment {
 
                     Game.listAliveNames.clear();
                     for (int i = 0; i < Game.allPlayers.size(); i++) {
-                        if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i).getLover() == null) {
+                        if (Game.allPlayers.get(i).isEnVie() && Game.allPlayers.get(i) != player1) {
                             Game.listAliveNames.add(Game.allPlayers.get(i).getName());
                         }
                     }
 
+                    MainActivity.adapterAlive.notifyDataSetChanged();
+
                 } else {
                     if (player2 == null){
                         player2 = player;
-                    } else {
                         MainActivity.send2lovers(player1, player2);
+                        Evenement.showNight();
                     }
                 }
 
