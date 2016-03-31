@@ -586,14 +586,27 @@ public class Evenement implements Serializable {
     private void kill(Joueur player, boolean night) {
 
         player.setEnVie(false);
-        player.getLover().setEnVie(false);
+        try {
+            player.getLover().setEnVie(false);
+            MainActivity.showLogs(player.getLover().getName() + " is dying od love with " + player.getName());
+        } catch (NullPointerException e) {
+            //no lovers to kill
+        }
 
         if (night) {
             player.setDeadLastNight(true);
-            player.getLover().setDeadLastNight(true);
+            try {
+                player.getLover().setDeadLastNight(true);
+            } catch (NullPointerException e) {
+                //no lovers to kill
+            }
         } else {
             player.setDeadLastNight(false);
-            player.getLover().setDeadLastNight(false);
+            try {
+                player.getLover().setDeadLastNight(false);
+            } catch (NullPointerException e) {
+                //no lovers to kill
+            }
         }
     }
 
