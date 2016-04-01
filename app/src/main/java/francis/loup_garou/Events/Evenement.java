@@ -258,6 +258,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 } else if (player2 == Game.me()) {
@@ -269,6 +270,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 } else {
@@ -280,6 +282,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 }
@@ -588,7 +591,7 @@ public class Evenement implements Serializable {
         player.setEnVie(false);
         try {
             player.getLover().setEnVie(false);
-            MainActivity.showLogs(player.getLover().getName() + " is dying od love with " + player.getName());
+            MainActivity.showLogs(player.getLover().getName() + " is dying of love with " + player.getName());
         } catch (NullPointerException e) {
             //no lovers to kill
         }
