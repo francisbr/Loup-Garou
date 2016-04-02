@@ -158,9 +158,8 @@ public class Game {
                 nbLoup = 1;
                 break;
             case 3:
-                nbLoup = 1;
+                nbLoup = 2;
                 nbVoyante = 1;
-                nbSorciere = 1;
                 break;
             case 4:
                 nbLoup = 1;
@@ -170,17 +169,17 @@ public class Game {
                 break;
             case 5:
                 nbLoup = 1;
-                nbSorciere = 1;
+                nbPetiteFille = 1;
                 break;
             case 6:
                 nbLoup = 2;
-                nbSorciere = 1;
-                nbChasseur = 1;
+                nbPetiteFille = 1;
+                nbVoyante = 1;
                 break;
             case 7:
                 nbLoup = 2;
-                nbSorciere = 1;
-                nbChasseur = 1;
+                nbPetiteFille = 1;
+                nbVoyante = 1;
                 break;
 
 
@@ -315,7 +314,7 @@ public class Game {
 
     public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
-        Log.d("enVieEtShow", "!me().isEnVie() : "+ !me().isEnVie() + " et show : " + show);
+        Log.d("enVieEtShow", "!me().isEnVie() : " + !me().isEnVie() + " et show : " + show);
         if (!me().isEnVie()) {
             if (show) {
                 Log.d("enVieEtShow", "true, true");
@@ -325,7 +324,7 @@ public class Game {
                 MainActivity.fragmentTransaction.commit();
                 MainActivity.fragmentManager.executePendingTransactions();
 
-            }else{
+            } else {
                 Log.d("enVieEtShow", "true, false");
             }
 

@@ -10,6 +10,7 @@ import com.google.android.gms.nearby.Nearby;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
@@ -293,45 +294,49 @@ public class Evenement implements Serializable {
                 Game.nbPotionMort = int2;
                 break;
             case voteLoup://Quand le host recoi un vote
-                Log.d("Received", "voteLoup");
+                Log.d("Evenement.voteLoup", "Received voteLoup de " + voteur.getName());
 
-                boolean kill = true, changeVote = false;
+                boolean killBoolean = true, changeVote = false;
                 int pos = -1;
 
-                Log.d("allVoteurs.size()", "" + MainActivity.allVoteurs.size());
+                Log.d("Evenement.voteLoup", "allVoteurs.size() = " + MainActivity.allVoteurs.size());
                 for (int i = 0; i < MainActivity.allVoteurs.size(); i++) {
                     if (MainActivity.allVoteurs.get(i) == voteur && !MainActivity.allVotes.isEmpty()) {
                         changeVote = true;
                         pos = i;
                     }
                 }
-                Log.d("pos", "" + pos);
+                Log.d("Evenement.voteLoup", "pos du joueur si deja vote (-1 si premiere fois): " + pos);
 
 
                 if (changeVote) {
+                    Log.d("Evenement.voteLoup", "Change le vote de " + voteur.getName() + " pour tuer " + playerVoted.getName());
                     MainActivity.allVotes.set(pos, playerVoted);
                     MainActivity.showLogs(voteur.getName() + " changed his vote to " + playerVoted.getName());
                 } else {
-                    Log.d("Adding a vote", voteur + " " + playerVoted);
+                    Log.d("Evenement.voteLoup", "Ajoute le vote de " + voteur.getName() + " pour tuer " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
                     MainActivity.showLogs(voteur.getName() + " wants to eat " + playerVoted.getName());
                 }
 
 
-                Log.d("allVotes.size()", "" + MainActivity.allVotes.size());
+                Log.d("Evenement.voteLoup", "allVotes.size() = " + MainActivity.allVotes.size());
                 if (MainActivity.allVotes.size() == Game.getNbLoup()) {
-
+                    killBoolean = true;
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
-                        Log.d("" + MainActivity.allVotes.get(0).getName(), MainActivity.allVotes.get(i).getName());
-                        if (!(MainActivity.allVotes.get(0) == MainActivity.allVotes.get(i))) {
-                            kill = false;
+                        Log.d("Evenement.voteLoup", "allVotes.get(0):" + MainActivity.allVotes.get(0));
+                        Log.d("Evenement.voteLoup", "allVotes.get(i):" + MainActivity.allVotes.get(i));
+                        Log.d("Evenement.voteLoup", "allVotes.get(0).getName():" + MainActivity.allVotes.get(0).getName());
+                        Log.d("Evenement.voteLoup", "allVotes.get(i).getName():" + MainActivity.allVotes.get(i).getName());
+                        if (!MainActivity.allVotes.get(0).getId().equals(MainActivity.allVotes.get(i).getId())) {
+                            killBoolean = false;
                         }
                     }
+                    Log.d("Evenement.voteLoup", "killBoolean = " + killBoolean);
 
-
-                    if (kill) {
-                        Log.d("kill", MainActivity.allVotes.get(0).getName());
+                    if (killBoolean) {
+                        Log.d("Evenement.voteLoup", "kill " + MainActivity.allVotes.get(0).getName());
 
                         //MainActivity.allVotes.get(0).setEnVie(false);
                         kill(MainActivity.allVotes.get(0), true);
@@ -354,7 +359,7 @@ public class Evenement implements Serializable {
                 break;
             case voteDay:
                 Log.d("voteDay", "Starting");
-                kill = true;
+                killBoolean = true;
                 changeVote = false;
                 pos = -1;
 
@@ -584,28 +589,38 @@ public class Evenement implements Serializable {
     }
 
     private void kill(Joueur player, boolean night) {
+        Log.d("Evenement.kill", "start kill :" + player.getName());
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Log.d("Evenement.kill", "player.getName():" + player.getName());
+            Log.d("Evenement.kill", "allPlayers.get(i).getName():" + Game.allPlayers.get(i).getName());
+            Log.d("Evenement.kill", "player.getId():" + player.getId());
+            Log.d("Evenement.kill", "allPlayers.get(i).getId():" + Game.allPlayers.get(i).getId());
 
-        player.setEnVie(false);
-        try {
-            player.getLover().setEnVie(false);
-            MainActivity.showLogs(player.getLover().getName() + " is dying od love with " + player.getName());
-        } catch (NullPointerException e) {
-            //no lovers to kill
-        }
+            if (player.getId().equals(Game.allPlayers.get(i).getId())) {
+                Game.allPlayers.get(i).setEnVie(false);
 
-        if (night) {
-            player.setDeadLastNight(true);
-            try {
-                player.getLover().setDeadLastNight(true);
-            } catch (NullPointerException e) {
-                //no lovers to kill
-            }
-        } else {
-            player.setDeadLastNight(false);
-            try {
-                player.getLover().setDeadLastNight(false);
-            } catch (NullPointerException e) {
-                //no lovers to kill
+                try {
+                    Game.allPlayers.get(i).getLover().setEnVie(false);
+                    MainActivity.showLogs(allPlayers.get(i).getLover().getName() + " is dying od love with " + allPlayers.get(i).getName());
+                } catch (NullPointerException e) {
+                    //no lovers to kill
+                }
+
+                if (night) {
+                    Game.allPlayers.get(i).setDeadLastNight(true);
+                    try {
+                        Game.allPlayers.get(i).getLover().setDeadLastNight(true);
+                    } catch (NullPointerException e) {
+                        //no lovers to kill
+                    }
+                } else {
+                    Game.allPlayers.get(i).setDeadLastNight(false);
+                    try {
+                        Game.allPlayers.get(i).getLover().setDeadLastNight(false);
+                    } catch (NullPointerException e) {
+                        //no lovers to kill
+                    }
+                }
             }
         }
     }
