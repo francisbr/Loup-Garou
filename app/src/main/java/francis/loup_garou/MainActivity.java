@@ -1157,21 +1157,19 @@ public class MainActivity extends AppCompatActivity implements
         event.setType(Evenement.EventType.upDate);
         switch (action) {
             case "kill":
-                FragmentSorciere.getPlayerEnVie(position).setEnVie(false);
-                FragmentSorciere.getPlayerEnVie(position).setDeadLastNight(true);
+                Evenement.kill(FragmentSorciere.getPlayerEnVie(position), true);
                 Game.nbPotionMort--;
-                showLogs("The witch chose to kill " + FragmentSorciere.getPlayerEnVie(position).getName());
                 break;
             case "save":
                 FragmentSorciere.getPlayerDeadLastNight(position).setEnVie(true);
                 FragmentSorciere.getPlayerDeadLastNight(position).setDeadLastNight(false);
                 Game.nbPotionVie--;
-                showLogs("The witch saved " + FragmentSorciere.getPlayerDeadLastNight(position).getName());
                 break;
         }
 
         event.setAllPlayers(Game.allPlayers);
         event.setInts(Game.nbPotionVie, Game.nbPotionMort);
+        //event.setPlayerKilled();
 
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }

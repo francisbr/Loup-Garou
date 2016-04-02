@@ -259,6 +259,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 } else if (player2 == Game.me()) {
@@ -270,6 +271,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 } else {
@@ -281,6 +283,7 @@ public class Evenement implements Serializable {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                 }
                             })
+                            .setIcon(R.drawable.heart2)
                             .setCancelable(false)
                             .show();
                 }
@@ -599,28 +602,19 @@ public class Evenement implements Serializable {
             if (player.getId().equals(Game.allPlayers.get(i).getId())) {
                 Game.allPlayers.get(i).setEnVie(false);
 
-                try {
-                    Game.allPlayers.get(i).getLover().setEnVie(false);
-                    MainActivity.showLogs(allPlayers.get(i).getLover().getName() + " is dying od love with " + allPlayers.get(i).getName());
-                } catch (NullPointerException e) {
-                    //no lovers to kill
-                }
-
-                if (night) {
-                    Game.allPlayers.get(i).setDeadLastNight(true);
-                    try {
-                        Game.allPlayers.get(i).getLover().setDeadLastNight(true);
-                    } catch (NullPointerException e) {
-                        //no lovers to kill
-                    }
-                } else {
-                    Game.allPlayers.get(i).setDeadLastNight(false);
-                    try {
-                        Game.allPlayers.get(i).getLover().setDeadLastNight(false);
-                    } catch (NullPointerException e) {
-                        //no lovers to kill
-                    }
-                }
+        if (night) {
+            player.setDeadLastNight(true);
+            try {
+                player.getLover().setDeadLastNight(true);
+            } catch (NullPointerException e) {
+                //no lovers to kill
+            }
+        } else {
+            player.setDeadLastNight(false);
+            try {
+                player.getLover().setDeadLastNight(false);
+            } catch (NullPointerException e) {
+                //no lovers to kill
             }
         }
     }
