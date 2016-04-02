@@ -586,7 +586,7 @@ public class Evenement implements Serializable {
         this.joueurAVolerInitial = joueurAVolerInitial;
     }
 
-    private void kill(Joueur player, boolean night) {
+    public static void kill(Joueur player, boolean night) {
 
         player.setEnVie(false);
         try {
