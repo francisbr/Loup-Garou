@@ -159,7 +159,7 @@ public class Game {
                 break;
             case 3:
                 nbLoup = 1;
-                nbVoyante = 1;
+                nbCupidon = 1;
                 nbSorciere = 1;
                 break;
             case 4:
@@ -266,17 +266,13 @@ public class Game {
         int nb = 0;
 
 
-        Log.d("Game.getNbLoup()", "allPlayers.size() = " + allPlayers.size());
         for (int i = 0; i < allPlayers.size(); i++) {
-            Log.d("nb", "" + nb);
             if (allPlayers.get(i) instanceof LoupGarou && allPlayers.get(i).isEnVie()) {
-                Log.d("" + allPlayers.get(i).getName(), "loup");
-                Log.d("nb", "++");
                 nb++;
             }
         }
 
-        Log.d("nb", "" + nb);
+        Log.d("nbLoup", "" + nb);
         return nb;
     }
 

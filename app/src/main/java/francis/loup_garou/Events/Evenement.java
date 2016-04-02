@@ -10,7 +10,6 @@ import com.google.android.gms.nearby.Nearby;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
@@ -304,9 +303,11 @@ public class Evenement implements Serializable {
 
                 Log.d("Evenement.voteLoup", "allVoteurs.size() = " + MainActivity.allVoteurs.size());
                 for (int i = 0; i < MainActivity.allVoteurs.size(); i++) {
-                    if (MainActivity.allVoteurs.get(i) == voteur && !MainActivity.allVotes.isEmpty()) {
+                    Log.d("" + MainActivity.allVoteurs.get(i).getId(), "" + voteur.getId());
+                    if (MainActivity.allVoteurs.get(i).getId().equals(voteur.getId()) && MainActivity.allVoteurs.size() != 0) {
                         changeVote = true;
                         pos = i;
+                        Log.d("changeVoteTrue", "" + pos);
                     }
                 }
                 Log.d("Evenement.voteLoup", "pos du joueur si deja vote (-1 si premiere fois): " + pos);
@@ -362,7 +363,7 @@ public class Evenement implements Serializable {
                 break;
             case voteDay:
                 Log.d("voteDay", "Starting");
-                killBoolean = true;
+                kill = true;
                 changeVote = false;
                 pos = -1;
 
@@ -591,16 +592,15 @@ public class Evenement implements Serializable {
         this.joueurAVolerInitial = joueurAVolerInitial;
     }
 
-    private void kill(Joueur player, boolean night) {
-        Log.d("Evenement.kill", "start kill :" + player.getName());
-        for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Log.d("Evenement.kill", "player.getName():" + player.getName());
-            Log.d("Evenement.kill", "allPlayers.get(i).getName():" + Game.allPlayers.get(i).getName());
-            Log.d("Evenement.kill", "player.getId():" + player.getId());
-            Log.d("Evenement.kill", "allPlayers.get(i).getId():" + Game.allPlayers.get(i).getId());
+    public static void kill(Joueur player, boolean night) {
 
-            if (player.getId().equals(Game.allPlayers.get(i).getId())) {
-                Game.allPlayers.get(i).setEnVie(false);
+        player.setEnVie(false);
+        try {
+            player.getLover().setEnVie(false);
+            MainActivity.showLogs(player.getLover().getName() + " is dying of love with " + player.getName());
+        } catch (NullPointerException e) {
+            //no lovers to kill
+        }
 
         if (night) {
             player.setDeadLastNight(true);
