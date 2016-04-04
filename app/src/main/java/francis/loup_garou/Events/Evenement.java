@@ -296,7 +296,7 @@ public class Evenement implements Serializable {
                 Game.nbPotionMort = int2;
                 break;
             case voteLoup://Quand le host recoi un vote
-                //Good version
+                //Good version 1.0
                 Log.d("Received", "voteLoup");
 
                 boolean kill = true, changeVote = false;
