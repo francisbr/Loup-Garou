@@ -296,12 +296,13 @@ public class Evenement implements Serializable {
                 Game.nbPotionMort = int2;
                 break;
             case voteLoup://Quand le host recoi un vote
-                Log.d("Evenement.voteLoup", "Received voteLoup de " + voteur.getName());
+                //Good version
+                Log.d("Received", "voteLoup");
 
-                boolean killBoolean = true, changeVote = false;
+                boolean kill = true, changeVote = false;
                 int pos = -1;
 
-                Log.d("Evenement.voteLoup", "allVoteurs.size() = " + MainActivity.allVoteurs.size());
+                Log.d("allVoteurs.size()", "" + MainActivity.allVoteurs.size());
                 for (int i = 0; i < MainActivity.allVoteurs.size(); i++) {
                     Log.d("" + MainActivity.allVoteurs.get(i).getId(), "" + voteur.getId());
                     if (MainActivity.allVoteurs.get(i).getId().equals(voteur.getId()) && MainActivity.allVoteurs.size() != 0) {
@@ -310,40 +311,40 @@ public class Evenement implements Serializable {
                         Log.d("changeVoteTrue", "" + pos);
                     }
                 }
-                Log.d("Evenement.voteLoup", "pos du joueur si deja vote (-1 si premiere fois): " + pos);
+                Log.d("pos", "" + pos);
 
 
                 if (changeVote) {
-                    Log.d("Evenement.voteLoup", "Change le vote de " + voteur.getName() + " pour tuer " + playerVoted.getName());
                     MainActivity.allVotes.set(pos, playerVoted);
                     MainActivity.showLogs(voteur.getName() + " changed his vote to " + playerVoted.getName());
                 } else {
-                    Log.d("Evenement.voteLoup", "Ajoute le vote de " + voteur.getName() + " pour tuer " + playerVoted.getName());
+                    Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
                     MainActivity.showLogs(voteur.getName() + " wants to eat " + playerVoted.getName());
                 }
 
 
-                Log.d("Evenement.voteLoup", "allVotes.size() = " + MainActivity.allVotes.size());
+                Log.d("allVotes.size()", "" + MainActivity.allVotes.size());
                 if (MainActivity.allVotes.size() == Game.getNbLoup()) {
-                    killBoolean = true;
+
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
-                        Log.d("Evenement.voteLoup", "allVotes.get(0):" + MainActivity.allVotes.get(0));
-                        Log.d("Evenement.voteLoup", "allVotes.get(i):" + MainActivity.allVotes.get(i));
-                        Log.d("Evenement.voteLoup", "allVotes.get(0).getName():" + MainActivity.allVotes.get(0).getName());
-                        Log.d("Evenement.voteLoup", "allVotes.get(i).getName():" + MainActivity.allVotes.get(i).getName());
+                        Log.d("" + MainActivity.allVotes.get(0).getId(), MainActivity.allVotes.get(i).getId());
                         if (!MainActivity.allVotes.get(0).getId().equals(MainActivity.allVotes.get(i).getId())) {
-                            killBoolean = false;
+                            kill = false;
                         }
                     }
-                    Log.d("Evenement.voteLoup", "killBoolean = " + killBoolean);
 
-                    if (killBoolean) {
-                        Log.d("Evenement.voteLoup", "kill " + MainActivity.allVotes.get(0).getName());
 
-                        //MainActivity.allVotes.get(0).setEnVie(false);
-                        kill(MainActivity.allVotes.get(0), true);
+                    if (kill) {
+                        Log.d("kill", MainActivity.allVotes.get(0).getName());
+
+                        for (int i = 0 ; i < Game.allPlayers.size() ; i++){
+                            if (Game.allPlayers.get(i).getId().equals(MainActivity.allVotes.get(0).getId())){
+                                kill(Game.allPlayers.get(i), true);
+                            }
+                        }
+
                         MainActivity.showLogs("Every werewolf agreed to eat " + MainActivity.allVotes.get(0).getName());
 
                         MainActivity.allVoteurs.clear();
@@ -618,7 +619,6 @@ public class Evenement implements Serializable {
             }
         }
     }
-
 
     public void setInts(int int1, int int2) {
         this.int1 = int1;
