@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import francis.loup_garou.Game;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 
@@ -27,7 +28,6 @@ public class FragmentReceivingRole extends Fragment {
             Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_receiving_role, container, false);
-
         return view;
     }
 

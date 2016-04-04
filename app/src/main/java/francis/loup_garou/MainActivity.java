@@ -56,6 +56,7 @@ import java.util.TimeZone;
 
 import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.fragments.FragmentBackground;
+import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
 import francis.loup_garou.fragments.FragmentSorciere;
@@ -633,10 +634,10 @@ public class MainActivity extends AppCompatActivity implements
             case "start":
                 startingGame();
                 break;
-            case "setRole":
+            case "setRole":/*
                 if (monRole == null)
                     setRole(msg[1]);
-                break;
+                break;*/
             case "step":/*
                 if (monRole != Roles.Maitre) {
 
@@ -955,8 +956,23 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
+        try {
+            Game.me().setReady(false);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            Game.me().setReady(true);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -1052,6 +1068,20 @@ public class MainActivity extends AppCompatActivity implements
 
     public void returnNight(View view) {
         Evenement.showNight();
+    }
+
+    public void goDay(View view) {
+        FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
+        MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+
+        MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDayCycle);
+        MainActivity.fragmentTransaction.commit();
+        MainActivity.fragmentManager.executePendingTransactions();
+
+        fragmentDayCycle.showDay();
+        fragmentDayCycle.enableVote();
+
+        Game.me().setReady(true);
     }
 
     public void setDay(View view) {

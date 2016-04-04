@@ -20,6 +20,7 @@ import francis.loup_garou.fragments.FragmentCupidon;
 import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentEnd;
 import francis.loup_garou.fragments.FragmentLoupGarou;
+import francis.loup_garou.fragments.FragmentMaitre;
 import francis.loup_garou.fragments.FragmentReceivingRole;
 import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentVoleur;
@@ -38,7 +39,7 @@ public class Evenement implements Serializable {
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
         villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
-        tourVoleur, tourCupidon, twoLoversfound, loversFound, changeRoles
+        tourVoleur, tourCupidon, twoLoversfound, loversFound, readyChanged, nothing, changeRoles
     }
 
     public void execute(Context context) {
@@ -338,8 +339,8 @@ public class Evenement implements Serializable {
                     if (kill) {
                         Log.d("kill", MainActivity.allVotes.get(0).getName());
 
-                        for (int i = 0 ; i < Game.allPlayers.size() ; i++){
-                            if (Game.allPlayers.get(i).getId().equals(MainActivity.allVotes.get(0).getId())){
+                        for (int i = 0; i < Game.allPlayers.size(); i++) {
+                            if (Game.allPlayers.get(i).getId().equals(MainActivity.allVotes.get(0).getId())) {
                                 kill(Game.allPlayers.get(i), true);
                             }
                         }
@@ -528,7 +529,28 @@ public class Evenement implements Serializable {
                 for (int i = 0; i < Game.allPlayers.size(); i++)
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
+            case readyChanged:
+                if (!everyoneReady()) {
+                    FragmentMaitre.enableButtons(false);
+                } else {
+                    FragmentMaitre.enableButtons(true);
+                }
+
+                MainActivity.event.setType(EventType.nothing);
+                MainActivity.event.setAllPlayers(Game.allPlayers);
+                for (int i = 0; i < Game.allPlayers.size(); i++)
+                    Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                break;
         }
+    }
+
+    private boolean everyoneReady() {
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (!Game.allPlayers.get(i).isReady()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
