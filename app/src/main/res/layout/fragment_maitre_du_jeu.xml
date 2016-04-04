@@ -19,12 +19,14 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnJour"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="setDay"
             android:text="@string/jour" />
 
         <Button
+            android:id="@+id/btnNuit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="setNuit"
@@ -33,7 +35,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnVote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -49,6 +51,7 @@
 
 
         <Button
+            android:id="@+id/btnLoup"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -56,6 +59,7 @@
             android:text="@string/loup_garou" />
 
         <Button
+            android:id="@+id/btnVoyante"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -70,6 +74,7 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnVoleur"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -77,6 +82,7 @@
             android:text="@string/voleur" />
 
         <Button
+            android:id="@+id/btnCupidon"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -91,6 +97,7 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnSorciere"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
