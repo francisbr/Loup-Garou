@@ -86,8 +86,7 @@ public class Evenement implements Serializable {
                     MainActivity.fragmentTransaction.commit();
                     MainActivity.fragmentManager.executePendingTransactions();
 
-                    fragmentDayCycle.showDay("" + Game.getNbLoup());
-                    Log.d("showDay 1", "" + Game.getNbLoup());
+                    fragmentDayCycle.showDay();
                     fragmentDayCycle.enableVote();
                 }
                 break;

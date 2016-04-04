@@ -35,15 +35,12 @@ public class FragmentDayCycle extends Fragment {
 
     }
 
-    public void showDay(String nbLoupAlive) {
+    public void showDay() {
         int k = 0;
         k++;
         Log.d("showDay", "GO");
 
-        //NB LOUP
-        TextView tx = (TextView) getView().findViewById(R.id.nbLoupAliveTxtview);
-        tx.setText(nbLoupAlive);
-        Log.d("nbLoupAlive", "" + nbLoupAlive);
+        updateTextNbLoup();
 
         //LISTE ALIVE
         listViewAlive = (ListView) getView().findViewById(R.id.listPlayersAlive);
@@ -95,6 +92,14 @@ public class FragmentDayCycle extends Fragment {
                 }
             }
         });
+
+    }
+
+    public void updateTextNbLoup(){
+        //NB LOUP
+        TextView tx = (TextView) getView().findViewById(R.id.nbLoupAliveTxtview);
+        tx.setText("" + Game.getNbLoup());
+        Log.d("nbLoupAlive", "" + Game.getNbLoup());
 
     }
 
