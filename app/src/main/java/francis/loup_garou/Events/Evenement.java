@@ -429,19 +429,28 @@ public class Evenement implements Serializable {
                             posMax = i;
                         }
                     }
-                    Log.d("max " + plusGrandnbDeVote, "posMax " + posMax);
+                    boolean memeNombreDeVotes = false;
 
-                    Log.d("playersAlive", "" + playersAlive.size());
-                    for (int i = 0; i < playersAlive.size(); i++) {
-                        Log.d("" + i, "" + playersAlive.get(i).getName() + " " + playersAlive.get(i).getId());
+                    for (int i = 0; i < nbVotesEach.size(); i++) {
+                        if (i != posMax && nbVotesEach.get(i) == plusGrandnbDeVote) {
+                            memeNombreDeVotes = true;
+                        }
                     }
 
-                    Log.d("alreadyChecked", "" + alreadyChecked.size());
-                    for (int i = 0; i < alreadyChecked.size(); i++) {
-                        Log.d("" + i, "" + alreadyChecked.get(i));
-                    }
+                     Log.d("max " + plusGrandnbDeVote, "posMax " + posMax);
 
-                    if (plusGrandnbDeVote >= (playersAlive.size() / 2) + 1) {
+                     Log.d("playersAlive", "" + playersAlive.size());
+                     for (int i = 0; i < playersAlive.size(); i++) {
+                     Log.d("" + i, "" + playersAlive.get(i).getName() + " " + playersAlive.get(i).getId());
+                     }
+
+                     Log.d("alreadyChecked", "" + alreadyChecked.size());
+                     for (int i = 0; i < alreadyChecked.size(); i++) {
+                     Log.d("" + i, "" + alreadyChecked.get(i));
+                     }
+
+
+                    if (!memeNombreDeVotes) {
                         Log.d("Killing", "True " + alreadyChecked.get(posMax));
                         String killedID = alreadyChecked.get(posMax);
                         boolean killingChasseur = false;

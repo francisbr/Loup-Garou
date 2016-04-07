@@ -266,13 +266,14 @@ public class MainActivity extends AppCompatActivity implements
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
             if (!mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.connect();
+            }
+            if(mGoogleApiClient == null){
                 mGoogleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
                         .addApi(Nearby.CONNECTIONS_API)
                         .build();
-
-                mGoogleApiClient.connect();
             }
         }
     }
