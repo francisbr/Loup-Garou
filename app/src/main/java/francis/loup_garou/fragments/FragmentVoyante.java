@@ -75,9 +75,4 @@ public class FragmentVoyante extends Fragment {
 
         fragmentDayCycle.showNight();
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 }

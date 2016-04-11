@@ -280,7 +280,7 @@ public class Game {
         Joueur player = null;
 
         for (int i = 0; i < allPlayers.size(); i++) {
-            if (allPlayers.get(i).getId().split(":")[0].equals(MainActivity.myId)) {
+            if (allPlayers.get(i).getId().split(":")[0].equals(MainActivity.getMyId())) {
                 return allPlayers.get(i);
             }
         }
