@@ -7,7 +7,13 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.connection.Connections;
+
+import francis.loup_garou.Game;
+import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 

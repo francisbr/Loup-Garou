@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.android.gms.nearby.Nearby;
+
 import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Game;
 import francis.loup_garou.MainActivity;
@@ -56,7 +58,6 @@ public class FragmentVoyante extends Fragment {
                 }
 
                 showRoleVoyante(player);
-
             }
         });
     }
