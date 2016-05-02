@@ -9,7 +9,7 @@
     tools:context="francis.loup_garou.Activities.ActivityGameSettings">
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/switchEnableCustomSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
@@ -260,4 +260,11 @@
 
     </GridLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="bill gate est esti de rageux"
+        android:textSize="50sp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"/>
 </LinearLayout>

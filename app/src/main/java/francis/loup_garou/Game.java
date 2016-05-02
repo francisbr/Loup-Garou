@@ -33,7 +33,7 @@ import francis.loup_garou.players.Voyante;
 public class Game {
     public static boolean voteStarted = false;
 
-    public int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
+    public static int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
     public static int nbPotionVie = 1, nbPotionMort = 1;
 
     //Players in game!\
@@ -56,7 +56,7 @@ public class Game {
     static public ArrayList<Joueur> tempRoleList = new ArrayList();
 
 
-    public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient) {
+    public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient, boolean customRoles) {
         Log.d("Game", "Created");
 
         Log.d("allPlayers", "Creating");
@@ -65,7 +65,8 @@ public class Game {
             allPlayers.add(new Joueur(connectedIDs.get(i), listInGameName.get(i)));
         }
 
-        setNbRoles();
+        if (customRoles)
+            setNbRoles(allPlayers.size());
         setRolesToPlayers();
 
         Collections.shuffle(tempRoleList);
@@ -146,9 +147,10 @@ public class Game {
 
     }
 
-    private void setNbRoles() {
+    public static void setNbRoles(int nbPlayers) {
+        nbLoup = 0; nbVoleur = 0; nbPetiteFille = 0; nbChasseur = 0; nbVoyante = 0; nbSorciere = 0;
 
-        switch (allPlayers.size()) {
+        switch (nbPlayers) {
             //Testing
             case 1:
                 nbVoyante = 1;
@@ -311,7 +313,7 @@ public class Game {
 
     public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
-        Log.d("enVieEtShow", "!me().isEnVie() : "+ !me().isEnVie() + " et show : " + show);
+        Log.d("enVieEtShow", "!me().isEnVie() : " + !me().isEnVie() + " et show : " + show);
         if (!me().isEnVie()) {
             if (show) {
                 Log.d("enVieEtShow", "true, true");
@@ -321,7 +323,7 @@ public class Game {
                 MainActivity.fragmentTransaction.commit();
                 MainActivity.fragmentManager.executePendingTransactions();
 
-            }else{
+            } else {
                 Log.d("enVieEtShow", "true, false");
             }
 

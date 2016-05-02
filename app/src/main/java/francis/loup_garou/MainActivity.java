@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements
             if (!mGoogleApiClient.isConnected()) {
                 mGoogleApiClient.connect();
             }
-            if(mGoogleApiClient == null){
+            if (mGoogleApiClient == null) {
                 mGoogleApiClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
@@ -736,7 +736,6 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         };
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.join_game_question).setPositiveButton(R.string.yes, dialogClickListener)
                 .setNegativeButton(R.string.no, dialogClickListener).show();
@@ -1081,7 +1080,7 @@ public class MainActivity extends AppCompatActivity implements
             monRole = Roles.Maitre;
             startingGame();
 
-            myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient);
+            myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient, useCustom);
 
 
             Nearby.Connections.stopAdvertising(mGoogleApiClient);
@@ -1423,10 +1422,42 @@ public class MainActivity extends AppCompatActivity implements
     public void showSettings(MenuItem item) {
         Intent intent = new Intent(this, ActivityGameSettings.class);
 
-        /**
-        intent.putExtra("nbLoup", player.getName());
-        intent.putExtra("role", "" + player.getRole());**/
+        intent.putExtra("nbPlayer", listInGameName.size());
 
-        startActivity(intent);
+        if (!useCustom){
+            Game.setNbRoles(listInGameName.size());
+        }
+        intent.putExtra("nbLoup", Game.nbLoup);
+        intent.putExtra("nbChasseur", Game.nbChasseur);
+        intent.putExtra("nbSorciere", Game.nbSorciere);
+        intent.putExtra("nbVoyante", Game.nbVoyante);
+        intent.putExtra("nbPetiteFille", Game.nbPetiteFille);
+        intent.putExtra("nbVoleur", Game.nbVoleur);
+        intent.putExtra("useCustom", useCustom);
+
+        startActivityForResult(intent, 1);
+
+    }
+
+    boolean useCustom = new Boolean(false);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                String myStr = data.getStringExtra("MyData");
+                if (data.getBooleanExtra("useCustom", false)) {
+                    Game.nbLoup = data.getIntExtra("nbLoup", -1);
+                    Game.nbSorciere = data.getIntExtra("nbSorciere", -1);
+                    Game.nbVoyante = data.getIntExtra("nbVoyante", -1);
+                    Game.nbChasseur = data.getIntExtra("nbChasseur", -1);
+                    Game.nbPetiteFille = data.getIntExtra("nbPetiteFille", -1);
+                    Game.nbVoleur = data.getIntExtra("nbVoleur", -1);
+                    useCustom = true;
+                    //Toast.makeText(this, "" + nbLoup + " " + nbSorciere + " " + nbVoyante + " " + nbChasseur + " " + nbPetiteFille + " " + nbVoleur, Toast.LENGTH_LONG).show();
+                } else{
+                    useCustom = false;
+                }
+            }
+        }
     }
 }
+
