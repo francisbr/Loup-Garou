@@ -103,6 +103,13 @@
             android:layout_gravity="center"
             android:onClick="tourSorciere"
             android:text="@string/sorciere" />
+        <Button
+            android:id="@+id/btnTest"
+            android:layout_width="145dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="sendTest"
+            android:text="Test" />
     </LinearLayout>
 
     <TextView

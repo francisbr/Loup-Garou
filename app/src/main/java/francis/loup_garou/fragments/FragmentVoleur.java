@@ -58,8 +58,4 @@ public class FragmentVoleur extends Fragment {
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 }

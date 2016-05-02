@@ -33,7 +33,7 @@ import francis.loup_garou.players.Voyante;
 public class Game {
     public static boolean voteStarted = false;
 
-    int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
+    public int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
     public static int nbPotionVie = 1, nbPotionMort = 1;
 
     //Players in game!\
@@ -151,10 +151,10 @@ public class Game {
         switch (allPlayers.size()) {
             //Testing
             case 1:
-                nbSorciere = 1;
+                nbVoyante = 1;
                 break;
             case 2:
-                nbCupidon = 1;
+                nbVoyante = 1;
                 nbLoup = 1;
                 break;
             case 3:
@@ -280,7 +280,7 @@ public class Game {
         Joueur player = null;
 
         for (int i = 0; i < allPlayers.size(); i++) {
-            if (allPlayers.get(i).getId().split(":")[0].equals(MainActivity.myId)) {
+            if (allPlayers.get(i).getId().split(":")[0].equals(MainActivity.getMyId())) {
                 return allPlayers.get(i);
             }
         }

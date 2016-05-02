@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import francis.loup_garou.Game;
+import francis.loup_garou.MainActivity;
 import francis.loup_garou.R;
 import francis.loup_garou.Roles;
 
@@ -37,11 +38,6 @@ public class FragmentReceivingRole extends Fragment {
         imgRole = (ImageView) view.findViewById(id);
         descrRole = (TextView) view.findViewById(R.id.descriptionRole);
 
-        try{
-            role.equals(Roles.Chasseur);
-        } catch (NullPointerException e){
-            role = Roles.Villageois;
-        }
 
         Log.d("I got", "" + role);
         switch (role){

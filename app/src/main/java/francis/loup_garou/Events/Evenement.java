@@ -539,12 +539,11 @@ public class Evenement implements Serializable {
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
             case readyChanged:
-                if (!everyoneReady()) {
-                    FragmentMaitre.enableButtons(false);
-                } else {
-                    FragmentMaitre.enableButtons(true);
-                }
+                FragmentMaitre.enableButtons(everyoneReady());
 
+                for (int i = 0; i < Game.allPlayers.size(); i++) {
+                    Log.d("Event.readychanged", "" + Game.allPlayers.get(i).getName() + " " + Game.allPlayers.get(i).isReady());
+                }
                 MainActivity.event.setType(EventType.nothing);
                 MainActivity.event.setAllPlayers(Game.allPlayers);
                 for (int i = 0; i < Game.allPlayers.size(); i++)
@@ -553,7 +552,7 @@ public class Evenement implements Serializable {
         }
     }
 
-    private boolean everyoneReady() {
+    public static boolean everyoneReady() {
         for (int i = 0; i < Game.allPlayers.size(); i++) {
             if (!Game.allPlayers.get(i).isReady()) {
                 return false;
@@ -577,7 +576,6 @@ public class Evenement implements Serializable {
 
             if (idToCompare.equals(MainActivity.getMyId())) {
 
-                MainActivity.myId = MainActivity.getMyId();
 
                 if (allPlayers.get(i) instanceof LoupGarou)
                     MainActivity.monRole = Roles.LoupGarou;

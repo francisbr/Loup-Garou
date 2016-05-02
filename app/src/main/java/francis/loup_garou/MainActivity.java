@@ -6,17 +6,18 @@ import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.PowerManager;
+import android.os.CountDownTimer;
 import android.support.annotation.IntDef;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -25,7 +26,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -45,15 +45,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.sql.Time;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
+import francis.loup_garou.Activities.ActivityGameSettings;
+import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.fragments.FragmentBackground;
 import francis.loup_garou.fragments.FragmentDayCycle;
@@ -61,13 +59,10 @@ import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
 import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentStartGame;
-import francis.loup_garou.players.Chasseur;
 import francis.loup_garou.players.Cupidon;
 import francis.loup_garou.players.Joueur;
 import francis.loup_garou.players.LoupGarou;
-import francis.loup_garou.players.PetiteFille;
 import francis.loup_garou.players.Sorciere;
-import francis.loup_garou.players.Villagois;
 import francis.loup_garou.players.Voleur;
 import francis.loup_garou.players.Voyante;
 
@@ -87,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements
 
     static String username = "No name";
     public static Roles monRole;
-    public static String myId;
+    //public static String myId;
 
     /**
      * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
@@ -98,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final long TIMEOUT_ADVERTISE = 1000L * 0L;
     private static final long TIMEOUT_DISCOVER = 1000L * 0L;
     public static Evenement event;
+    private boolean hosting;
 
     /**
      * Possible states for this application:
@@ -290,6 +286,8 @@ public class MainActivity extends AppCompatActivity implements
 
             btnAdvertise.setEnabled(false);
 
+            hosting = false;
+
             startDiscovery();
         } else if (btnJoin.getText().toString().equalsIgnoreCase(getString(R.string.stop_txt))) {
             btnJoin.setText(getString(R.string.join_game_btn));
@@ -335,6 +333,9 @@ public class MainActivity extends AppCompatActivity implements
             findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
             btnJoin.setEnabled(false);
+
+            hosting = true;
+
             startAdvertising();
 
         } else if (btnAdvertise.getText().toString().equalsIgnoreCase(getString(R.string.stop_txt))) {
@@ -550,13 +551,6 @@ public class MainActivity extends AppCompatActivity implements
     private void sendListPlayersInGame() {
         stateTag = "addPlayer" + splitSym;
 
-        // Sends a reliable message, which is guaranteed to be delivered eventually and to respect
-        // message ordering from sender to receiver. Nearby.Connections.sendReliableMessage
-        // should be used for high-frequency messages where guaranteed delivery is not required, such
-        // as showing one player's cursor location to another. Unreliable messages are often
-        // delivered faster than reliable messages.
-
-
         String msg = stateTag + username;
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
 
@@ -573,11 +567,10 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
     }
 
-    //Communication entre devices BODY du jeu
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
         String rawMsg = new String(payload);
-
+        Log.d("message received", rawMsg);
 
         Object obj = deserialize(payload);
 
@@ -752,16 +745,52 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
+        try {
+            Log.d("connectionRequest", "Not in a game --> request from " + endpointId);
+            listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
+            listWishName.add(endpointName);
 
+            listViewWish.setAdapter(adapterWish);
 
-        listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
-        listWishName.add(endpointName);
+            wishingToConnectIDs.add(endpointId);
 
-        listViewWish.setAdapter(adapterWish);
+        } catch (NullPointerException e) {
+            Log.d("connectionRequest", "currently inGame --> request from " + endpointId);
+            Joueur player = null;
+            for (int i = 0; i < disconnectedPlayers.size(); i++) {
+                Log.d("connectionRequest", disconnectedPlayers.get(i).getId() + " " + endpointId.split(":")[0]);
+                if (disconnectedPlayers.get(i).getId().split(":")[0].equals(endpointId.split(":")[0])) {
+                    player = disconnectedPlayers.get(i);
 
-        wishingToConnectIDs.add(endpointId);
+                    for (int j = 0; j < Game.allPlayers.size(); j++) {
+                        if (Game.allPlayers.get(j).getId().split(":")[0].equals(endpointId.split(":")[0])) {
+                            Log.d("connectionRequest", Game.allPlayers.get(j).getId() + " --> " + endpointId);
+                            Game.allPlayers.get(j).setId(endpointId);
+                        }
+                    }
 
+                    Nearby.Connections.acceptConnectionRequest(mGoogleApiClient, endpointId,
+                            null, MainActivity.this)
+                            .setResultCallback(new ResultCallback<Status>() {
+                                @Override
+                                public void onResult(Status status) {
+                                    MainActivity.event.setType(Evenement.EventType.showRole);
+                                    MainActivity.event.setAllPlayers(Game.allPlayers);
+                                    Nearby.Connections.sendReliableMessage(mGoogleApiClient, endpointId, MainActivity.serialize(MainActivity.event));
+                                }
+                            });
 
+                } else {
+                    Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, endpointId);
+                }
+            }
+            try {
+                disconnectedPlayers.remove(player);
+                Log.d("connectionRequest", "" + player.getName() + " was removed from disconnectedPlayers");
+            } catch (NullPointerException f) {
+
+            }
+        }
     }
 
     @Override
@@ -885,8 +914,11 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    ArrayList<Joueur> disconnectedPlayers = new ArrayList();
+
     @Override
-    public void onDisconnected(String endpointId) {
+    public void onDisconnected(final String endpointId) {
+        Log.d("onDisconnected", endpointId);
 
         for (int i = 0; i < connectedIDs.size(); i++) {
             if (connectedIDs.get(i).equals(endpointId)) {
@@ -898,44 +930,68 @@ public class MainActivity extends AppCompatActivity implements
                 listViewInGame.setAdapter(adapterInGame);
 
                 connectedIDs.remove(i);
+            }
+        }
 
+        if (hosting) {
 
+            if (disconnectedPlayers.size() == 0) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Player lost connection")
+                        .setMessage("Would you like to wait for him to reconnect?")
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                waitPlayer(endpointId);
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                removeDisconnectedPlayer(endpointId);
+
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
             }
         }
     }
 
-    private void setRole(String s) {
-
-        switch (s) {
-            case "LoupGarou":
-                monRole = Roles.LoupGarou;
-                break;
-            case "Voyante":
-                monRole = Roles.Voyante;
-                break;
-            case "Voleur":
-                monRole = Roles.Voleur;
-                break;
-            case "Chasseur":
-                monRole = Roles.Chasseur;
-                break;
-            case "Cupidon":
-                monRole = Roles.Cupidon;
-                break;
-            case "Sorciere":
-                monRole = Roles.Sorciere;
-                break;
-            case "PetiteFille":
-                monRole = Roles.PetiteFille;
-                break;
-            case "Villageois":
-                monRole = Roles.Villageois;
-                break;
-            case "Maitre":
-                Toast.makeText(MainActivity.this, "You are now the game master", Toast.LENGTH_SHORT).show();
-                monRole = Roles.Maitre;
-                break;
+    private void waitPlayer(String endpointId) {
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i).getId().equals(endpointId)) {
+                disconnectedPlayers.add(Game.allPlayers.get(i));
+            }
         }
+
+        startAdvertising();
+
+        //start timer
+        new CountDownTimer(60000, 30000) {
+
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            public void onFinish() {
+                Log.d("onDisconnected", "stopDiscovery");
+                Nearby.Connections.stopAdvertising(mGoogleApiClient);
+            }
+        }.start();
+    }
+
+
+    private void removeDisconnectedPlayer(String endpointId) {
+        int pos = -1;
+
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.allPlayers.get(i).getId().equals(endpointId)) {
+                pos = i;
+            }
+        }
+
+        Game.allPlayers.remove(pos);
     }
 
     protected void rememberMyName() {
@@ -961,7 +1017,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onPause();
         try {
             Game.me().setReady(false);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -971,7 +1027,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         try {
             Game.me().setReady(true);
-        } catch (Exception e){
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FragmentMaitre.enableButtons(Evenement.everyoneReady());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -1277,6 +1339,7 @@ public class MainActivity extends AppCompatActivity implements
     public void endGame(View view) {
         Log.d("MainActivity.endGame", "you suck");
 
+        Game.allPlayers.clear();
         mGoogleApiClient.disconnect();
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -1351,5 +1414,19 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
+    public void sendTest(View view) {
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), "Test".getBytes());
+        }
+    }
 
+    public void showSettings(MenuItem item) {
+        Intent intent = new Intent(this, ActivityGameSettings.class);
+
+        /**
+        intent.putExtra("nbLoup", player.getName());
+        intent.putExtra("role", "" + player.getRole());**/
+
+        startActivity(intent);
+    }
 }
