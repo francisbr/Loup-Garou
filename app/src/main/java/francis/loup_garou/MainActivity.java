@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements
         Connections.MessageListener,
         Connections.EndpointDiscoveryListener {
     Game myGame;
+    MenuItem mnuSettings;
 
     public static FragmentManager fragmentManager;
     public static FragmentTransaction fragmentTransaction;
@@ -281,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements
         if (btnJoin.getText().toString().equalsIgnoreCase(getString(R.string.join_game_btn))) {
             btnJoin.setText(getString(R.string.stop_txt));
 
+            mnuSettings.setVisible(false);
             findViewById(R.id.layoutHost).setVisibility(View.GONE);
             findViewById(R.id.layoutJoin).setVisibility(View.VISIBLE);
 
@@ -296,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements
 
             adapterNearbyGames.notifyDataSetChanged();
 
+            mnuSettings.setVisible(false);
             findViewById(R.id.layoutHost).setVisibility(View.GONE);
             findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
@@ -329,6 +332,7 @@ public class MainActivity extends AppCompatActivity implements
             listViewInGame.setAdapter(adapterInGame);
 
 
+            mnuSettings.setVisible(true);
             findViewById(R.id.layoutHost).setVisibility(View.VISIBLE);
             findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
@@ -341,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements
         } else if (btnAdvertise.getText().toString().equalsIgnoreCase(getString(R.string.stop_txt))) {
             btnAdvertise.setText(getString(R.string.create_game_btn));
 
+            mnuSettings.setVisible(false);
             findViewById(R.id.layoutHost).setVisibility(View.GONE);
             findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
@@ -1340,16 +1345,17 @@ public class MainActivity extends AppCompatActivity implements
 
         Game.allPlayers.clear();
         mGoogleApiClient.disconnect();
-        fragmentManager = getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentGetName = new FragmentGetName();
 
-        fragmentTransaction.replace(android.R.id.content, fragmentGetName);
-        fragmentTransaction.commit();
-        fragmentManager.executePendingTransactions();
+        connectedIDs.clear();
+        wishingToConnectIDs.clear();
+        listWishName.clear();
+        listInGameName.clear();
 
-        onStart();
+        listNearbyGamesName.clear();
+        possiblesHostersIds.clear();
+
+        recreate();
     }
 
 
@@ -1410,6 +1416,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mnuSettings = menu.findItem(R.id.action_settings);
         return true;
     }
 
@@ -1424,7 +1431,7 @@ public class MainActivity extends AppCompatActivity implements
 
         intent.putExtra("nbPlayer", listInGameName.size());
 
-        if (!useCustom){
+        if (!useCustom) {
             Game.setNbRoles(listInGameName.size());
         }
         intent.putExtra("nbLoup", Game.nbLoup);
@@ -1435,15 +1442,21 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra("nbVoleur", Game.nbVoleur);
         intent.putExtra("useCustom", useCustom);
 
+        if (Game.nbCupidon == 1) {
+            intent.putExtra("haveCupid", true);
+        } else {
+            intent.putExtra("haveCupid", false);
+        }
+
         startActivityForResult(intent, 1);
 
     }
 
-    boolean useCustom = new Boolean(false);
+    boolean useCustom;
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                String myStr = data.getStringExtra("MyData");
                 if (data.getBooleanExtra("useCustom", false)) {
                     Game.nbLoup = data.getIntExtra("nbLoup", -1);
                     Game.nbSorciere = data.getIntExtra("nbSorciere", -1);
@@ -1451,9 +1464,10 @@ public class MainActivity extends AppCompatActivity implements
                     Game.nbChasseur = data.getIntExtra("nbChasseur", -1);
                     Game.nbPetiteFille = data.getIntExtra("nbPetiteFille", -1);
                     Game.nbVoleur = data.getIntExtra("nbVoleur", -1);
+                    Game.nbCupidon = data.getIntExtra("nbCupid", -1);
                     useCustom = true;
                     //Toast.makeText(this, "" + nbLoup + " " + nbSorciere + " " + nbVoyante + " " + nbChasseur + " " + nbPetiteFille + " " + nbVoleur, Toast.LENGTH_LONG).show();
-                } else{
+                } else {
                     useCustom = false;
                 }
             }

@@ -32,12 +32,16 @@
             android:name=".Activities.ActivityVoyante"
             android:theme="@style/Theme.AppCompat.Dialog"
             android:label="@string/title_activity_activity_voyante"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
+
+        </activity>
         <activity
             android:name=".Activities.ActivityGameSettings"
             android:theme="@style/Animation.AppCompat.Dialog"
             android:label="Game Settings"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
+
+        </activity>
     </application>
 
 </manifest>

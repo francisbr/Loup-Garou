@@ -65,7 +65,7 @@ public class Game {
             allPlayers.add(new Joueur(connectedIDs.get(i), listInGameName.get(i)));
         }
 
-        if (customRoles)
+        if (!customRoles)
             setNbRoles(allPlayers.size());
         setRolesToPlayers();
 

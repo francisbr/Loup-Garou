@@ -4,22 +4,21 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import francis.loup_garou.R;
-import francis.loup_garou.Roles;
 
 public class ActivityGameSettings extends Activity {
     SeekBar seekBarLoup, seekBarVoyante, seekBarSorciere, seekBarChasseur, seekBarPetiteFille, seekBarVoleur;
+    Switch switchCupid, switchCustomSettings;
     TextView nbLoupTxt, nbVoyanteTxt, nbSorciereTxt, nbChasseurTxt, nbPetiteFilleTxt, nbVoleurTxt;
-    int maxPlayer = 0;
+    int maxPlayer = 0, nbCupid = 0;
 
     Intent intent = new Intent();
 
@@ -36,6 +35,7 @@ public class ActivityGameSettings extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+
 
         seekBarLoup = (SeekBar) findViewById(R.id.seekBarLoup);
         nbLoupTxt = (TextView) findViewById(R.id.nbLoupTxt);
@@ -75,36 +75,88 @@ public class ActivityGameSettings extends Activity {
         intent.putExtra("nbVoleur", seekBarVoleur.getProgress());
         setResult(RESULT_OK, intent);
 
+        maxPlayer = getIntent().getIntExtra("nbPlayer", 0);
+        TextView textView = (TextView) findViewById(R.id.nbJoueurTxt);
+        textView.setText("" + maxPlayer + " joueurs");
 
-        Switch switchCustomSettings = (Switch) findViewById(R.id.switchEnableCustomSettings);
+        setSwitches();
+        changesMaxs();
+
+
+    }
+
+    private void changesMaxs() {
+        int currentSum = seekBarChasseur.getProgress() + seekBarLoup.getProgress() + seekBarSorciere.getProgress() + seekBarVoyante.getProgress() + seekBarPetiteFille.getProgress() + seekBarVoleur.getProgress() + nbCupid;
+        Log.d("maxPlayer", "" + maxPlayer);
+        Log.d("CurrentSum", "" + currentSum);
+        seekBarLoup.setMax(maxPlayer - currentSum + seekBarLoup.getProgress());
+        seekBarChasseur.setMax(maxPlayer - currentSum + seekBarChasseur.getProgress());
+        seekBarSorciere.setMax(maxPlayer - currentSum + seekBarSorciere.getProgress());
+        seekBarVoyante.setMax(maxPlayer - currentSum + seekBarVoyante.getProgress());
+        seekBarPetiteFille.setMax(maxPlayer - currentSum + seekBarPetiteFille.getProgress());
+        seekBarVoleur.setMax(maxPlayer - currentSum + seekBarVoleur.getProgress());
+
+        if (currentSum >= maxPlayer) {
+            if (!switchCupid.isChecked())
+                switchCupid.setClickable(false);
+            else {
+                switchCupid.setClickable(true);
+            }
+        }
+
+        TextView txtView = (TextView) (findViewById(R.id.nbVillagerTxt));
+        txtView.setText("" + (maxPlayer - currentSum) + " villageois");
+    }
+
+    public void setSwitches() {
+        switchCustomSettings = (Switch) findViewById(R.id.switchEnableCustomSettings);
+        switchCupid = (Switch) findViewById(R.id.switchCupid);
+
         switchCustomSettings.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     intent.putExtra("useCustom", true);
                     setResult(RESULT_OK, intent);
+                    enableModifications(true);
                 } else {
                     intent.putExtra("useCustom", false);
                     setResult(RESULT_OK, intent);
+                    enableModifications(false);
                 }
             }
         });
         switchCustomSettings.setChecked(getIntent().getBooleanExtra("useCustom", false));
-        maxPlayer = getIntent().getIntExtra("nbPlayer", 0);
 
-        changeSeekBarsMax();
+        switchCupid.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    nbCupid = 1;
+                    intent.putExtra("nbCupid", 1);
+                    setResult(RESULT_OK, intent);
+                    changesMaxs();
+                } else {
+                    nbCupid = 0;
+                    intent.putExtra("nbCupid", 0);
+                    setResult(RESULT_OK, intent);
+                    changesMaxs();
+                }
+            }
+        });
+        switchCupid.setChecked(getIntent().getBooleanExtra("haveCupid", false));
+
+        enableModifications(getIntent().getBooleanExtra("useCustom", false));
     }
 
-    private void changeSeekBarsMax() {
-        int currentSum = seekBarChasseur.getProgress() + seekBarLoup.getProgress() + seekBarSorciere.getProgress() + seekBarVoyante.getProgress() + seekBarPetiteFille.getProgress() + seekBarVoleur.getProgress();
-        Log.d("maxPlayer", "" + maxPlayer);
-        Log.d("CurrentSum", "" + currentSum);
-        seekBarLoup.setMax(maxPlayer - currentSum);
-        seekBarChasseur.setMax(maxPlayer - currentSum);
-        seekBarSorciere.setMax(maxPlayer - currentSum);
-        seekBarVoyante.setMax(maxPlayer - currentSum);
-        seekBarPetiteFille.setMax(maxPlayer - currentSum);
-        seekBarVoleur.setMax(maxPlayer - currentSum);
+    private void enableModifications(boolean b) {
+        switchCupid.setEnabled(b);
+        seekBarLoup.setEnabled(b);
+        seekBarChasseur.setEnabled(b);
+        seekBarVoyante.setEnabled(b);
+        seekBarSorciere.setEnabled(b);
+        seekBarPetiteFille.setEnabled(b);
+        seekBarVoleur.setEnabled(b);
     }
 
     public void setSeekBar(SeekBar seekBar, final TextView textView, int nb) {
@@ -139,9 +191,18 @@ public class ActivityGameSettings extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                changeSeekBarsMax();
+                changesMaxs();
             }
         });
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+
+    public void save(MenuItem item) {
+        finish();
     }
 }
