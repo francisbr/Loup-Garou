@@ -104,13 +104,12 @@
             android:onClick="tourSorciere"
             android:text="@string/sorciere" />
         <Button
-            android:id="@+id/btnTest"
+            android:id="@+id/btnCapitain"
             android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:onClick="sendTest"
-            android:text="Test" />
-    </LinearLayout>
+            android:onClick="startVoteCapitain"
+            android:text="@string/capitaine" />    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"

@@ -88,7 +88,10 @@ public class FragmentDayCycle extends Fragment {
                 if (Game.voteStarted) {
                     MainActivity.sendVoteDay(position);
                     Game.voteStarted = false;
-
+                }
+                else if(Game.voteCapitainStarted){
+                    MainActivity.sendVoteCapitain(position);
+                    Game.voteCapitainStarted = false;
                 }
             }
         });

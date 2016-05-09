@@ -32,6 +32,7 @@ import francis.loup_garou.players.Voyante;
  */
 public class Game {
     public static boolean voteStarted = false;
+    public static boolean voteCapitainStarted = false;
 
     public static int nbLoup, nbVoyante, nbVoleur, nbChasseur, nbCupidon, nbSorciere, nbPetiteFille;
     public static int nbPotionVie = 1, nbPotionMort = 1;

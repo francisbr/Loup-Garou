@@ -251,13 +251,15 @@ public class MainActivity extends AppCompatActivity implements
 
 
             fragmentManager = getFragmentManager();
+
             fragmentTransaction = fragmentManager.beginTransaction();
 
             FragmentStartGame fragmentStartGame = new FragmentStartGame();
 
-
+           // fragmentTransaction.setCustomAnimations(R.animator.anim, R.animator.anim2);
             fragmentTransaction.replace(android.R.id.content, fragmentStartGame);
             fragmentTransaction.commit();
+
 
 
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -274,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements
                         .build();
             }
         }
+
+
     }
 
     public void btnJoin(View view) {
@@ -292,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements
             hosting = false;
 
             startDiscovery();
+
         } else if (btnJoin.getText().toString().equalsIgnoreCase(getString(R.string.stop_txt))) {
             btnJoin.setText(getString(R.string.join_game_btn));
             listNearbyGamesName.clear();
@@ -1327,6 +1332,21 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
 
     }
+    public static void sendVoteCapitain (int position){
+        event.setType(Evenement.EventType.voteCapitain);
+        event.setAllPlayers((Game.allPlayers));
+        event.setVoteur(Game.me());
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            if (Game.listAliveNames.get(position).equals(Game.allPlayers.get(i).getName())) {
+                event.setJoueurVote(Game.allPlayers.get(i));
+            }
+        }
+
+
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
+
+
+    }
 
     public static void voleRole(Joueur player) {
         event.setVoleurInitial(Game.me());
@@ -1512,6 +1532,15 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         }
+    }
+    public void startVoteCapitain(View view){
+        event.setType(Evenement.EventType.startVoteCapitain);
+        event.setAllPlayers(Game.allPlayers);
+
+        for (int i = 0; i < Game.allPlayers.size(); i++)
+            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
+
+
     }
 }
 

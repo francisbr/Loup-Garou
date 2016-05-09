@@ -17,7 +17,7 @@ import francis.loup_garou.R;
  */
 public class FragmentMaitre extends Fragment {
     public static TextView mDebugInfo;
-    public static Button btnJour, btnNuit, btnVote, btnLoup, btnVoyante, btnVoleur, btnCupidon, btnSorciere;
+    public static Button btnJour, btnNuit, btnVote, btnLoup, btnVoyante, btnVoleur, btnCupidon, btnSorciere, btnCapitain;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,6 +39,7 @@ public class FragmentMaitre extends Fragment {
         btnVoleur = (Button) getView().findViewById(R.id.btnVoleur);
         btnCupidon = (Button) getView().findViewById(R.id.btnCupidon);
         btnSorciere = (Button) getView().findViewById(R.id.btnSorciere);
+        btnCapitain = (Button) getView().findViewById((R.id.btnCapitain));
 
         // Debug text view
         mDebugInfo = (TextView) getView().findViewById(R.id.logTxtView);
@@ -60,6 +61,7 @@ public class FragmentMaitre extends Fragment {
             btnVoleur.setEnabled(true);
             btnCupidon.setEnabled(true);
             btnSorciere.setEnabled(true);
+            btnCapitain.setEnabled(true);
         } else {
             btnJour.setEnabled(false);
             btnNuit.setEnabled(false);
@@ -69,6 +71,7 @@ public class FragmentMaitre extends Fragment {
             btnVoleur.setEnabled(false);
             btnCupidon.setEnabled(false);
             btnSorciere.setEnabled(false);
+            btnCapitain.setEnabled(false);
         }
 
     }

@@ -16,7 +16,7 @@ import francis.loup_garou.Roles;
  */
 public class Joueur implements Serializable {
 
-    protected Boolean isEnVie = true, deadLastNight = false, ready = false;
+    protected Boolean isEnVie = true, deadLastNight = false, ready = false, estCapitaine = false;
     protected String id, name;
     Joueur lover;
 
@@ -82,5 +82,13 @@ public class Joueur implements Serializable {
 
     public Boolean isReady() {
         return ready;
+    }
+
+    public void setCapitain(Boolean estCapitaine) {
+        estCapitaine = estCapitaine;
+    }
+
+    public Boolean isCapitaine() {
+        return estCapitaine;
     }
 }

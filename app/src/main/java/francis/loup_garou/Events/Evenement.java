@@ -39,7 +39,7 @@ public class Evenement implements Serializable {
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
         villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
-        tourVoleur, tourCupidon, twoLoversfound, loversFound, readyChanged, nothing, changeRoles
+        tourVoleur, tourCupidon, twoLoversfound, loversFound, readyChanged, nothing, changeRoles,   startVoteCapitain, voteCapitain
     }
 
     public void execute(Context context) {
@@ -175,6 +175,22 @@ public class Evenement implements Serializable {
                             })
                             .setCancelable(false)
                             .show();
+                }
+                break;
+            case startVoteCapitain:
+                if (Game.enVieEtShow(false)) {
+                    Game.voteCapitainStarted= true;
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.tour_de_table)
+                            .setMessage(R.string.vote_capitain_txt)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+
                 }
                 break;
             case resultVoteDay:
@@ -391,6 +407,10 @@ public class Evenement implements Serializable {
                     Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
+                    if(voteur.isCapitaine()){
+                        MainActivity.allVoteurs.add(voteur);
+                        MainActivity.allVotes.add(playerVoted);
+                    }
 
                     MainActivity.showLogs(voteur.getName() + " wants to kill " + playerVoted.getName());
                 }
@@ -399,13 +419,28 @@ public class Evenement implements Serializable {
                 ArrayList<Integer> nbVotesEach = new ArrayList();
                 ArrayList<Joueur> playersAlive = new ArrayList();
 
+                boolean capEnVie = false;
                 for (int i = 0; i < allPlayers.size(); i++) {
                     if (allPlayers.get(i).isEnVie()) {
                         playersAlive.add(allPlayers.get(i));
+                        if(allPlayers.get(i).isCapitaine()) {
+                            capEnVie=true;
+                        }
                     }
                 }
 
-                if (MainActivity.allVotes.size() == playersAlive.size()) {
+                boolean nextCondition = false;
+                if(capEnVie){
+                    if (MainActivity.allVotes.size() == playersAlive.size() + 1) {
+                        nextCondition = true;
+                    }
+                }else{
+                    if (MainActivity.allVotes.size() == playersAlive.size()) {
+                        nextCondition = true;
+                    }
+                }
+
+                if (nextCondition) {
                     Log.d("VoteDay", "All vote received!");
                     MainActivity.showLogs("Everyone has voted!");
 
@@ -523,6 +558,127 @@ public class Evenement implements Serializable {
                 for (int i = 0; i < Game.allPlayers.size(); i++)
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
+                break;
+            case voteCapitain:
+                Log.d("voteCapitain", "Starting");
+                kill = true;
+                changeVote = false;
+                pos = -1;
+
+                Log.d("allVoteurs.size()", "" + MainActivity.allVoteurs.size());
+                for (int i = 0; i < MainActivity.allVoteurs.size(); i++) {
+                    if (MainActivity.allVoteurs.get(i) == voteur && !MainActivity.allVotes.isEmpty()) {
+                        changeVote = true;
+                        pos = i;
+                    }
+                }
+                Log.d("pos", "" + pos);
+
+
+                if (changeVote) {
+                    /*
+                    Log.d("Changing vote", "" + pos + " " + voteur.getName() + " " + playerVoted.getName());
+                    MainActivity.allVotes.set(pos, playerVoted);
+                    */
+
+                } else {
+                    Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
+                    MainActivity.allVoteurs.add(voteur);
+                    MainActivity.allVotes.add(playerVoted);
+
+                    MainActivity.showLogs(voteur.getName() + " wants to kill " + playerVoted.getName());
+                }
+
+                ArrayList<String> alreadyChecked2 = new ArrayList();
+                ArrayList<Integer> nbVotesEach2 = new ArrayList();
+                ArrayList<Joueur> playersAlive2 = new ArrayList();
+
+                for (int i = 0; i < allPlayers.size(); i++) {
+                    if (allPlayers.get(i).isEnVie()) {
+                        playersAlive2.add(allPlayers.get(i));
+                    }
+                }
+
+                if (MainActivity.allVotes.size() == playersAlive2.size()) {
+                    Log.d("VoteDay", "All vote received!");
+                    MainActivity.showLogs("Everyone has voted!");
+
+                    for (int i = 0; i < MainActivity.allVotes.size(); i++) {
+                        if (!alreadyChecked2.contains(MainActivity.allVotes.get(i).getId())) {
+                            Log.d(".contains", "false");
+                            int nbVote = 0;
+                            for (int j = i; j < MainActivity.allVotes.size(); j++) {
+                                if (MainActivity.allVotes.get(j).getId().equals(MainActivity.allVotes.get(i).getId())) {
+                                    nbVote++;
+                                }
+                            }
+                            alreadyChecked2.add(MainActivity.allVotes.get(i).getId());
+                            nbVotesEach2.add(nbVote);
+                        }
+                    }
+                    Log.d("alreadyChecked.size", "" + alreadyChecked2.size());
+                    Log.d("nbVotesEach.size", "" + nbVotesEach2.size());
+
+                    int plusGrandnbDeVote = -1, posMax = -1;
+                    for (int i = 0; i < nbVotesEach2.size(); i++) {
+                        if (nbVotesEach2.get(i) > plusGrandnbDeVote) {
+                            plusGrandnbDeVote = nbVotesEach2.get(i);
+                            posMax = i;
+                        }
+                    }
+                    boolean memeNombreDeVotes = false;
+
+                    for (int i = 0; i < nbVotesEach2.size(); i++) {
+                        if (i != posMax && nbVotesEach2.get(i) == plusGrandnbDeVote) {
+                            memeNombreDeVotes = true;
+                        }
+                    }
+
+                    Log.d("max " + plusGrandnbDeVote, "posMax " + posMax);
+
+                    Log.d("playersAlive", "" + playersAlive2.size());
+                    for (int i = 0; i < playersAlive2.size(); i++) {
+                        Log.d("" + i, "" + playersAlive2.get(i).getName() + " " + playersAlive2.get(i).getId());
+                    }
+
+                    Log.d("alreadyChecked", "" + alreadyChecked2.size());
+                    for (int i = 0; i < alreadyChecked2.size(); i++) {
+                        Log.d("" + i, "" + alreadyChecked2.get(i));
+                    }
+
+
+                    if (!memeNombreDeVotes) {
+                        Log.d("Voting", "True " + alreadyChecked2.get(posMax));
+                        String capitainID = alreadyChecked2.get(posMax);
+                        Joueur capitainPlayer = null;
+                        for (int i = 0; i < Game.allPlayers.size(); i++) {
+                            Log.d("" + Game.allPlayers.get(i).getId(), "" + capitainID);
+                            if (Game.allPlayers.get(i).getId().equals(capitainID)) {
+                                Game.allPlayers.get(i).setCapitain(true);
+
+                            }
+                        }
+
+                        MainActivity.allVoteurs.clear();
+                        MainActivity.allVotes.clear();
+
+
+                            MainActivity.event.setType(EventType.resultVoteDay);
+                            MainActivity.event.setAllPlayers(Game.allPlayers);
+
+                            for (int i = 0; i < Game.allPlayers.size(); i++)
+                                Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+
+                            MainActivity.showLogs(capitainID + " was voted by the village!");
+
+                    } else {
+                        Log.d("Killing", "False");
+                        MainActivity.allVoteurs.clear();
+                        MainActivity.allVotes.clear();
+
+                        MainActivity.showLogs("The village wasn't able to agree on someone to elect, no one was voted capitain!");
+                    }
+                }
                 break;
             case twoLoversfound:
                 Joueur player1 = null, player2 = null;
@@ -650,6 +806,7 @@ public class Evenement implements Serializable {
             }
         }
     }
+
 
     public void setInts(int int1, int int2) {
         this.int1 = int1;

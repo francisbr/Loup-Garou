@@ -35,6 +35,7 @@
     <string name="sorciere">Witch</string>
     <string name="cupidon">Cupid</string>
     <string name="chasseur">Hunter</string>
+    <string name="capitaine">Captain</string>
     <string name="maitre">Game master</string>
     <string name="jour">Day</string>
 
@@ -62,6 +63,10 @@
     <string name="conseil">Village council</string>
     <string name="vote_jour_txt">The council requests your vote. Choose from the list.</string>
     <string name="vote_du_village">Villages vote</string>
+    <string name="vote_capitain_txt">Elect your town\'s captain. Choose from the list.</string>
+    <string name="tour_de_table">Tour de Table.</string>
+
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
