@@ -58,6 +58,8 @@ public class Game {
 
     public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient, boolean customRoles) {
         Log.d("Game", "Created");
+        allPlayers.clear();
+        tempRoleList.clear();
 
         Log.d("allPlayers", "Creating");
         for (int i = 0; i < connectedIDs.size(); i++) {

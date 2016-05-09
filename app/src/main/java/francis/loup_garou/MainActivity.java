@@ -49,9 +49,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import francis.loup_garou.Activities.ActivityGameSettings;
-import francis.loup_garou.Activities.ActivityVoyante;
 import francis.loup_garou.Events.Evenement;
 import francis.loup_garou.fragments.FragmentBackground;
 import francis.loup_garou.fragments.FragmentDayCycle;
@@ -152,8 +153,8 @@ public class MainActivity extends AppCompatActivity implements
     //Pour les list view de games
     ListView listViewNearbyGames;
     ArrayAdapter<String> adapterNearbyGames;
-    ArrayList<String> listNearbyGamesName = new ArrayList();
-    private ArrayList<String> possiblesHostersIds = new ArrayList();
+    static ArrayList<String> listNearbyGamesName = new ArrayList();
+    private static ArrayList<String> possiblesHostersIds = new ArrayList();
 
     ProgressDialog progressDialog;
 
@@ -454,9 +455,9 @@ public class MainActivity extends AppCompatActivity implements
                                         if (status.isSuccess()) {
 
                                             listInGameName.add(listWishName.get(position));
-
                                             adapterInGame.notifyDataSetChanged();
                                             listViewInGame.setAdapter(adapterInGame);
+
                                             connectedIDs.add(wishingToConnectIDs.get(position));
 
 
@@ -631,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements
         //Starting Game/in-game
         switch (msg[0]) {
             case "start":
-                startingGame();
+                showMasterFragment();
                 break;
             case "setRole":/*
                 if (monRole == null)
@@ -1083,7 +1084,7 @@ public class MainActivity extends AppCompatActivity implements
 
         } else {
             monRole = Roles.Maitre;
-            startingGame();
+            showMasterFragment();
 
             myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient, useCustom);
 
@@ -1096,10 +1097,12 @@ public class MainActivity extends AppCompatActivity implements
             listInGameName.clear();
             connectedIDs.clear();
 
+            mnuSettings.setVisible(false);
+            printLists();
         }
     }
 
-    public void startingGame() {
+    public void showMasterFragment() {
         fragmentTransaction = fragmentManager.beginTransaction();
 
         FragmentMaitre fragmentMaitre = new FragmentMaitre();
@@ -1346,7 +1349,45 @@ public class MainActivity extends AppCompatActivity implements
         Game.allPlayers.clear();
         mGoogleApiClient.disconnect();
 
+        clearAllLists();
+        printLists();
 
+        recreate();
+    }
+
+    public static void printLists() {
+        Log.d("MainActivity", "printLists()------------------------" );
+        Log.d("Game.allPlayers", "" + Game.allPlayers.size());
+        for (int i = 0; i < Game.allPlayers.size(); i++) {
+            Log.d("" + i, "" + Game.allPlayers.get(i));
+        }
+        Log.d("connectediDs", "" + connectedIDs.size());
+        for (int i = 0; i < connectedIDs.size(); i++) {
+            Log.d("" + i, "" + connectedIDs.get(i));
+        }
+        Log.d("wishingToConnectIDs", "" + wishingToConnectIDs.size());
+        for (int i = 0; i < wishingToConnectIDs.size(); i++) {
+            Log.d("" + i, "" + wishingToConnectIDs.get(i));
+        }
+        Log.d("listWishName", "" + listWishName.size());
+        for (int i = 0; i < listWishName.size(); i++) {
+            Log.d("" + i, "" + listWishName.get(i));
+        }
+        Log.d("listInGameName", "" + listInGameName.size());
+        for (int i = 0; i < listInGameName.size(); i++) {
+            Log.d("" + i, "" + listInGameName.get(i));
+        }
+        Log.d("listNearbyGamesName", "" + listNearbyGamesName.size());
+        for (int i = 0; i < listNearbyGamesName.size(); i++) {
+            Log.d("" + i, "" + listNearbyGamesName.get(i));
+        }
+        Log.d("possiblesHostersIds", "" + possiblesHostersIds.size());
+        for (int i = 0; i < possiblesHostersIds.size(); i++) {
+            Log.d("" + i, "" + possiblesHostersIds.get(i));
+        }
+    }
+
+    public static void clearAllLists() {
         connectedIDs.clear();
         wishingToConnectIDs.clear();
         listWishName.clear();
@@ -1355,7 +1396,6 @@ public class MainActivity extends AppCompatActivity implements
         listNearbyGamesName.clear();
         possiblesHostersIds.clear();
 
-        recreate();
     }
 
 

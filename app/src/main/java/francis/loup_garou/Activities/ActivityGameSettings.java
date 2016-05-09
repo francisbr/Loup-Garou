@@ -3,6 +3,7 @@ package francis.loup_garou.Activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +15,7 @@ import android.widget.TextView;
 
 import francis.loup_garou.R;
 
-public class ActivityGameSettings extends Activity {
+public class ActivityGameSettings extends AppCompatActivity {
     SeekBar seekBarLoup, seekBarVoyante, seekBarSorciere, seekBarChasseur, seekBarPetiteFille, seekBarVoleur;
     Switch switchCupid, switchCustomSettings;
     TextView nbLoupTxt, nbVoyanteTxt, nbSorciereTxt, nbChasseurTxt, nbPetiteFilleTxt, nbVoleurTxt;
@@ -199,6 +200,8 @@ public class ActivityGameSettings extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_settings, menu);
+        MenuItem mnu = menu.findItem(R.id.btnSave);
+        mnu.isVisible();
         return true;
     }
 

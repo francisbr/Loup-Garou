@@ -37,7 +37,7 @@
         </activity>
         <activity
             android:name=".Activities.ActivityGameSettings"
-            android:theme="@style/Animation.AppCompat.Dialog"
+            android:theme="@style/AppTheme"
             android:label="Game Settings"
             android:screenOrientation="portrait">
 
