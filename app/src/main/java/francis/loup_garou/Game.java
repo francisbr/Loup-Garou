@@ -58,11 +58,9 @@ public class Game {
 
 
     public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient, boolean customRoles) {
-        Log.d("Game", "Created");
         allPlayers.clear();
         tempRoleList.clear();
 
-        Log.d("allPlayers", "Creating");
         for (int i = 0; i < connectedIDs.size(); i++) {
             Log.d("" + i, "" + listInGameName.get(i));
             allPlayers.add(new Joueur(connectedIDs.get(i), listInGameName.get(i)));
@@ -277,7 +275,6 @@ public class Game {
             }
         }
 
-        Log.d("nbLoup", "" + nb);
         return nb;
     }
 
@@ -316,10 +313,8 @@ public class Game {
 
     public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
-        Log.d("enVieEtShow", "!me().isEnVie() : " + !me().isEnVie() + " et show : " + show);
         if (!me().isEnVie()) {
             if (show) {
-                Log.d("enVieEtShow", "true, true");
                 MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
 
                 MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentDead);
@@ -327,12 +322,10 @@ public class Game {
                 MainActivity.fragmentManager.executePendingTransactions();
 
             } else {
-                Log.d("enVieEtShow", "true, false");
             }
 
             return false;
         } else {
-            Log.d("enVieEtShow", "false, ...");
             return true;
         }
     }

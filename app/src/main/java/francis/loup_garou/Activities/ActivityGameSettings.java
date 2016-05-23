@@ -78,7 +78,7 @@ public class ActivityGameSettings extends AppCompatActivity {
 
         maxPlayer = getIntent().getIntExtra("nbPlayer", 0);
         TextView textView = (TextView) findViewById(R.id.nbJoueurTxt);
-        textView.setText("" + maxPlayer + " joueurs");
+        textView.setText("" + maxPlayer + " " + R.string.player);
 
         setSwitches();
         changesMaxs();
@@ -88,8 +88,6 @@ public class ActivityGameSettings extends AppCompatActivity {
 
     private void changesMaxs() {
         int currentSum = seekBarChasseur.getProgress() + seekBarLoup.getProgress() + seekBarSorciere.getProgress() + seekBarVoyante.getProgress() + seekBarPetiteFille.getProgress() + seekBarVoleur.getProgress() + nbCupid;
-        Log.d("maxPlayer", "" + maxPlayer);
-        Log.d("CurrentSum", "" + currentSum);
         seekBarLoup.setMax(maxPlayer - currentSum + seekBarLoup.getProgress());
         seekBarChasseur.setMax(maxPlayer - currentSum + seekBarChasseur.getProgress());
         seekBarSorciere.setMax(maxPlayer - currentSum + seekBarSorciere.getProgress());
@@ -106,7 +104,7 @@ public class ActivityGameSettings extends AppCompatActivity {
         }
 
         TextView txtView = (TextView) (findViewById(R.id.nbVillagerTxt));
-        txtView.setText("" + (maxPlayer - currentSum) + " villageois");
+        txtView.setText("" + (maxPlayer - currentSum) + " " + R.string.villager);
     }
 
     public void setSwitches() {

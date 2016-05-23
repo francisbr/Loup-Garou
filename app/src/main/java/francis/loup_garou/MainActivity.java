@@ -195,10 +195,6 @@ public class MainActivity extends AppCompatActivity implements
         fragmentTransaction.commit();
         fragmentManager.executePendingTransactions();
 
-
-        Log.d("writting", "name");
-
-
         adapterWish = new ArrayAdapter<String>(this, R.layout.custom_listview, listWishName);
         adapterInGame = new ArrayAdapter<String>(this, R.layout.custom_listview, listInGameName);
         adapterNearbyGames = new ArrayAdapter<String>(this, R.layout.custom_listview, listNearbyGamesName);
@@ -578,7 +574,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
         String rawMsg = new String(payload);
-        Log.d("message received", rawMsg);
 
         Object obj = deserialize(payload);
 
@@ -752,7 +747,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
         try {
-            Log.d("connectionRequest", "Not in a game --> request from " + endpointId);
             listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
             listWishName.add(endpointName);
 
@@ -761,16 +755,13 @@ public class MainActivity extends AppCompatActivity implements
             wishingToConnectIDs.add(endpointId);
 
         } catch (NullPointerException e) {
-            Log.d("connectionRequest", "currently inGame --> request from " + endpointId);
             Joueur player = null;
             for (int i = 0; i < disconnectedPlayers.size(); i++) {
-                Log.d("connectionRequest", disconnectedPlayers.get(i).getId() + " " + endpointId.split(":")[0]);
                 if (disconnectedPlayers.get(i).getId().split(":")[0].equals(endpointId.split(":")[0])) {
                     player = disconnectedPlayers.get(i);
 
                     for (int j = 0; j < Game.allPlayers.size(); j++) {
                         if (Game.allPlayers.get(j).getId().split(":")[0].equals(endpointId.split(":")[0])) {
-                            Log.d("connectionRequest", Game.allPlayers.get(j).getId() + " --> " + endpointId);
                             Game.allPlayers.get(j).setId(endpointId);
                         }
                     }
@@ -792,7 +783,6 @@ public class MainActivity extends AppCompatActivity implements
             }
             try {
                 disconnectedPlayers.remove(player);
-                Log.d("connectionRequest", "" + player.getName() + " was removed from disconnectedPlayers");
             } catch (NullPointerException f) {
 
             }
@@ -923,7 +913,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onDisconnected(final String endpointId) {
-        Log.d("onDisconnected", endpointId);
 
         for (int i = 0; i < connectedIDs.size(); i++) {
             if (connectedIDs.get(i).equals(endpointId)) {
@@ -980,7 +969,6 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             public void onFinish() {
-                Log.d("onDisconnected", "stopDiscovery");
                 Nearby.Connections.stopAdvertising(mGoogleApiClient);
             }
         }.start();
@@ -1132,7 +1120,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        showLogs("Night is starting.");
+        showLogs("" + R.string.logNightStart);
     }
 
     public void returnNight(View view) {
@@ -1185,7 +1173,7 @@ public class MainActivity extends AppCompatActivity implements
 
         }
 
-        showLogs("Day is starting.");
+        showLogs("" + R.string.logDayStart);
     }
 
     public void tourLoup(View view) {
@@ -1197,7 +1185,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("The werewolves are waking up.");
+        showLogs("" + R.string.logWerewolvesTurn);
 
     }
 
@@ -1210,7 +1198,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("The seer is waking up");
+        showLogs("" + R.string.logSeerTurn);
     }
 
     public void tourSorciere(View view) {
@@ -1222,7 +1210,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("The witch is waking up");
+        showLogs("" + R.string.logWitchTurn);
     }
 
     public void tourVoleur(View view) {
@@ -1234,7 +1222,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("The thief is waking up");
+        showLogs("" + R.string.logThiefTurn);
     }
 
     public void tourCupidon(View view) {
@@ -1246,7 +1234,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("Cupidon will choose 2 lovers");
+        showLogs("" + R.string.logCupidTurn);
     }
 
     public static void send2lovers(Joueur player1, Joueur player2) {
@@ -1286,7 +1274,6 @@ public class MainActivity extends AppCompatActivity implements
         event.setType(Evenement.EventType.voteLoup);
         event.setAllPlayers(Game.allPlayers);
         event.setJoueurVote(player);
-        Log.d("playerVoted", player.getName());
 
         event.setVoteur(Game.me());
 
@@ -1309,7 +1296,7 @@ public class MainActivity extends AppCompatActivity implements
         for (int i = 0; i < Game.allPlayers.size(); i++)
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
 
-        showLogs("The council has united, players should choose the member they think is a werewolf");
+        showLogs("" + R.string.logVillageVoteStart);
     }
 
     public static void sendVoteDay(int position) {
@@ -1366,7 +1353,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void endGame(View view) {
-        Log.d("MainActivity.endGame", "you suck");
 
         Game.allPlayers.clear();
         mGoogleApiClient.disconnect();
@@ -1378,6 +1364,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public static void printLists() {
+        /*
         Log.d("MainActivity", "printLists()------------------------" );
         Log.d("Game.allPlayers", "" + Game.allPlayers.size());
         for (int i = 0; i < Game.allPlayers.size(); i++) {
@@ -1407,6 +1394,7 @@ public class MainActivity extends AppCompatActivity implements
         for (int i = 0; i < possiblesHostersIds.size(); i++) {
             Log.d("" + i, "" + possiblesHostersIds.get(i));
         }
+         */
     }
 
     public static void clearAllLists() {
@@ -1426,13 +1414,11 @@ public class MainActivity extends AppCompatActivity implements
         try {
             os = new ObjectOutputStream(out);
         } catch (IOException e) {
-            Log.d("SERIALIZE", "IOException 1");
             e.printStackTrace();
         }
         try {
             os.writeObject(obj);
         } catch (IOException e) {
-            Log.d("SERIALIZE", "IOException 2");
             e.printStackTrace();
         }
         return out.toByteArray();
@@ -1444,17 +1430,13 @@ public class MainActivity extends AppCompatActivity implements
         try {
             is = new ObjectInputStream(in);
         } catch (IOException e) {
-            Log.d("DESERIALIZE", "IOException 1");
             e.printStackTrace();
         }
         try {
             return is.readObject();
         } catch (NullPointerException e) {
-            Log.d("DESERIALIZE", "No object to deserialize");
         } catch (ClassNotFoundException e) {
-            Log.d("DESERIALIZE", "Class not found");
         } catch (IOException e) {
-            Log.d("DESERIALIZE", "IOException 2");
             e.printStackTrace();
         }
         return null;

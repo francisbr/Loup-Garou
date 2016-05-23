@@ -31,15 +31,9 @@ public class FragmentDayCycle extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-
     }
 
     public void showDay() {
-        int k = 0;
-        k++;
-        Log.d("showDay", "GO");
-
         updateTextNbLoup();
 
         //LISTE ALIVE
@@ -102,8 +96,6 @@ public class FragmentDayCycle extends Fragment {
         //NB LOUP
         TextView tx = (TextView) getView().findViewById(R.id.nbLoupAliveTxtview);
         tx.setText("" + Game.getNbLoup());
-        Log.d("nbLoupAlive", "" + Game.getNbLoup());
-
     }
 
 }

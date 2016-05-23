@@ -27,24 +27,16 @@ public class FragmentGetName extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         view = inflater.inflate(R.layout.fragment_get_name, container, false);
-
-
         return view;
     }
 
     public void setSavedName(SharedPreferences loginPreferences) {
-
-
         textNom = (EditText) view.findViewById(R.id.txtUsername);
         rememberMe = (CheckBox) view.findViewById(R.id.rememberMeCheckBox);
-
 
         textNom.setText(loginPreferences.getString("username", ""));
         rememberMe.setChecked(true);
         textNom.setSelection(textNom.getText().length());
-
-
     }
 }

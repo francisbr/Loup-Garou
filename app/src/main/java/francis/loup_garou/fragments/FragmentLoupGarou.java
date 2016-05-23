@@ -50,12 +50,9 @@ public class FragmentLoupGarou extends Fragment {
                 for (int i = 0; i < Game.allPlayers.size(); i++) {
                     if (Game.listAliveNames.get(position) == Game.allPlayers.get(i).getName()) {
                         player = Game.allPlayers.get(i);
-                        Log.d("choose", "" + player);
                     }
                 }
-
                 MainActivity.sendVoteLoup(player);
-
             }
         });
     }

@@ -70,10 +70,6 @@ public class Joueur implements Serializable {
     public void setReady(Boolean ready) {
         this.ready = ready;
 
-        for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Log.d("Joueur.setReady", "" + Game.allPlayers.get(i).getName() + " " + Game.allPlayers.get(i).isReady());
-        }
-
         MainActivity.event.setType(Evenement.EventType.readyChanged);
         MainActivity.event.setAllPlayers(Game.allPlayers);
 

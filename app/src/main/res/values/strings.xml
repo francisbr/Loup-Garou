@@ -64,7 +64,7 @@
     <string name="vote_jour_txt">The council requests your vote. Choose from the list.</string>
     <string name="vote_du_village">Villages vote</string>
     <string name="vote_capitain_txt">Elect your town\'s captain. Choose from the list.</string>
-    <string name="tour_de_table">Tour de Table.</string>
+    <string name="tour_de_table">Gathering of opinion.</string>
 
 
 
@@ -73,15 +73,43 @@
     <string name="title_activity_activity_voyante">ActivityVoyante</string>
     <string name="test">loup-Garou</string>
     <string name="loup">werewolf</string>
-    <string name="descriptionLoup">Insert english description</string>
-    <string name="descriptionVoyante">Insert english description</string>
-    <string name="descriptionChasseur">Insert english description</string>
-    <string name="descriptionCupidon">Insert english description</string>
-    <string name="descriptionSorciere">Insert english description</string>
-    <string name="descriptionPetiteFille">Insert english description</string>
-    <string name="descriptionVoleur">Insert english description</string>
-    <string name="descriptionVillageois">Insert english description</string>
+    <string name="descriptionVoyante">The seer gets to see someones role every night.</string>
+    <string name="descriptionChasseur">When the hunter dies, either from the werewolves, the witch or the villagers vote, he gets to choose someone to die with him.</string>
+    <string name="descriptionCupidon">During the first night, cupid chooses two villagers who will fall in love until the end of the game. If one of then dies, the other one succombs with him.</string>
+    <string name="descriptionSorciere">The witch wakes up every night after the werewolves go back to sleep. She gets two potions; one is for reviving someone who was killed that night and the other is to kill someone. She only gets to use one potion of each kind per game.</string>
+    <string name="descriptionPetiteFille">During the werewolves turn, the little girl gets to wake up and peek at the werewolves.</string>
+    <string name="descriptionVoleur">The thief gets to exchange his role with someone else in the night. Afterwards, the other person becomes the thief and gets to steal someone elses role the next night.</string>
     <string name="test2">chasseur</string>
     <string name="test1" />
+    <string name="logVoyanteAVu">saw </string>
+    <string name="logSeerSawRole">\'s role (</string>
+    <string name="logCapitaineVoté">was voted as capitain by the village!</string>
+    <string name="logCapitainePasVoté">The village wasn\'t able to elect a capitain!</string>
+    <string name="logEveryoneVoted">Everyone has voted!</string>
+    <string name="logWantsToKill">wants to kill</string>
+    <string name="logNoVillageVote">The village wasn\'t able to agree on someone to execute, no one dies!</string>
+    <string name="logLoverDies">is dying of love with</string>
+    <string name="logChangedVote">changed his vote to</string>
+    <string name="logWantsToEat">wants to eat</string>
+    <string name="logAllWolvesAgreed">Every werewolf agreed to eat</string>
+    <string name="logHunterKilled">, the hunter, was killed by the village!</string>
+    <string name="logVillageVoted">was killed by the village!</string>
+    <string name="logStart">-- START --</string>
+    <string name="logNightStart">Night is starting.</string>
+    <string name="logDayStart">Day is starting.</string>
+    <string name="logWerewolvesTurn">The werewolves are waking up.</string>
+    <string name="logSeerTurn">The seer is waking up.</string>
+    <string name="logWitchTurn">The witch is waking up</string>
+    <string name="logThiefTurn">The thief is waking up</string>
+    <string name="logCupidTurn">Cupid will choose two lovers.</string>
+    <string name="logVillageVoteStart">The council has gathered to choose who they think is a werewolf and kill him.</string>
+    <string name="player">players</string>
+    <string name="villager">villagers</string>
+    <string name="inLoveWith">You are in love with</string>
+    <string name="notInLove">You are not in love.</string>
+    <string name="and">and</string>
+    <string name="logLoversFound">are now in love and will die for each other.</string>
+    <string name="descriptionLoup">Every night, the werewolves get together to kill one person.</string>
+    <string name="descriptionVillageois">The villager is the base character in the game. He does not get any special powers.</string>
 
 </resources>

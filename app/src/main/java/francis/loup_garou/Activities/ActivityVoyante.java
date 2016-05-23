@@ -34,8 +34,6 @@ public class ActivityVoyante extends Activity {
         nom = getIntent().getExtras().getString("name");
         roleString = getIntent().getExtras().getString("role");
 
-        Log.d("ActivityVoyant.onCreate", "name : " + nom);
-        Log.d("ActivityVoyant.onCreate", "role : " + roleString);
         changeName();
         setRole();
         changeTextRole(role);
@@ -90,54 +88,43 @@ public class ActivityVoyante extends Activity {
             role = Roles.Villageois;
         }
 
-        Log.d("changeTextRole", "I got " + role);
         switch (role){
             case LoupGarou:
-                Log.d("changeTextRole", "writting Loup-Garou");
                 txtviewRole.setText(R.string.loup_garou);
                 imgRole.setImageResource(R.drawable.loup_garou);
                 break;
             case Voyante:
-                Log.d("changeTextRole", "writting Voyante");
                 txtviewRole.setText(R.string.voyante);
                 imgRole.setImageResource(R.drawable.voyante);
                 break;
             case Chasseur:
-                Log.d("changeTextRole", "writting Chasseur");
                 txtviewRole.setText(R.string.chasseur);
                 imgRole.setImageResource(R.drawable.chasseur);
                 break;
             case Cupidon:
-                Log.d("changeTextRole", "writting Cupidon");
                 txtviewRole.setText(R.string.cupidon);
                 imgRole.setImageResource(R.drawable.cupidon);
                 break;
             case Sorciere:
-                Log.d("changeTextRole", "writting Sorciere");
                 txtviewRole.setText(R.string.sorciere);
                 imgRole.setImageResource(R.drawable.sorciere);
                 break;
             case PetiteFille:
-                Log.d("changeTextRole", "writting Petite fille");
                 txtviewRole.setText(R.string.petite_fille);
                 imgRole.setImageResource(R.drawable.petite_fille);
                 break;
             case Voleur:
-                Log.d("changeTextRole", "writting Voleur");
                 txtviewRole.setText(R.string.voleur);
                 imgRole.setImageResource(R.drawable.voleur);
                 break;
             case Villageois:
-                Log.d("changeTextRole", "writting Villageois");
                 txtviewRole.setText(R.string.villageois);
                 imgRole.setImageResource(R.drawable.villageois);
                 break;
             case Maitre:
-                Log.d("changeTextRole", "writting Maitre");
                 txtviewRole.setText(R.string.maitre);
                 break;
             default:
-                Log.d("changeTextRole", "writting Villageois");
                 txtviewRole.setText(R.string.villageois);
                 imgRole.setImageResource(R.drawable.villageois);
                 break;

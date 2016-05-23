@@ -25,7 +25,5 @@ public class FragmentBackground extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-
     }
 }
