@@ -33,13 +33,14 @@ import francis.loup_garou.players.*;
 public class Evenement implements Serializable {
     protected ArrayList<Joueur> allPlayers = new ArrayList();
     protected EventType type;
-    protected Joueur voteur, playerVoted, voleurInitial = null, joueurAVolerInitial = null;
+    protected Joueur voteur, playerVoted, voleurInitial = null, joueurAVolerInitial = null, joueurLogVoyanteVu, joueurlogVoyanteVoit;
     protected int int1, int2;
 
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
         villageWin, tourVoyante, tourSorciere, upDate, loupWin, mortDuChasseur, voteDuChasseur,
-        tourVoleur, tourCupidon, twoLoversfound, loversFound, readyChanged, nothing, changeRoles,   startVoteCapitain, voteCapitain
+        tourVoleur, tourCupidon, twoLoversfound, loversFound, readyChanged, nothing, changeRoles,
+        startVoteCapitain, voteCapitain, logVoyante
     }
 
     public void execute(Context context) {
@@ -92,12 +93,15 @@ public class Evenement implements Serializable {
 
                     fragmentDayCycle.showDay();
                     fragmentDayCycle.enableVote();
+
+                    MainActivity.mnuShowRole.setVisible(true);
                 }
                 break;
 
             case showNight:
                 if (Game.enVieEtShow(false)) {
                     showNight();
+                    MainActivity.mnuShowRole.setVisible(false);
                 }
                 break;
 
@@ -179,7 +183,7 @@ public class Evenement implements Serializable {
                 break;
             case startVoteCapitain:
                 if (Game.enVieEtShow(false)) {
-                    Game.voteCapitainStarted= true;
+                    Game.voteCapitainStarted = true;
                     new AlertDialog.Builder(context)
                             .setTitle(R.string.tour_de_table)
                             .setMessage(R.string.vote_capitain_txt)
@@ -407,7 +411,7 @@ public class Evenement implements Serializable {
                     Log.d("Adding a vote", voteur.getName() + " " + playerVoted.getName());
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
-                    if(voteur.isCapitaine()){
+                    if (voteur.isCapitaine()) {
                         MainActivity.allVoteurs.add(voteur);
                         MainActivity.allVotes.add(playerVoted);
                     }
@@ -423,18 +427,18 @@ public class Evenement implements Serializable {
                 for (int i = 0; i < allPlayers.size(); i++) {
                     if (allPlayers.get(i).isEnVie()) {
                         playersAlive.add(allPlayers.get(i));
-                        if(allPlayers.get(i).isCapitaine()) {
-                            capEnVie=true;
+                        if (allPlayers.get(i).isCapitaine()) {
+                            capEnVie = true;
                         }
                     }
                 }
 
                 boolean nextCondition = false;
-                if(capEnVie){
+                if (capEnVie) {
                     if (MainActivity.allVotes.size() == playersAlive.size() + 1) {
                         nextCondition = true;
                     }
-                }else{
+                } else {
                     if (MainActivity.allVotes.size() == playersAlive.size()) {
                         nextCondition = true;
                     }
@@ -663,13 +667,13 @@ public class Evenement implements Serializable {
                         MainActivity.allVotes.clear();
 
 
-                            MainActivity.event.setType(EventType.resultVoteDay);
-                            MainActivity.event.setAllPlayers(Game.allPlayers);
+                        MainActivity.event.setType(EventType.resultVoteDay);
+                        MainActivity.event.setAllPlayers(Game.allPlayers);
 
-                            for (int i = 0; i < Game.allPlayers.size(); i++)
-                                Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
+                        for (int i = 0; i < Game.allPlayers.size(); i++)
+                            Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
-                            MainActivity.showLogs(capitainID + " was voted by the village!");
+                        MainActivity.showLogs(capitainID + " was voted by the village!");
 
                     } else {
                         Log.d("Killing", "False");
@@ -708,6 +712,9 @@ public class Evenement implements Serializable {
                 for (int i = 0; i < Game.allPlayers.size(); i++)
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
+            case logVoyante:
+                MainActivity.showLogs(joueurlogVoyanteVoit.getName() + " (Seer) saw " + joueurLogVoyanteVu.getName() + "'s role (" + joueurLogVoyanteVu.getRole() + ")");
+                break;
         }
     }
 
@@ -719,7 +726,6 @@ public class Evenement implements Serializable {
         }
         return true;
     }
-
 
     private boolean mortCetteNuit() {
         if (Game.me().deadLastNight())
@@ -807,7 +813,6 @@ public class Evenement implements Serializable {
         }
     }
 
-
     public void setInts(int int1, int int2) {
         this.int1 = int1;
         this.int2 = int2;
@@ -822,6 +827,11 @@ public class Evenement implements Serializable {
         MainActivity.fragmentManager.executePendingTransactions();
 
         fragmentDayCycle.showNight();
+    }
+
+    public void setJoueurLogVoyante(Joueur joueurLogVoyanteVu, Joueur joueurlogVoyanteVoit) {
+        this.joueurLogVoyanteVu = joueurLogVoyanteVu;
+        this.joueurlogVoyanteVoit = joueurlogVoyanteVoit;
     }
 }
 

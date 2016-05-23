@@ -58,6 +58,7 @@ import francis.loup_garou.fragments.FragmentBackground;
 import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentGetName;
 import francis.loup_garou.fragments.FragmentMaitre;
+import francis.loup_garou.fragments.FragmentReceivingRole;
 import francis.loup_garou.fragments.FragmentSorciere;
 import francis.loup_garou.fragments.FragmentStartGame;
 import francis.loup_garou.players.Cupidon;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements
         Connections.EndpointDiscoveryListener {
     Game myGame;
     MenuItem mnuSettings;
+    public static MenuItem mnuShowRole;
 
     public static FragmentManager fragmentManager;
     public static FragmentTransaction fragmentTransaction;
@@ -216,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
     }
 
-
     public void saveName(View view) {
         EditText textNom = (EditText) findViewById(R.id.txtUsername);
         CheckBox rememberMe = (CheckBox) findViewById(R.id.rememberMeCheckBox);
@@ -324,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     public void startAdvertisingButton(View view) {
         Button btnAdvertise = (Button) findViewById(R.id.btnCreateGame);
         Button btnJoin = (Button) findViewById(R.id.btnJoin);
@@ -384,7 +384,6 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs.get(position), msg.getBytes());
     }
 
-
     @Override
     public void onConnectionSuspended(int i) {
     }
@@ -428,7 +427,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
-
 
     /**
      * Check if the device is connected (or connecting) to a WiFi network.
@@ -557,7 +555,6 @@ public class MainActivity extends AppCompatActivity implements
         listInGameJoin.setAdapter(adapterInGame);
 
     }
-
 
     private void sendListPlayersInGame() {
         stateTag = "addPlayer" + splitSym;
@@ -725,7 +722,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     public void sendJoinRequest(final int position) {
         listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
         listViewInGame = (ListView) findViewById(R.id.listViewInGame);
@@ -875,7 +871,6 @@ public class MainActivity extends AppCompatActivity implements
         return Nearby.Connections.getLocalDeviceId(mGoogleApiClient);
     }
 
-
     /**
      * Begin discovering devices advertising Nearby Connections, if possible.
      */
@@ -990,7 +985,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         }.start();
     }
-
 
     private void removeDisconnectedPlayer(String endpointId) {
         int pos = -1;
@@ -1332,6 +1326,7 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
 
     }
+
     public static void sendVoteCapitain (int position){
         event.setType(Evenement.EventType.voteCapitain);
         event.setAllPlayers((Game.allPlayers));
@@ -1346,6 +1341,13 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
 
 
+    }
+
+    public static void sendLogVoyante(Joueur playerVu, Joueur playerVoit){
+        event.setType(Evenement.EventType.logVoyante);
+        event.setAllPlayers(Game.allPlayers);
+        event.setJoueurLogVoyante(playerVu, playerVoit);
+        Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
     public static void voleRole(Joueur player) {
@@ -1418,7 +1420,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     public static byte[] serialize(Object obj) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = null;
@@ -1436,7 +1437,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         return out.toByteArray();
     }
-
 
     public static Object deserialize(byte[] data) {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
@@ -1477,6 +1477,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         mnuSettings = menu.findItem(R.id.action_settings);
+        mnuShowRole = menu.findItem(R.id.action_show_role);
         return true;
     }
 
@@ -1512,6 +1513,17 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    public void showRoleMenu (MenuItem item) {
+        MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
+        FragmentReceivingRole fragmentReceivingRole = new FragmentReceivingRole();
+
+        MainActivity.fragmentTransaction.replace(android.R.id.content, fragmentReceivingRole);
+        MainActivity.fragmentTransaction.commit();
+        MainActivity.fragmentManager.executePendingTransactions();
+
+        fragmentReceivingRole.changeTextRole(MainActivity.monRole);
+    }
+
     boolean useCustom;
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1533,6 +1545,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
+
     public void startVoteCapitain(View view){
         event.setType(Evenement.EventType.startVoteCapitain);
         event.setAllPlayers(Game.allPlayers);

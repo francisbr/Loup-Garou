@@ -57,6 +57,7 @@ public class FragmentVoyante extends Fragment {
                     }
                 }
 
+                MainActivity.sendLogVoyante(player, Game.me());
                 showRoleVoyante(player);
             }
         });

@@ -85,7 +85,7 @@ public class Joueur implements Serializable {
     }
 
     public void setCapitain(Boolean estCapitaine) {
-        estCapitaine = estCapitaine;
+        this.estCapitaine = estCapitaine;
     }
 
     public Boolean isCapitaine() {
