@@ -1120,7 +1120,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        showLogs("" + R.string.logNightStart);
+        showLogs("" + getString(R.string.logNightStart));
     }
 
     public void returnNight(View view) {
@@ -1173,7 +1173,7 @@ public class MainActivity extends AppCompatActivity implements
 
         }
 
-        showLogs("" + R.string.logDayStart);
+        showLogs("" + getString(R.string.logDayStart));
     }
 
     public void tourLoup(View view) {
@@ -1185,7 +1185,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("" + R.string.logWerewolvesTurn);
+        showLogs("" + getString(R.string.logWerewolvesTurn));
 
     }
 
@@ -1198,7 +1198,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("" + R.string.logSeerTurn);
+        showLogs("" + getString(R.string.logSeerTurn));
     }
 
     public void tourSorciere(View view) {
@@ -1210,7 +1210,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("" + R.string.logWitchTurn);
+        showLogs("" + getString(R.string.logWitchTurn));
     }
 
     public void tourVoleur(View view) {
@@ -1222,7 +1222,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("" + R.string.logThiefTurn);
+        showLogs("" + getString(R.string.logThiefTurn));
     }
 
     public void tourCupidon(View view) {
@@ -1234,7 +1234,7 @@ public class MainActivity extends AppCompatActivity implements
                 Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
         }
 
-        showLogs("" + R.string.logCupidTurn);
+        showLogs("" + getString(R.string.logCupidTurn));
     }
 
     public static void send2lovers(Joueur player1, Joueur player2) {
@@ -1252,7 +1252,7 @@ public class MainActivity extends AppCompatActivity implements
         event.setType(Evenement.EventType.upDate);
         switch (action) {
             case "kill":
-                Evenement.kill(FragmentSorciere.getPlayerEnVie(position), true);
+                event.kill(FragmentSorciere.getPlayerEnVie(position), true);
                 Game.nbPotionMort--;
                 break;
             case "save":
@@ -1296,7 +1296,7 @@ public class MainActivity extends AppCompatActivity implements
         for (int i = 0; i < Game.allPlayers.size(); i++)
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
 
-        showLogs("" + R.string.logVillageVoteStart);
+        showLogs("" + getString(R.string.logVillageVoteStart));
     }
 
     public static void sendVoteDay(int position) {
@@ -1492,7 +1492,6 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         startActivityForResult(intent, 1);
-
     }
 
     public void showRoleMenu (MenuItem item) {
@@ -1537,5 +1536,6 @@ public class MainActivity extends AppCompatActivity implements
 
 
     }
+
 }
 

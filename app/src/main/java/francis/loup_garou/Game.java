@@ -1,22 +1,15 @@
 package francis.loup_garou;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
 
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import francis.loup_garou.Events.Evenement;
-import francis.loup_garou.fragments.FragmentDayCycle;
 import francis.loup_garou.fragments.FragmentDead;
-import francis.loup_garou.fragments.FragmentLoupGarou;
 import francis.loup_garou.players.Chasseur;
 import francis.loup_garou.players.Cupidon;
 import francis.loup_garou.players.Joueur;
@@ -62,7 +55,6 @@ public class Game {
         tempRoleList.clear();
 
         for (int i = 0; i < connectedIDs.size(); i++) {
-            Log.d("" + i, "" + listInGameName.get(i));
             allPlayers.add(new Joueur(connectedIDs.get(i), listInGameName.get(i)));
         }
 

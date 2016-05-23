@@ -78,7 +78,7 @@ public class ActivityGameSettings extends AppCompatActivity {
 
         maxPlayer = getIntent().getIntExtra("nbPlayer", 0);
         TextView textView = (TextView) findViewById(R.id.nbJoueurTxt);
-        textView.setText("" + maxPlayer + " " + R.string.player);
+        textView.setText("" + maxPlayer + " " + getString(R.string.player));
 
         setSwitches();
         changesMaxs();
@@ -104,7 +104,7 @@ public class ActivityGameSettings extends AppCompatActivity {
         }
 
         TextView txtView = (TextView) (findViewById(R.id.nbVillagerTxt));
-        txtView.setText("" + (maxPlayer - currentSum) + " " + R.string.villager);
+        txtView.setText("" + (maxPlayer - currentSum) + " " + getString(R.string.villager));
     }
 
     public void setSwitches() {

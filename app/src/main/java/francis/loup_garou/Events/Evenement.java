@@ -35,6 +35,7 @@ public class Evenement implements Serializable {
     protected EventType type;
     protected Joueur voteur, playerVoted, voleurInitial = null, joueurAVolerInitial = null, joueurLogVoyanteVu, joueurlogVoyanteVoit;
     protected int int1, int2;
+    protected Context context;
 
     public enum EventType {
         showRole, showDay, voteLoup, showNight, startVoteVillage, voteDay, resultVoteDay, tourLoup,
@@ -44,6 +45,7 @@ public class Evenement implements Serializable {
     }
 
     public void execute(Context context) {
+        this.context = context;
         Game.allPlayers = allPlayers;
         Game.uptdateListsNames();
 
@@ -330,11 +332,11 @@ public class Evenement implements Serializable {
 
                 if (changeVote) {
                     MainActivity.allVotes.set(pos, playerVoted);
-                    MainActivity.showLogs(voteur.getName() + " " + R.string.logChangedVote + " " + playerVoted.getName());
+                    MainActivity.showLogs(voteur.getName() + " " + context.getString(R.string.logChangedVote) + " " + playerVoted.getName());
                 } else {
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
-                    MainActivity.showLogs(voteur.getName() + " " + R.string.logWantsToEat + " " + playerVoted.getName());
+                    MainActivity.showLogs(voteur.getName() + " " + context.getString(R.string.logWantsToEat) + " " + playerVoted.getName());
                 }
 
                 if (MainActivity.allVotes.size() == Game.getNbLoup()) {
@@ -351,7 +353,7 @@ public class Evenement implements Serializable {
                                 kill(Game.allPlayers.get(i), true);
                             }
                         }
-                        MainActivity.showLogs("" + R.string.logAllWolvesAgreed + " " + MainActivity.allVotes.get(0).getName());
+                        MainActivity.showLogs("" + context.getString(R.string.logAllWolvesAgreed) + " " + MainActivity.allVotes.get(0).getName());
 
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
@@ -387,7 +389,7 @@ public class Evenement implements Serializable {
                         MainActivity.allVotes.add(playerVoted);
                     }
 
-                    MainActivity.showLogs(voteur.getName() + " " + R.string.logWantsToKill + " " + playerVoted.getName());
+                    MainActivity.showLogs(voteur.getName() + " " + context.getString(R.string.logWantsToKill) + " " + playerVoted.getName());
                 }
 
                 ArrayList<String> alreadyChecked = new ArrayList();
@@ -416,7 +418,7 @@ public class Evenement implements Serializable {
                 }
 
                 if (nextCondition) {
-                    MainActivity.showLogs("" + R.string.logEveryoneVoted);
+                    MainActivity.showLogs("" + context.getString(R.string.logEveryoneVoted));
 
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
                         if (!alreadyChecked.contains(MainActivity.allVotes.get(i).getId())) {
@@ -470,7 +472,7 @@ public class Evenement implements Serializable {
 
                             Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, deadPlayer.getId(), MainActivity.serialize(MainActivity.event));
 
-                            MainActivity.showLogs(deadPlayer.getName() + " " + R.string.logHunterKilled);
+                            MainActivity.showLogs(deadPlayer.getName() + " " + context.getString(R.string.logHunterKilled));
 
                         } else {
                             MainActivity.event.setType(EventType.resultVoteDay);
@@ -479,13 +481,13 @@ public class Evenement implements Serializable {
                             for (int i = 0; i < Game.allPlayers.size(); i++)
                                 Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
-                            MainActivity.showLogs(deadPlayer.getName() + " " + R.string.logVillageVoted);
+                            MainActivity.showLogs(deadPlayer.getName() + " " + context.getString(R.string.logVillageVoted));
                         }
                     } else {
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
 
-                        MainActivity.showLogs("" + R.string.logNoVillageVote);
+                        MainActivity.showLogs("" + context.getString(R.string.logNoVillageVote));
                     }
                 }
                 break;
@@ -527,7 +529,7 @@ public class Evenement implements Serializable {
                     MainActivity.allVoteurs.add(voteur);
                     MainActivity.allVotes.add(playerVoted);
 
-                    MainActivity.showLogs(voteur.getName() + " " + R.string.logWantsToKill + " " + playerVoted.getName());
+                    MainActivity.showLogs(voteur.getName() + " " + context.getString(R.string.logWantsToKill) + " " + playerVoted.getName());
                 }
 
                 ArrayList<String> alreadyChecked2 = new ArrayList();
@@ -541,7 +543,7 @@ public class Evenement implements Serializable {
                 }
 
                 if (MainActivity.allVotes.size() == playersAlive2.size()) {
-                    MainActivity.showLogs("" + R.string.logEveryoneVoted);
+                    MainActivity.showLogs("" + context.getString(R.string.logEveryoneVoted));
 
                     for (int i = 0; i < MainActivity.allVotes.size(); i++) {
                         if (!alreadyChecked2.contains(MainActivity.allVotes.get(i).getId())) {
@@ -590,13 +592,13 @@ public class Evenement implements Serializable {
                         for (int i = 0; i < Game.allPlayers.size(); i++)
                             Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
 
-                        MainActivity.showLogs(capitainID + " " + R.string.logCapitaineVoté);
+                        MainActivity.showLogs(capitainID + " " + context.getString(R.string.logCapitaineVoté));
 
                     } else {
                         MainActivity.allVoteurs.clear();
                         MainActivity.allVotes.clear();
 
-                        MainActivity.showLogs("" + R.string.logCapitainePasVoté);
+                        MainActivity.showLogs("" + context.getString(R.string.logCapitainePasVoté));
                     }
                 }
                 break;
@@ -609,7 +611,7 @@ public class Evenement implements Serializable {
                     }
                 }
 
-                MainActivity.showLogs(player1.getName() + " " + R.string.and + " " + player2.getName() + " " + R.string.logLoversFound);
+                MainActivity.showLogs(player1.getName() + " " + context.getString(R.string.and) + " " + player2.getName() + " " + context.getString(R.string.logLoversFound));
 
                 MainActivity.event.setType(EventType.loversFound);
                 MainActivity.event.setAllPlayers(Game.allPlayers);
@@ -626,7 +628,7 @@ public class Evenement implements Serializable {
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
             case logVoyante:
-                MainActivity.showLogs(joueurlogVoyanteVoit.getName() + " (" + R.string.voyante + ") " + R.string.logVoyanteAVu +" "+ joueurLogVoyanteVu.getName() + R.string.logSeerSawRole + joueurLogVoyanteVu.getRole() + ")");
+                MainActivity.showLogs(joueurlogVoyanteVoit.getName() + " (" + context.getString(R.string.voyante) + ") " + context.getString(R.string.logVoyanteAVu) +" "+ joueurLogVoyanteVu.getName() + context.getString(R.string.logSeerSawRole) + joueurLogVoyanteVu.getRole() + ")");
                 break;
         }
     }
@@ -698,12 +700,12 @@ public class Evenement implements Serializable {
         this.joueurAVolerInitial = joueurAVolerInitial;
     }
 
-    public static void kill(Joueur player, boolean night) {
+    public void kill(Joueur player, boolean night) {
 
         player.setEnVie(false);
         try {
             player.getLover().setEnVie(false);
-            MainActivity.showLogs(player.getLover().getName() + " " + R.string.logLoverDies + " " + player.getName());
+            MainActivity.showLogs(player.getLover().getName() + " " + context.getString(R.string.logLoverDies) + " " + player.getName());
         } catch (NullPointerException e) {
             //no lovers to kill
         }

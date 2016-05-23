@@ -45,7 +45,7 @@ public class FragmentMaitre extends Fragment {
         mDebugInfo = (TextView) getView().findViewById(R.id.logTxtView);
         mDebugInfo.setMovementMethod(new ScrollingMovementMethod());
 
-        MainActivity.showLogs("" + R.string.logStart);
+        MainActivity.showLogs(getString(R.string.logStart));
 
         enableButtons(false);
     }
