@@ -625,7 +625,41 @@ public class Evenement implements Serializable {
                     Nearby.Connections.sendReliableMessage(MainActivity.mGoogleApiClient, Game.allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
                 break;
             case logVoyante:
-                MainActivity.showLogs(joueurlogVoyanteVoit.getName() + " (" + context.getString(R.string.voyante) + ") " + context.getString(R.string.logVoyanteAVu) +" "+ joueurLogVoyanteVu.getName() + context.getString(R.string.logSeerSawRole) + joueurLogVoyanteVu.getRole() + ")");
+                String role = null;
+                switch (joueurLogVoyanteVu.getRole()){
+                    case Chasseur:
+                        role = context.getString(R.string.chasseur);
+                        break;
+                    case Cupidon:
+                        role = context.getString(R.string.cupidon);
+                        break;
+                    case LoupGarou:
+                        role = context.getString(R.string.loup_garou);
+                        break;
+                    case Maitre:
+                        role = context.getString(R.string.maitre);
+                        break;
+                    case PetiteFille:
+                        role = context.getString(R.string.petite_fille);
+                        break;
+                    case Sorciere:
+                        role = context.getString(R.string.sorciere);
+                        break;
+                    case Villageois:
+                        role = context.getString(R.string.villageois);
+                        break;
+                    case Voleur:
+                        role = context.getString(R.string.voleur);
+                        break;
+                    case Voyante:
+                        role = context.getString(R.string.voyante);
+                        break;
+                    default:
+                        role = context.getString(R.string.villageois);
+                        break;
+                }
+
+                MainActivity.showLogs(joueurlogVoyanteVoit.getName() + " (" + context.getString(R.string.voyante) + ") " + context.getString(R.string.logVoyanteAVu) +" "+ joueurLogVoyanteVu.getName() + context.getString(R.string.logSeerSawRole) + role + ")");
                 break;
         }
     }
