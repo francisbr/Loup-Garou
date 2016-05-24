@@ -246,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements
                 loginPrefsEditor.commit();
             }
 
-
             fragmentManager = getFragmentManager();
 
             fragmentTransaction = fragmentManager.beginTransaction();
@@ -256,8 +255,6 @@ public class MainActivity extends AppCompatActivity implements
            // fragmentTransaction.setCustomAnimations(R.animator.anim, R.animator.anim2);
             fragmentTransaction.replace(android.R.id.content, fragmentStartGame);
             fragmentTransaction.commit();
-
-
 
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -273,8 +270,6 @@ public class MainActivity extends AppCompatActivity implements
                         .build();
             }
         }
-
-
     }
 
     public void btnJoin(View view) {
@@ -321,28 +316,37 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * se rend visible au alentour
+     * @param view
+     */
     public void startAdvertisingButton(View view) {
         Button btnAdvertise = (Button) findViewById(R.id.btnCreateGame);
         Button btnJoin = (Button) findViewById(R.id.btnJoin);
         listViewInGame = (ListView) findViewById(R.id.listViewInGame);
 
         if (btnAdvertise.getText().toString().equalsIgnoreCase(getString(R.string.create_game_btn))) {
-            btnAdvertise.setText(getString(R.string.stop_txt));
 
+            if (mGoogleApiClient.isConnected()) {
+                btnAdvertise.setText(getString(R.string.stop_txt));
 
-            adapterInGame.notifyDataSetChanged();
-            listViewInGame.setAdapter(adapterInGame);
+                adapterInGame.notifyDataSetChanged();
+                listViewInGame.setAdapter(adapterInGame);
 
+                mnuSettings.setVisible(true);
+                findViewById(R.id.layoutHost).setVisibility(View.VISIBLE);
+                findViewById(R.id.layoutJoin).setVisibility(View.GONE);
 
-            mnuSettings.setVisible(true);
-            findViewById(R.id.layoutHost).setVisibility(View.VISIBLE);
-            findViewById(R.id.layoutJoin).setVisibility(View.GONE);
+                btnJoin.setEnabled(false);
 
-            btnJoin.setEnabled(false);
-
-            hosting = true;
-
-            startAdvertising();
+                hosting = true;
+                startAdvertising();
+            } else {
+                Toast.makeText(this,"Wait for the device to connect",Toast.LENGTH_LONG).show();
+                if (!mGoogleApiClient.isConnecting()){
+                    mGoogleApiClient.connect();
+                }
+            }
 
         } else if (btnAdvertise.getText().toString().equalsIgnoreCase(getString(R.string.stop_txt))) {
             btnAdvertise.setText(getString(R.string.create_game_btn));
@@ -372,6 +376,11 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * test
+     * @param position
+     * @param message
+     */
     private void sendTest(int position, String message) {
         stateTag = "test" + splitSym;
         String msg = stateTag + message;
@@ -436,6 +445,10 @@ public class MainActivity extends AppCompatActivity implements
         return (info != null && info.isConnectedOrConnecting());
     }
 
+    /**
+     * Répond à une demande de connection
+     * @param position
+     */
     public void answerJoinRequest(final int position) {
         listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
         listViewInGame = (ListView) findViewById(R.id.listViewInGame);
@@ -534,6 +547,9 @@ public class MainActivity extends AppCompatActivity implements
                 }, this);
     }
 
+    /**
+     * Affiche les joueurs de ma partie
+     */
     private void showInMyGame() {
         //Efface les noms doubles
         for (int i = 0; i < listInGameName.size(); i++) {
@@ -552,11 +568,12 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * Envoie la liste des joueurs à tout le monde
+     */
     private void sendListPlayersInGame() {
         stateTag = "addPlayer" + splitSym;
-
-        String msg = stateTag + username;
-        Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
+        String msg;
 
         for (int j = 0; j < listInGameName.size(); j++) {
             msg = stateTag + listInGameName.get(j);
@@ -564,6 +581,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * retire une personne du lobby
+     * @param removedPlayerName le nom de la personne
+     */
     private void removePlayerFromLobby(String removedPlayerName) {
         stateTag = "removePlayerLobby" + splitSym;
         String msg = stateTag + removedPlayerName;
@@ -571,6 +592,12 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, connectedIDs, msg.getBytes());
     }
 
+    /**
+     * quand le device recoie un message
+     * @param endpointId l'id de l'émetteur
+     * @param payload les données du message
+     * @param isReliable si le message est reliable
+     */
     @Override
     public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
         String rawMsg = new String(payload);
@@ -631,66 +658,6 @@ public class MainActivity extends AppCompatActivity implements
             case "start":
                 showMasterFragment();
                 break;
-            case "setRole":/*
-                if (monRole == null)
-                    setRole(msg[1]);
-                break;*/
-            case "step":/*
-                if (monRole != Roles.Maitre) {
-
-                    if (msg[1].equals("voteDay")) {
-                        new AlertDialog.Builder(this)
-                                .setTitle(R.string.conseil)
-                                .setMessage(R.string.vote_jour_txt)
-                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                    }
-                                })
-                                .setCancelable(false)
-                                .show();
-                    }
-
-                    Game.playGame(msg[1], infoSup.get(0));
-                }*/
-                break;
-            case "listeUpdate":/*
-                if (infoSup.get(1).equals("clear")) {
-                    Game.playersAliveNames.clear();
-                    Game.playersAliveIDs.clear();
-                } else {
-                    Game.playersAliveNames.add(msg[1]);
-                    Game.playersAliveIDs.add(infoSup.get(0));
-                }*/
-                break;
-            case "listeLoup":
-                //Game.loupIDs.add(msg[1]);
-                break;
-            case "voteLoup":
-                //receivingVote("loup", msg[1], infoSup.get(0), infoSup.get(1));
-                break;
-            case "voteDay":
-                //receivingVote("village", msg[1], infoSup.get(0), infoSup.get(1));
-                break;
-            case "kill":/*
-                Game.deadLastNightID.add(msg[1]);
-                Game.deadLastNightName.add(msg[2]);
-
-                adapterDeadNames.notifyDataSetChanged();*/
-                break;
-            case "killVillage":/*
-                if (infoSup.get(1).equals("no one")) {
-                    Toast.makeText(MainActivity.this, R.string.no_executions, Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(MainActivity.this, infoSup.get(0) + getString(R.string.has_been_executed), Toast.LENGTH_SHORT).show();
-
-                Game.deadLastNightName.clear();
-                Game.deadLastNightID.clear();
-
-                adapterDeadNames.notifyDataSetChanged();
-                adapterAliveNames.notifyDataSetChanged();*/
-                break;
-
 
         }
 
@@ -711,12 +678,13 @@ public class MainActivity extends AppCompatActivity implements
             case "killed":
                 Toast.makeText(MainActivity.this, getString(R.string.successful_wolf_kill) + msg[1], Toast.LENGTH_LONG).show();
                 break;
-
         }
-
-
     }
 
+    /**
+     * Envoie une demande de connection
+     * @param position l'index de la partie
+     */
     public void sendJoinRequest(final int position) {
         listViewWish = (ListView) findViewById(R.id.listViewWantToJoin);
         listViewInGame = (ListView) findViewById(R.id.listViewInGame);
@@ -732,8 +700,6 @@ public class MainActivity extends AppCompatActivity implements
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
-
-
                         break;
                 }
             }
@@ -743,6 +709,13 @@ public class MainActivity extends AppCompatActivity implements
                 .setNegativeButton(R.string.no, dialogClickListener).show();
     }
 
+    /**
+     * Quand l'appareil recoie une demande de connection
+     * @param endpointId l'id du demandeur
+     * @param deviceId id local
+     * @param endpointName le nom du demandeur
+     * @param payload données de la demande
+     */
     @Override
     public void onConnectionRequest(final String endpointId, String deviceId, String endpointName,
                                     byte[] payload) {
@@ -789,6 +762,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * un appareil n'est plus trouvable
+     * @param endpointId
+     */
     @Override
     public void onEndpointLost(String endpointId) {
         listViewNearbyGames = (ListView) findViewById(R.id.listViewNearbyGames);
@@ -832,8 +809,6 @@ public class MainActivity extends AppCompatActivity implements
                         return possiblesHostersIds.get(i);
                     }
                 }
-
-
             case "name":
                 try {
                     for (int i = 0; i < connectedIDs.size(); i++) {
@@ -854,9 +829,12 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.makeText(MainActivity.this, "ERROR: Couldn't found requested info", Toast.LENGTH_SHORT).show();
                 return "erreur";
         }
-
     }
 
+    /**
+     * retoure notre id
+     * @return
+     */
     static public String getMyId() {
         return Nearby.Connections.getLocalDeviceId(mGoogleApiClient);
     }
@@ -890,12 +868,18 @@ public class MainActivity extends AppCompatActivity implements
                 });
     }
 
+    /**
+     * trouve un appareil proche
+     * @param endpointId
+     * @param deviceId
+     * @param serviceId
+     * @param endpointName
+     */
     @Override
     public void onEndpointFound(final String endpointId, String deviceId, String serviceId,
                                 final String endpointName) {
 
         listViewNearbyGames = (ListView) findViewById(R.id.listViewNearbyGames);
-
 
         listNearbyGamesName.add(endpointName);
 
@@ -911,6 +895,10 @@ public class MainActivity extends AppCompatActivity implements
 
     ArrayList<Joueur> disconnectedPlayers = new ArrayList();
 
+    /**
+     * when you loose connection from a connected device
+     * @param endpointId
+     */
     @Override
     public void onDisconnected(final String endpointId) {
 
@@ -952,6 +940,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * wait for a player to reconnect
+     * @param endpointId
+     */
     private void waitPlayer(String endpointId) {
         for (int i = 0; i < Game.allPlayers.size(); i++) {
             if (Game.allPlayers.get(i).getId().equals(endpointId)) {
@@ -974,6 +966,10 @@ public class MainActivity extends AppCompatActivity implements
         }.start();
     }
 
+    /**
+     * remove player from list and continue the game without him
+     * @param endpointId
+     */
     private void removeDisconnectedPlayer(String endpointId) {
         int pos = -1;
 
@@ -986,6 +982,9 @@ public class MainActivity extends AppCompatActivity implements
         Game.allPlayers.remove(pos);
     }
 
+    /**
+     * se souvient du nom rentré
+     */
     protected void rememberMyName() {
 
         loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
@@ -1051,6 +1050,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Défait le lobby
+     */
     private void dismantleLobby() {
         stateTag = "dismantleLobby" + splitSym;
         String msg = stateTag;
@@ -1063,6 +1065,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * commence la partie
+     * @param view
+     */
     public void startGame(View view) {
         int minPlayer = 1;
 
@@ -1075,7 +1081,6 @@ public class MainActivity extends AppCompatActivity implements
 
             myGame = new Game(connectedIDs, listInGameName, mGoogleApiClient, useCustom);
 
-
             Nearby.Connections.stopAdvertising(mGoogleApiClient);
             for (int i = 0; i < wishingToConnectIDs.size(); i++)
                 Nearby.Connections.rejectConnectionRequest(mGoogleApiClient, wishingToConnectIDs.get(i));
@@ -1085,10 +1090,12 @@ public class MainActivity extends AppCompatActivity implements
             connectedIDs.clear();
 
             mnuSettings.setVisible(false);
-            printLists();
         }
     }
 
+    /**
+     * montre lecran du maitre du jeu
+     */
     public void showMasterFragment() {
         fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -1099,6 +1106,10 @@ public class MainActivity extends AppCompatActivity implements
         fragmentManager.executePendingTransactions();
     }
 
+    /**
+     * Notifie les joueurs que c la nuit
+     * @param view
+     */
     public void setNuit(View view) {
 
         if (Game.getNbLoup() == 0) {
@@ -1127,6 +1138,10 @@ public class MainActivity extends AppCompatActivity implements
         Evenement.showNight();
     }
 
+    /**
+     * montre lecran du jour
+     * @param view
+     */
     public void goDay(View view) {
         FragmentDayCycle fragmentDayCycle = new FragmentDayCycle();
         MainActivity.fragmentTransaction = MainActivity.fragmentManager.beginTransaction();
@@ -1141,6 +1156,10 @@ public class MainActivity extends AppCompatActivity implements
         Game.me().setReady(true);
     }
 
+    /**
+     * Notifie les joueurs que c le jour
+     * @param view
+     */
     public void setDay(View view) {
         int nbPlayerAlive = 0;
         for (int i = 0; i < Game.allPlayers.size(); i++) {
@@ -1176,6 +1195,10 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logDayStart));
     }
 
+    /**
+     * notifie les loup
+     * @param view
+     */
     public void tourLoup(View view) {
         event.setType(Evenement.EventType.tourLoup);
         event.setAllPlayers(Game.allPlayers);
@@ -1189,6 +1212,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * notifie la voyante
+     * @param view
+     */
     public void tourVoyante(View view) {
         event.setType(Evenement.EventType.tourVoyante);
         event.setAllPlayers(Game.allPlayers);
@@ -1201,6 +1228,10 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logSeerTurn));
     }
 
+    /**
+     * notifie la sorciere
+     * @param view
+     */
     public void tourSorciere(View view) {
         event.setType(Evenement.EventType.tourSorciere);
         event.setAllPlayers(Game.allPlayers);
@@ -1213,6 +1244,10 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logWitchTurn));
     }
 
+    /**
+     * notifie le voleur
+     * @param view
+     */
     public void tourVoleur(View view) {
         event.setType(Evenement.EventType.tourVoleur);
         event.setAllPlayers(Game.allPlayers);
@@ -1225,6 +1260,10 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logThiefTurn));
     }
 
+    /**
+     * notifie cupidon
+     * @param view
+     */
     public void tourCupidon(View view) {
         event.setType(Evenement.EventType.tourCupidon);
         event.setAllPlayers(Game.allPlayers);
@@ -1237,6 +1276,11 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logCupidTurn));
     }
 
+    /**
+     * dit au meitre du jeu les 2 amoureux
+     * @param player1
+     * @param player2
+     */
     public static void send2lovers(Joueur player1, Joueur player2) {
 
         player1.setLover(player2);
@@ -1248,6 +1292,11 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
+    /**
+     * les action de la sorciere
+     * @param action la string qui defini laction
+     * @param position l'index du joueurs avec qui elle intéragit
+     */
     public static void actionSorciere(String action, int position) {
         event.setType(Evenement.EventType.upDate);
         switch (action) {
@@ -1269,6 +1318,10 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
+    /**
+     * envoie son vote de loup au game master
+     * @param player joueur voté
+     */
     public static void sendVoteLoup(Joueur player) {
 
         event.setType(Evenement.EventType.voteLoup);
@@ -1281,6 +1334,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * envoie son vote de chasseur au game master
+     * @param player joueur voté
+     */
     public static void sendVoteChasseur(Joueur player) {
         event.setType(Evenement.EventType.voteDuChasseur);
         event.setAllPlayers(Game.allPlayers);
@@ -1289,6 +1346,10 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
+    /**
+     * notifie les joueurs qu'ils doivent voter pour le joueur a mettre au bucher
+     * @param view
+     */
     public void startVoteVillage(View view) {
         event.setType(Evenement.EventType.startVoteVillage);
         event.setAllPlayers(Game.allPlayers);
@@ -1299,6 +1360,10 @@ public class MainActivity extends AppCompatActivity implements
         showLogs("" + getString(R.string.logVillageVoteStart));
     }
 
+    /**
+     * envoi son vote pour le bucher au hoster
+     * @param position
+     */
     public static void sendVoteDay(int position) {
         event.setType(Evenement.EventType.voteDay);
         event.setAllPlayers(Game.allPlayers);
@@ -1314,6 +1379,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * envoi son vote pour le capitaine au hoster
+     * @param position
+     */
     public static void sendVoteCapitain (int position){
         event.setType(Evenement.EventType.voteCapitain);
         event.setAllPlayers((Game.allPlayers));
@@ -1323,13 +1392,14 @@ public class MainActivity extends AppCompatActivity implements
                 event.setJoueurVote(Game.allPlayers.get(i));
             }
         }
-
-
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
-
-
     }
 
+    /**
+     * send les infos de qui la voyante a vu au host pour qu'il l'affiche dans ses logs
+     * @param playerVu
+     * @param playerVoit
+     */
     public static void sendLogVoyante(Joueur playerVu, Joueur playerVoit){
         event.setType(Evenement.EventType.logVoyante);
         event.setAllPlayers(Game.allPlayers);
@@ -1337,6 +1407,10 @@ public class MainActivity extends AppCompatActivity implements
         Nearby.Connections.sendReliableMessage(mGoogleApiClient, hosterId, serialize(event));
     }
 
+    /**
+     * vole le role d'un joueur (voleur part)
+     * @param player
+     */
     public static void voleRole(Joueur player) {
         event.setVoleurInitial(Game.me());
         event.setjoueurAVolerInitial(player);
@@ -1352,51 +1426,23 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * Game fini, retourne au debut
+     * @param view
+     */
     public void endGame(View view) {
 
         Game.allPlayers.clear();
         mGoogleApiClient.disconnect();
 
         clearAllLists();
-        printLists();
 
         recreate();
     }
 
-    public static void printLists() {
-        /*
-        Log.d("MainActivity", "printLists()------------------------" );
-        Log.d("Game.allPlayers", "" + Game.allPlayers.size());
-        for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Log.d("" + i, "" + Game.allPlayers.get(i));
-        }
-        Log.d("connectediDs", "" + connectedIDs.size());
-        for (int i = 0; i < connectedIDs.size(); i++) {
-            Log.d("" + i, "" + connectedIDs.get(i));
-        }
-        Log.d("wishingToConnectIDs", "" + wishingToConnectIDs.size());
-        for (int i = 0; i < wishingToConnectIDs.size(); i++) {
-            Log.d("" + i, "" + wishingToConnectIDs.get(i));
-        }
-        Log.d("listWishName", "" + listWishName.size());
-        for (int i = 0; i < listWishName.size(); i++) {
-            Log.d("" + i, "" + listWishName.get(i));
-        }
-        Log.d("listInGameName", "" + listInGameName.size());
-        for (int i = 0; i < listInGameName.size(); i++) {
-            Log.d("" + i, "" + listInGameName.get(i));
-        }
-        Log.d("listNearbyGamesName", "" + listNearbyGamesName.size());
-        for (int i = 0; i < listNearbyGamesName.size(); i++) {
-            Log.d("" + i, "" + listNearbyGamesName.get(i));
-        }
-        Log.d("possiblesHostersIds", "" + possiblesHostersIds.size());
-        for (int i = 0; i < possiblesHostersIds.size(); i++) {
-            Log.d("" + i, "" + possiblesHostersIds.get(i));
-        }
-         */
-    }
-
+    /**
+     * Efface toute les listes
+     */
     public static void clearAllLists() {
         connectedIDs.clear();
         wishingToConnectIDs.clear();
@@ -1405,9 +1451,13 @@ public class MainActivity extends AppCompatActivity implements
 
         listNearbyGamesName.clear();
         possiblesHostersIds.clear();
-
     }
 
+    /**
+     * encrypte un objet pour l'envoyer
+     * @param obj
+     * @return
+     */
     public static byte[] serialize(Object obj) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = null;
@@ -1424,6 +1474,11 @@ public class MainActivity extends AppCompatActivity implements
         return out.toByteArray();
     }
 
+    /**
+     * ouvre l'objet pour le comprendre
+     * @param data
+     * @return
+     */
     public static Object deserialize(byte[] data) {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = null;
@@ -1444,6 +1499,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * Affiche les évènements au maitre du jeu
+     * @param msg le message a afficher
+     */
     public static void showLogs(String msg) {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ");
@@ -1463,12 +1522,10 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    public void sendTest(View view) {
-        for (int i = 0; i < Game.allPlayers.size(); i++) {
-            Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), "Test".getBytes());
-        }
-    }
-
+    /**
+     * afficher lactivity settings pour modifier les parametre
+     * @param item
+     */
     public void showSettings(MenuItem item) {
         Intent intent = new Intent(this, ActivityGameSettings.class);
 
@@ -1507,6 +1564,12 @@ public class MainActivity extends AppCompatActivity implements
 
     boolean useCustom;
 
+    /**
+     * recoie les modification de settings, de l'activity settings
+     * @param requestCode
+     * @param resultCode
+     * @param data les données
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -1519,7 +1582,6 @@ public class MainActivity extends AppCompatActivity implements
                     Game.nbVoleur = data.getIntExtra("nbVoleur", -1);
                     Game.nbCupidon = data.getIntExtra("nbCupid", -1);
                     useCustom = true;
-                    //Toast.makeText(this, "" + nbLoup + " " + nbSorciere + " " + nbVoyante + " " + nbChasseur + " " + nbPetiteFille + " " + nbVoleur, Toast.LENGTH_LONG).show();
                 } else {
                     useCustom = false;
                 }
@@ -1527,15 +1589,15 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * notifie les joueurs qu"ils doivent voté pour le capitaine
+     * @param view
+     */
     public void startVoteCapitain(View view){
         event.setType(Evenement.EventType.startVoteCapitain);
         event.setAllPlayers(Game.allPlayers);
 
         for (int i = 0; i < Game.allPlayers.size(); i++)
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, Game.allPlayers.get(i).getId(), serialize(event));
-
-
     }
-
 }
-

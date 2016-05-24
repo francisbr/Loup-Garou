@@ -79,7 +79,6 @@ public class Evenement implements Serializable {
                         .show();
 
                 MainActivity.clearAllLists();
-                MainActivity.printLists();
                 break;
             case showDay:
                 if (Game.enVieEtShow(true)) {
@@ -573,8 +572,6 @@ public class Evenement implements Serializable {
                         }
                     }
 
-
-
                     if (!memeNombreDeVotes) {
                         String capitainID = alreadyChecked2.get(posMax);
                         for (int i = 0; i < Game.allPlayers.size(); i++) {
@@ -748,5 +745,3 @@ public class Evenement implements Serializable {
         this.joueurlogVoyanteVoit = joueurlogVoyanteVoit;
     }
 }
-
-

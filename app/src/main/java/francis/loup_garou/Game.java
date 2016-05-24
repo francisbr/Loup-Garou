@@ -37,11 +37,9 @@ public class Game {
      * static public ArrayList<String> playersAliveIDs = new ArrayList();
      * static public ArrayList<String> playersAliveNames = new ArrayList();
      **/
-
     public static ArrayList<String> listAliveNames = new ArrayList();
     public static ArrayList<String> listDeadNames = new ArrayList();
     public static ArrayList<String> listDeadLastNightNames = new ArrayList();
-
 
     /**
      * New Object Oriented Code
@@ -49,7 +47,13 @@ public class Game {
     static public ArrayList<Joueur> allPlayers = new ArrayList();
     static public ArrayList<Joueur> tempRoleList = new ArrayList();
 
-
+    /**
+     * start a new game
+     * @param connectedIDs
+     * @param listInGameName
+     * @param mGoogleApiClient
+     * @param customRoles
+     */
     public Game(ArrayList<String> connectedIDs, ArrayList<String> listInGameName, GoogleApiClient mGoogleApiClient, boolean customRoles) {
         allPlayers.clear();
         tempRoleList.clear();
@@ -72,10 +76,11 @@ public class Game {
         for (int i = 0; i < allPlayers.size(); i++) {
             Nearby.Connections.sendReliableMessage(mGoogleApiClient, allPlayers.get(i).getId(), MainActivity.serialize(MainActivity.event));
         }
-
     }
 
-
+    /**
+     * choisi le role de chaque personne
+     */
     private void setRolesToPlayers() {
         ArrayList<Joueur> tempList = (ArrayList<Joueur>) allPlayers.clone();
 
@@ -107,14 +112,18 @@ public class Game {
         }
     }
 
-
+    /**
+     * Sélectionne un nombre de joueur
+     * @param nb le nb de joueur a choisir
+     * @param role le role a attribuer
+     * @param tempList
+     */
     public void choosePlayer(int nb, Roles role, ArrayList<Joueur> tempList) {
         Random rand = new Random();
         int randomNum;
 
 
         for (int i = 0; i < nb; i++) {
-            //          rand.nextInt((max - min) + 1) + min;
             randomNum = rand.nextInt(tempList.size());
             String choosenPLayerId = tempList.get(randomNum).getId(), choosenPLayerName = tempList.get(randomNum).getName();
 
@@ -136,10 +145,12 @@ public class Game {
 
             tempList.remove(randomNum);
         }
-
-
     }
 
+    /**
+     * set le nombre de chaque role
+     * @param nbPlayers
+     */
     public static void setNbRoles(int nbPlayers) {
         nbLoup = 0; nbVoleur = 0; nbPetiteFille = 0; nbChasseur = 0; nbVoyante = 0; nbSorciere = 0;
 
@@ -260,16 +271,18 @@ public class Game {
     public static int getNbLoup() {
         int nb = 0;
 
-
         for (int i = 0; i < allPlayers.size(); i++) {
             if (allPlayers.get(i) instanceof LoupGarou && allPlayers.get(i).isEnVie()) {
                 nb++;
             }
         }
-
         return nb;
     }
 
+    /**
+     * retourne le joueur représentent le device
+     * @return
+     */
     public static Joueur me() {
         Joueur player = null;
 
@@ -282,6 +295,9 @@ public class Game {
         return player;
     }
 
+    /**
+     * met a jours les listes
+     */
     public static void uptdateListsNames() {
         listAliveNames.clear();
         listDeadNames.clear();
@@ -303,6 +319,11 @@ public class Game {
         MainActivity.adapterDeadNames.notifyDataSetChanged();
     }
 
+    /**
+     * si en vie, si mort decide de montrer l'ecran ou pas
+     * @param show
+     * @return
+     */
     public static boolean enVieEtShow(boolean show) {
         FragmentDead fragmentDead = new FragmentDead();
         if (!me().isEnVie()) {
@@ -321,5 +342,4 @@ public class Game {
             return true;
         }
     }
-
 }
